@@ -1,0 +1,149 @@
+import React, { useState } from 'react';
+import { QRCodeSVG } from 'qrcode.react';
+import { X, Zap, CheckCircle2, Copy, Check } from 'lucide-react';
+import { createInvoice, checkPayment, LightningInvoice } from '../services/lightningService';
+import { supabase } from '../services/supabaseClient';
+
+interface PremiumModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  userId: string;
+}
+
+export const PremiumModal: React.FC<PremiumModalProps> = ({ isOpen, onClose, userId }) => {
+  const [invoiceData, setInvoiceData] = useState<LightningInvoice | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [paid, setPaid] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
+
+  if (!isOpen) return null;
+
+  const handleGenerateInvoice = async () => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      // 1. Generar la factura en BTCPay Server
+      const invoice = await createInvoice(15, `Suscripción Premium User: ${userId}`);
+      setInvoiceData(invoice);
+      setLoading(false);
+
+      // 2. Iniciar polling para detectar cuando se liquide el pago
+      const intervalId = setInterval(async () => {
+        try {
+          const status = await checkPayment(invoice.chargeId);
+          if (status.paid) {
+            clearInterval(intervalId);
+            setPaid(true);
+
+            // Guardar suscripción activa en Supabase
+            if (userId) {
+              const expiresAt = new Date();
+              expiresAt.setMonth(expiresAt.getMonth() + 1);
+
+              await supabase.from('user_subscriptions').upsert({
+                user_id: userId,
+                status: 'active',
+                current_period_end: expiresAt.toISOString(),
+                updated_at: new Date().toISOString(),
+              });
+            }
+          }
+        } catch (err) {
+          console.warn('Error en polling de pago:', err);
+        }
+      }, 3000);
+
+    } catch (err: any) {
+      console.error('Error al generar la factura:', err);
+      setError(err.message || 'Error al conectar con la pasarela BTCPay');
+      setLoading(false);
+    }
+  };
+
+  const handleCopy = () => {
+    if (invoiceData?.paymentRequest) {
+      navigator.clipboard.writeText(invoiceData.paymentRequest);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+      <div className="bg-white rounded-2xl max-w-md w-full p-6 relative shadow-2xl">
+        <button 
+          onClick={onClose}
+          className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
+        >
+          <X size={20} />
+        </button>
+
+        <div className="text-center mb-6">
+          <div className="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-3">
+            <Zap className="text-amber-500" size={24} />
+          </div>
+          <h2 className="text-2xl font-bold text-gray-900">Suscripción Premium</h2>
+          <p className="text-sm text-gray-500 mt-1">Paga instantáneamente con Bitcoin Lightning</p>
+        </div>
+
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-700 text-xs p-3 rounded-xl mb-4 text-center">
+            {error}
+          </div>
+        )}
+
+        {!invoiceData ? (
+          <div className="space-y-4">
+            <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-amber-800 text-sm">
+              Obtén acceso ilimitado a todas las funciones por solo 15 sats.
+            </div>
+            <button
+              onClick={handleGenerateInvoice}
+              disabled={loading}
+              className="w-full bg-amber-500 hover:bg-amber-600 text-white font-semibold py-3 rounded-xl transition-colors flex items-center justify-center gap-2"
+            >
+              {loading ? 'Generando factura...' : 'Pagar con Lightning'}
+            </button>
+          </div>
+        ) : (
+          <div className="flex flex-col items-center space-y-4">
+            {paid ? (
+              <div className="text-center py-6">
+                <CheckCircle2 className="text-emerald-500 w-16 h-16 mx-auto mb-2" />
+                <h3 className="text-xl font-bold text-gray-800">¡Pago Confirmado!</h3>
+                <p className="text-sm text-gray-500 mb-4">Ya eres usuario Premium.</p>
+                <button
+                  onClick={() => {
+                    onClose();
+                    window.location.reload();
+                  }}
+                  className="bg-emerald-600 text-white font-semibold px-6 py-2 rounded-xl text-sm"
+                >
+                  Continuar
+                </button>
+              </div>
+            ) : (
+              <>
+                <div className="bg-white p-4 border-2 border-amber-200 rounded-xl shadow-inner">
+                  <QRCodeSVG value={invoiceData.paymentRequest} size={200} level="M" />
+                </div>
+                <p className="text-xs text-gray-500 text-center">
+                  Escanea este código QR con <strong>Wallet of Satoshi</strong> para pagar los 15 sats.
+                </p>
+                <button
+                  onClick={handleCopy}
+                  className="text-xs text-amber-600 hover:underline font-medium flex items-center gap-1"
+                >
+                  {copied ? <Check size={14} /> : <Copy size={14} />}
+                  {copied ? '¡Copiado!' : 'Copiar texto de la factura'}
+                </button>
+              </>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};

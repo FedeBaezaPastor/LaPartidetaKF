@@ -1,0 +1,757 @@
+import React, { useState, useEffect } from 'react';
+import { ArrowLeft, Users, Trophy, TrendingUp, ChevronDown, ChevronUp, UserX, History, Edit2, Save, X, User } from 'lucide-react';
+import { golfService } from '../services/golfService';
+import { Player } from '../types';
+import { EditPlayerNameModal } from './EditPlayerNameModal';
+import { AdminPinModal } from './AdminPinModal';
+import { adminPinUtils } from '../utils/adminPin';
+
+interface DailyStanding {
+  playerId: string;
+  playerName: string;
+  playingHandicap: number;
+  totalPoints: number;
+  roundId: string;
+  noPasoRojasHoles?: number[];
+}
+
+interface DailyRanking {
+  date: string;
+  standings: DailyStanding[];
+}
+
+interface GamePointsProps {
+  onBack: () => void;
+}
+
+export function GamePoints({ onBack }: GamePointsProps) {
+  const [players, setPlayers] = useState<Player[]>([]);
+  const [dailyRankings, setDailyRankings] = useState<DailyRanking[]>([]);
+  const [handicapHistory, setHandicapHistory] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [showPlayers, setShowPlayers] = useState(false);
+  const [showHandicapHistory, setShowHandicapHistory] = useState(false);
+  const [playerToDelete, setPlayerToDelete] = useState<{ playerId: string; playerName: string } | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [editingPlayerId, setEditingPlayerId] = useState<string | null>(null);
+  const [editHandicap, setEditHandicap] = useState<string>('');
+  const [editError, setEditError] = useState<string>('');
+  const [editingPlayerName, setEditingPlayerName] = useState<Player | null>(null);
+  const [showEditNameModal, setShowEditNameModal] = useState(false);
+  const [showPinModal, setShowPinModal] = useState(false);
+  const [pinError, setPinError] = useState<string>('');
+  const [pendingAction, setPendingAction] = useState<{
+    type: 'editName' | 'editHandicap' | 'deletePlayer';
+    player: Player;
+  } | null>(null);
+
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const loadData = async () => {
+    try {
+      setLoading(true);
+      const [playersData, rankingsData, historyData] = await Promise.all([
+        golfService.getAllPlayers(),
+        golfService.getDailyRankings(),
+        golfService.getHandicapHistory(),
+      ]);
+      setPlayers(playersData);
+      setDailyRankings(rankingsData);
+      setHandicapHistory(historyData);
+    } catch (error) {
+      console.error('Error loading game points:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeletePlayerClick = (player: Player) => {
+    setPendingAction({ type: 'deletePlayer', player });
+    setShowPinModal(true);
+    setPinError('');
+  };
+
+  const handleConfirmDeletePlayer = async () => {
+    if (!confirmDelete || !playerToDelete) return;
+
+    try {
+      await golfService.deletePlayer(playerToDelete.playerId);
+      await loadData();
+      setPlayerToDelete(null);
+      setConfirmDelete(false);
+    } catch (error) {
+      console.error('Error eliminando jugador:', error);
+    }
+  };
+
+  const handleCancelDeletePlayer = () => {
+    setPlayerToDelete(null);
+    setConfirmDelete(false);
+  };
+
+  const handleEditHandicapClick = (player: Player) => {
+    setPendingAction({ type: 'editHandicap', player });
+    setShowPinModal(true);
+    setPinError('');
+  };
+
+  const handleCancelEditHandicap = () => {
+    setEditingPlayerId(null);
+    setEditHandicap('');
+    setEditError('');
+  };
+
+  const handleSaveHandicap = async (playerId: string) => {
+    try {
+      const newHandicap = parseFloat(editHandicap);
+
+      if (isNaN(newHandicap)) {
+        setEditError('El handicap debe ser un número válido');
+        return;
+      }
+
+      if (newHandicap < 0) {
+        setEditError('El handicap no puede ser negativo');
+        return;
+      }
+
+      if (newHandicap > 54) {
+        setEditError('El handicap máximo es 54');
+        return;
+      }
+
+      await golfService.updatePlayerHandicap(playerId, newHandicap);
+      await loadData();
+      handleCancelEditHandicap();
+    } catch (error) {
+      console.error('Error actualizando handicap:', error);
+      setEditError('Error al actualizar el handicap');
+    }
+  };
+
+  const handleEditNameClick = (player: Player) => {
+    setPendingAction({ type: 'editName', player });
+    setShowPinModal(true);
+    setPinError('');
+  };
+
+  const handleEditNameConfirm = async (newName: string) => {
+    if (!editingPlayerName) return;
+
+    try {
+      await golfService.updatePlayerName(editingPlayerName.id, newName);
+      await loadData();
+      setShowEditNameModal(false);
+      setEditingPlayerName(null);
+    } catch (error) {
+      console.error('Error actualizando nombre:', error);
+    }
+  };
+
+  const handleEditNameCancel = () => {
+    setShowEditNameModal(false);
+    setEditingPlayerName(null);
+  };
+
+  const handlePinSubmit = (pin: string) => {
+    if (!adminPinUtils.verifyPin(pin)) {
+      setPinError('Código incorrecto');
+      return;
+    }
+
+    setShowPinModal(false);
+    setPinError('');
+
+    if (!pendingAction) return;
+
+    if (pendingAction.type === 'editName') {
+      setEditingPlayerName(pendingAction.player);
+      setShowEditNameModal(true);
+    } else if (pendingAction.type === 'editHandicap') {
+      setEditingPlayerId(pendingAction.player.id);
+      setEditHandicap(pendingAction.player.exact_handicap_18.toFixed(1));
+      setEditError('');
+    } else if (pendingAction.type === 'deletePlayer') {
+      setPlayerToDelete({ playerId: pendingAction.player.id, playerName: pendingAction.player.name });
+      setConfirmDelete(false);
+    }
+
+    setPendingAction(null);
+  };
+
+  const handlePinCancel = () => {
+    setShowPinModal(false);
+    setPinError('');
+    setPendingAction(null);
+  };
+
+  const getColorClass = (index: number, totalPlayers: number): string => {
+    if (totalPlayers === 0) return 'bg-white';
+
+    const isOdd = totalPlayers % 2 === 1;
+
+    if (isOdd) {
+      const middleIndex = Math.floor(totalPlayers / 2);
+      if (index < middleIndex) {
+        return 'bg-blue-100 border-blue-300';
+      } else if (index === middleIndex) {
+        return 'bg-yellow-100 border-yellow-300';
+      } else {
+        return 'bg-red-100 border-red-300';
+      }
+    } else {
+      const middleIndex = totalPlayers / 2;
+      if (index < middleIndex) {
+        return 'bg-blue-100 border-blue-300';
+      } else {
+        return 'bg-red-100 border-red-300';
+      }
+    }
+  };
+
+  const sortStandings = (standings: DailyStanding[]): DailyStanding[] => {
+    return [...standings].sort((a, b) => {
+      if (b.totalPoints !== a.totalPoints) {
+        return b.totalPoints - a.totalPoints;
+      }
+      return a.playingHandicap - b.playingHandicap;
+    });
+  };
+
+  const formatDate = (dateString: string): string => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('es-ES', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+  };
+
+  const calculateNewHandicap = (
+    index: number,
+    totalPlayers: number,
+    currentHandicap: number
+  ): number => {
+    const isOdd = totalPlayers % 2 === 1;
+
+    if (isOdd) {
+      const middleIndex = Math.floor(totalPlayers / 2);
+      if (index < middleIndex) {
+        return currentHandicap > 0 ? currentHandicap - 1 : currentHandicap;
+      } else if (index === middleIndex) {
+        return currentHandicap;
+      } else {
+        return currentHandicap < 12 ? currentHandicap + 1 : currentHandicap;
+      }
+    } else {
+      const middleIndex = totalPlayers / 2;
+      if (index < middleIndex) {
+        return currentHandicap > 0 ? currentHandicap - 1 : currentHandicap;
+      } else {
+        return currentHandicap < 12 ? currentHandicap + 1 : currentHandicap;
+      }
+    }
+  };
+
+  const getHandicapAdjustments = () => {
+    if (dailyRankings.length === 0) return [];
+
+    const latestRanking = dailyRankings[0];
+    const sortedStandings = sortStandings(latestRanking.standings);
+
+    return sortedStandings.map((standing, index) => {
+      const currentHandicap = standing.playingHandicap;
+      const newHandicap = calculateNewHandicap(
+        index,
+        sortedStandings.length,
+        currentHandicap
+      );
+      const colorClass = getColorClass(index, sortedStandings.length);
+
+      return {
+        playerName: standing.playerName,
+        currentHandicap,
+        newHandicap,
+        adjustment: newHandicap - currentHandicap,
+        colorClass,
+      };
+    });
+  };
+
+  const handicapAdjustments = getHandicapAdjustments();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-emerald-900 to-emerald-800 p-4 md:p-8 flex items-center justify-center">
+        <div className="text-white text-xl">Cargando...</div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-emerald-900 to-emerald-800 p-4 md:p-8">
+      <div className="max-w-4xl mx-auto">
+        <div className="bg-white rounded-lg shadow-2xl p-6 md:p-8">
+          <div className="flex items-center mb-6">
+            <button
+              onClick={onBack}
+              className="flex items-center text-emerald-700 hover:text-emerald-900 transition-colors"
+            >
+              <ArrowLeft className="w-6 h-6 mr-2" />
+              Volver
+            </button>
+          </div>
+
+          <h1 className="text-3xl md:text-4xl font-bold text-emerald-900 mb-8 text-center">
+            Puntos de Juego
+          </h1>
+
+          <div className="space-y-8">
+            <div>
+              <div className="flex items-center mb-4">
+                <Trophy className="w-6 h-6 mr-2 text-emerald-700" />
+                <h2 className="text-2xl font-semibold text-emerald-900">
+                  Clasificaciones por Día
+                </h2>
+              </div>
+
+              {dailyRankings.length > 0 && (
+                <div className="mb-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                  <div className="flex flex-wrap items-center justify-center gap-4 text-sm text-gray-700">
+                    <div className="flex items-center gap-2">
+                      <div className="w-5 h-5 bg-blue-100 border-2 border-blue-300 rounded"></div>
+                      <span>Recibe cerveza</span>
+                    </div>
+                    <span className="text-gray-400">|</span>
+                    <div className="flex items-center gap-2">
+                      <div className="w-5 h-5 bg-yellow-100 border-2 border-yellow-300 rounded"></div>
+                      <span>Ni paga ni recibe</span>
+                    </div>
+                    <span className="text-gray-400">|</span>
+                    <div className="flex items-center gap-2">
+                      <div className="w-5 h-5 bg-red-100 border-2 border-red-300 rounded"></div>
+                      <span>Paga cerveza</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {dailyRankings.length === 0 ? (
+                <p className="text-gray-600 text-center py-4">
+                  No hay partidas completadas
+                </p>
+              ) : (
+                <div className="space-y-6">
+                  {dailyRankings.map((ranking, rankingIndex) => {
+                    const sortedStandings = sortStandings(ranking.standings);
+                    return (
+                      <div
+                        key={rankingIndex}
+                        className="bg-gray-50 rounded-lg p-5 border border-gray-200"
+                      >
+                        <h3 className="text-xl font-semibold text-emerald-900 mb-4 capitalize">
+                          {formatDate(ranking.date)}
+                        </h3>
+                        <div className="space-y-2">
+                          {sortedStandings.map((standing, index) => {
+                            const colorClass = getColorClass(
+                              index,
+                              sortedStandings.length
+                            );
+                            return (
+                              <div
+                                key={standing.playerId}
+                                className={`${colorClass} border-2 rounded-lg p-4 flex justify-between items-center`}
+                              >
+                                <div className="flex items-center gap-3">
+                                  <span className="font-bold text-lg text-gray-700 w-8">
+                                    {index + 1}º
+                                  </span>
+                                  <span className="font-medium text-gray-900">
+                                    {standing.playerName}
+                                  </span>
+                                  <span className="text-sm text-gray-600">
+                                    (HCP juego: {standing.playingHandicap})
+                                  </span>
+                                  {standing.noPasoRojasHoles && standing.noPasoRojasHoles.length > 0 && (
+                                    <div className="flex items-center gap-1">
+                                      {standing.noPasoRojasHoles.map((holeNumber) => (
+                                        <span
+                                          key={holeNumber}
+                                          className="bg-red-500 text-white text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center"
+                                        >
+                                          {holeNumber}
+                                        </span>
+                                      ))}
+                                    </div>
+                                  )}
+                                </div>
+                                <span className="text-xl font-bold text-emerald-900">
+                                  {standing.totalPoints} pts
+                                </span>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            {handicapAdjustments.length > 0 && (
+              <div>
+                <div className="flex items-center mb-4">
+                  <TrendingUp className="w-6 h-6 mr-2 text-emerald-700" />
+                  <h2 className="text-2xl font-semibold text-emerald-900">
+                    Nuevo Handicap
+                  </h2>
+                </div>
+                <div className="bg-gray-50 rounded-lg p-5 border border-gray-200">
+                  <p className="text-sm text-gray-600 mb-4">
+                    Basado en la última clasificación:
+                  </p>
+                  <div className="space-y-2">
+                    {handicapAdjustments.map((adjustment) => (
+                      <div
+                        key={adjustment.playerName}
+                        className={`${adjustment.colorClass} border-2 rounded-lg p-4 flex justify-between items-center`}
+                      >
+                        <span className="font-medium text-gray-900">
+                          {adjustment.playerName}
+                        </span>
+                        <div className="flex items-center gap-4">
+                          <span className="text-gray-700">
+                            HCP actual: {adjustment.currentHandicap}
+                          </span>
+                          <span className="text-gray-400">→</span>
+                          <span className="font-bold text-emerald-900">
+                            Nuevo HCP: {adjustment.newHandicap}
+                          </span>
+                          {adjustment.adjustment !== 0 && (
+                            <span
+                              className={`text-sm font-semibold ${
+                                adjustment.adjustment > 0
+                                  ? 'text-red-600'
+                                  : 'text-blue-600'
+                              }`}
+                            >
+                              ({adjustment.adjustment > 0 ? '+' : ''}
+                              {adjustment.adjustment})
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {handicapHistory.length > 0 && (
+              <div>
+                <button
+                  onClick={() => setShowHandicapHistory(!showHandicapHistory)}
+                  className="flex items-center justify-between w-full mb-4 p-4 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors"
+                >
+                  <div className="flex items-center">
+                    <History className="w-6 h-6 mr-2 text-blue-700" />
+                    <h2 className="text-2xl font-semibold text-blue-900">
+                      Histórico de Handicaps
+                    </h2>
+                  </div>
+                  {showHandicapHistory ? (
+                    <ChevronUp className="w-6 h-6 text-blue-700" />
+                  ) : (
+                    <ChevronDown className="w-6 h-6 text-blue-700" />
+                  )}
+                </button>
+                {showHandicapHistory && (
+                  <div className="bg-gray-50 rounded-lg border border-gray-200 overflow-hidden">
+                    <div className="overflow-x-auto">
+                      <table className="w-full min-w-[700px]">
+                        <thead>
+                          <tr className="border-b-2 border-gray-300">
+                            <th className="text-left py-3 pl-5 pr-4 font-semibold text-gray-700 sticky left-0 bg-gray-50 z-20 border-r-2 border-gray-300 min-w-[120px] w-[120px]" style={{ boxShadow: '2px 0 4px rgba(0,0,0,0.1)' }}>
+                              Fecha
+                            </th>
+                            {handicapHistory.length > 0 &&
+                              handicapHistory[0].playerNames.map((playerName: string) => (
+                                <th
+                                  key={playerName}
+                                  className="text-center p-3 font-semibold text-gray-700 min-w-[140px]"
+                                >
+                                  {playerName}
+                                </th>
+                              ))}
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {handicapHistory.map((entry, index) => (
+                            <tr
+                              key={entry.date}
+                              className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}
+                            >
+                              <td className={`py-3 pl-5 pr-4 font-medium text-gray-800 sticky left-0 z-20 border-r border-gray-200 min-w-[120px] w-[120px] ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`} style={{ boxShadow: '2px 0 4px rgba(0,0,0,0.1)' }}>
+                              {new Date(entry.date).toLocaleDateString('es-ES', {
+                                day: '2-digit',
+                                month: '2-digit',
+                                year: '2-digit',
+                              })}
+                            </td>
+                            {entry.playerNames.map((playerName: string) => {
+                              const handicapData = entry.handicaps[playerName];
+
+                              if (!handicapData) {
+                                return (
+                                  <td key={playerName} className="text-center p-3">
+                                    <span className="text-gray-400">-</span>
+                                  </td>
+                                );
+                              }
+
+                              const playingHandicap = handicapData.playingHandicap;
+                              const newHandicap = handicapData.newHandicap;
+                              const change = newHandicap - playingHandicap;
+
+                              return (
+                                <td
+                                  key={playerName}
+                                  className="text-center p-3"
+                                >
+                                  <div className="flex flex-col items-center gap-1">
+                                    <div className="flex items-center gap-1">
+                                      <span className="text-xs text-gray-500">HCP Juego:</span>
+                                      <span className="text-sm font-medium text-gray-700">
+                                        {playingHandicap.toFixed(1)}
+                                      </span>
+                                    </div>
+                                    {change !== 0 ? (
+                                      <div className="flex items-center gap-1">
+                                        <span
+                                          className={`text-sm font-bold ${
+                                            change > 0
+                                              ? 'text-red-600'
+                                              : 'text-green-600'
+                                          }`}
+                                        >
+                                          {change > 0 ? '+' : ''}
+                                          {change.toFixed(1)}
+                                        </span>
+                                      </div>
+                                    ) : (
+                                      <div className="text-sm text-gray-500">
+                                        Sin cambio
+                                      </div>
+                                    )}
+                                    <div className="flex items-center gap-1">
+                                      <span className="text-xs text-gray-500">Nuevo HCP:</span>
+                                      <span className="text-sm font-bold text-blue-700">
+                                        {newHandicap.toFixed(1)}
+                                      </span>
+                                    </div>
+                                  </div>
+                                </td>
+                              );
+                            })}
+                          </tr>
+                        ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            <div>
+              <button
+                onClick={() => setShowPlayers(!showPlayers)}
+                className="flex items-center justify-between w-full mb-4 p-4 bg-emerald-50 hover:bg-emerald-100 rounded-lg transition-colors"
+              >
+                <div className="flex items-center">
+                  <Users className="w-6 h-6 mr-2 text-emerald-700" />
+                  <h2 className="text-2xl font-semibold text-emerald-900">
+                    Jugadores Registrados
+                  </h2>
+                  <span className="ml-3 text-sm text-emerald-700 font-medium">
+                    ({players.length})
+                  </span>
+                </div>
+                {showPlayers ? (
+                  <ChevronUp className="w-6 h-6 text-emerald-700" />
+                ) : (
+                  <ChevronDown className="w-6 h-6 text-emerald-700" />
+                )}
+              </button>
+              {showPlayers && (
+                <div className="overflow-x-hidden pr-1">
+                  {players.length === 0 ? (
+                    <p className="text-gray-600 text-center py-4">
+                      No hay jugadores registrados
+                    </p>
+                  ) : (
+                    <div className="grid gap-3">
+                      {[...players].sort((a, b) => a.exact_handicap_18 - b.exact_handicap_18).map((player, index) => (
+                        <div
+                          key={player.id}
+                          className="bg-emerald-50 border border-emerald-200 rounded-lg p-3"
+                        >
+                          <div className="flex items-start gap-2">
+                            <span className="font-bold text-lg text-emerald-700 w-7 flex-shrink-0 mt-0.5">
+                              {index + 1}
+                            </span>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center justify-between gap-1 mb-2">
+                                <div className="flex items-center gap-1 flex-1 min-w-0">
+                                  <div className="font-medium text-emerald-900 truncate">
+                                    {player.name}
+                                  </div>
+                                  <button
+                                    onClick={() => handleEditNameClick(player)}
+                                    className="text-purple-600 hover:bg-purple-50 p-1.5 rounded-lg transition-colors flex-shrink-0"
+                                    title="Editar nombre"
+                                  >
+                                    <User size={16} />
+                                  </button>
+                                </div>
+                                <button
+                                  onClick={() => handleDeletePlayerClick(player)}
+                                  className="text-red-500 hover:bg-red-50 p-1.5 rounded-lg transition-colors flex-shrink-0"
+                                  title="Eliminar jugador"
+                                >
+                                  <UserX size={18} />
+                                </button>
+                              </div>
+                              {editingPlayerId === player.id ? (
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <div className="flex items-center gap-1">
+                                    <span className="text-xs text-emerald-700">HCP:</span>
+                                    <input
+                                      type="number"
+                                      step="0.1"
+                                      value={editHandicap}
+                                      onChange={(e) => setEditHandicap(e.target.value)}
+                                      className="w-16 px-2 py-1 text-sm border border-emerald-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                                      autoFocus
+                                    />
+                                  </div>
+                                  <button
+                                    onClick={() => handleSaveHandicap(player.id)}
+                                    className="text-green-600 hover:bg-green-50 p-1.5 rounded-lg transition-colors"
+                                    title="Guardar"
+                                  >
+                                    <Save size={16} />
+                                  </button>
+                                  <button
+                                    onClick={handleCancelEditHandicap}
+                                    className="text-gray-500 hover:bg-gray-50 p-1.5 rounded-lg transition-colors"
+                                    title="Cancelar"
+                                  >
+                                    <X size={16} />
+                                  </button>
+                                </div>
+                              ) : (
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <span className="text-emerald-700 font-semibold text-sm whitespace-nowrap">
+                                    HCP: {player.exact_handicap_18.toFixed(1)}
+                                  </span>
+                                  <button
+                                    onClick={() => handleEditHandicapClick(player)}
+                                    className="text-blue-600 hover:bg-blue-50 p-1.5 rounded-lg transition-colors"
+                                    title="Editar handicap"
+                                  >
+                                    <Edit2 size={16} />
+                                  </button>
+                                </div>
+                              )}
+                              {editingPlayerId === player.id && editError && (
+                                <div className="mt-2 text-sm text-red-600">
+                                  {editError}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {playerToDelete && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg shadow-2xl max-w-md w-full p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="bg-red-100 p-3 rounded-full">
+                <UserX className="text-red-600" size={24} />
+              </div>
+              <h2 className="text-xl font-bold text-gray-900">
+                Eliminar Jugador
+              </h2>
+            </div>
+
+            <p className="text-gray-700 mb-4">
+              ¿Estás seguro de que quieres eliminar a <strong>{playerToDelete.playerName}</strong> del registro de jugadores?
+            </p>
+
+            <div className="bg-amber-50 border-l-4 border-amber-500 p-4 rounded mb-6">
+              <p className="text-amber-800 text-sm font-semibold mb-2">
+                Esta acción no se puede deshacer
+              </p>
+              <label className="flex items-center gap-2 text-sm text-amber-900">
+                <input
+                  type="checkbox"
+                  checked={confirmDelete}
+                  onChange={(e) => setConfirmDelete(e.target.checked)}
+                  className="w-4 h-4"
+                />
+                <span>Confirmo que quiero eliminar este jugador permanentemente</span>
+              </label>
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={handleCancelDeletePlayer}
+                className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-3 rounded-lg transition-colors"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleConfirmDeletePlayer}
+                disabled={!confirmDelete}
+                className="flex-1 bg-red-600 hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-lg transition-colors"
+              >
+                Eliminar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showEditNameModal && editingPlayerName && (
+        <EditPlayerNameModal
+          currentName={editingPlayerName.name}
+          onConfirm={handleEditNameConfirm}
+          onCancel={handleEditNameCancel}
+        />
+      )}
+
+      {showPinModal && (
+        <AdminPinModal
+          onSubmit={handlePinSubmit}
+          onCancel={handlePinCancel}
+          error={pinError}
+        />
+      )}
+    </div>
+  );
+}
