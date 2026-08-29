@@ -45,8 +45,8 @@ export default function GroupSetup({ onGroupCreated, onGroupJoined, onQuickPlay,
   const [wantsAccount, setWantsAccount] = useState(false);
   const [showComingSoonModal, setShowComingSoonModal] = useState(false);
   const [showCreateGroupModal, setShowCreateGroupModal] = useState(false);
-  // 2. Añade un estado para controlar el modal
   const [showShareModal, setShowShareModal] = useState(false);
+  const [showUserMenu, setShowUserMenu] = useState(false);
 
   useEffect(() => {
     if (mode === 'create') {
@@ -194,16 +194,53 @@ export default function GroupSetup({ onGroupCreated, onGroupJoined, onQuickPlay,
           <div className="flex items-center justify-between mb-6 min-h-10">
             <div></div>
             {authUser ? (
-              <div className="flex items-center gap-2">
-                <p className="text-sm text-gray-600 font-medium">{authUser.email}</p>
+              <div className="relative">
+                {/* Avatar Button */}
                 <button
-                  onClick={onLogout}
-                  className="flex items-center gap-2 text-red-600 hover:text-red-700 hover:bg-red-50 px-3 py-2 rounded-lg transition-colors text-sm font-medium"
-                  title="Cerrar sesión"
+                  onClick={() => setShowUserMenu(!showUserMenu)}
+                  className="flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 text-white font-bold hover:shadow-lg transition-shadow cursor-pointer"
+                  title={authUser.email}
                 >
-                  <LogOut size={18} />
-                  Salir
+                  {authUser.email?.charAt(0).toUpperCase() || 'U'}
                 </button>
+
+                {/* Dropdown Menu */}
+                {showUserMenu && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl border border-gray-200 z-50">
+                    {/* Email Header */}
+                    <div className="px-4 py-3 border-b border-gray-100">
+                      <p className="text-xs text-gray-500 font-medium">CUENTA</p>
+                      <p className="text-sm text-gray-900 font-medium truncate">{authUser.email}</p>
+                    </div>
+
+                    {/* Menu Items */}
+                    <button
+                      onClick={() => {
+                        setShowUserMenu(false);
+                        // TODO: Implementar "Mis Datos"
+                      }}
+                      className="w-full px-4 py-3 text-left text-sm text-gray-700 hover:bg-gray-50 transition-colors flex items-center gap-2"
+                    >
+                      <UserCheck size={16} />
+                      Mis Datos
+                    </button>
+
+                    {/* Separator */}
+                    <div className="border-t border-gray-100"></div>
+
+                    {/* Logout */}
+                    <button
+                      onClick={() => {
+                        setShowUserMenu(false);
+                        onLogout();
+                      }}
+                      className="w-full px-4 py-3 text-left text-sm text-red-600 hover:bg-red-50 transition-colors flex items-center gap-2 font-medium"
+                    >
+                      <LogOut size={16} />
+                      Salir
+                    </button>
+                  </div>
+                )}
               </div>
             ) : (
               <button
