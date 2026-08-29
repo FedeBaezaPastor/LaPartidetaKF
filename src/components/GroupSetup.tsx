@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 //import { Users, LogIn, Plus, Zap, User, Flag, UserCheck, RefreshCw, Mail, Lock, Eye, EyeOff, AlertCircle } from 'lucide-react';
 // 1. Añade Share2 al import de lucide-react
-import { Users, LogIn, Plus, Zap, User, Flag, UserCheck, RefreshCw, Mail, Lock, Eye, EyeOff, AlertCircle, Share2 } from 'lucide-react';
+import { Users, LogIn, Plus, Zap, User, Flag, UserCheck, RefreshCw, Mail, Lock, Eye, EyeOff, AlertCircle, Share2, LogOut } from 'lucide-react';
 import { Group } from '../types';
 import { supabase } from '../services/supabaseClient';
 import ComingSoonModal from './ComingSoonModal';
@@ -15,6 +15,8 @@ interface GroupSetupProps {
   onJoinQuickPlay: () => void;
   onShowAuth?: () => void;
   onJoinRound?: (roundId: string) => void;
+  authUser?: any;
+  onLogout?: () => void;
 }
 
 const generateRandomCode = () => {
@@ -26,7 +28,7 @@ const generateRandomCode = () => {
   return code;
 };
 
-export default function GroupSetup({ onGroupCreated, onGroupJoined, onQuickPlay, onJoinQuickPlay, onShowAuth, onJoinRound }: GroupSetupProps) {
+export default function GroupSetup({ onGroupCreated, onGroupJoined, onQuickPlay, onJoinQuickPlay, onShowAuth, onJoinRound, authUser, onLogout }: GroupSetupProps) {
   const [mode, setMode] = useState<'choose' | 'create' | 'join'>('choose');
   const [groupName, setGroupName] = useState('');
   const [autoCode, setAutoCode] = useState(generateRandomCode());
@@ -188,6 +190,33 @@ export default function GroupSetup({ onGroupCreated, onGroupJoined, onQuickPlay,
     return (
       <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 p-4 flex items-center justify-center">
         <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8">
+          {/* Header con login/logout button */}
+          <div className="flex items-center justify-between mb-6 min-h-10">
+            <div></div>
+            {authUser ? (
+              <div className="flex items-center gap-2">
+                <p className="text-sm text-gray-600 font-medium">{authUser.email}</p>
+                <button
+                  onClick={onLogout}
+                  className="flex items-center gap-2 text-red-600 hover:text-red-700 hover:bg-red-50 px-3 py-2 rounded-lg transition-colors text-sm font-medium"
+                  title="Cerrar sesión"
+                >
+                  <LogOut size={18} />
+                  Salir
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={onShowAuth}
+                className="flex items-center gap-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50 px-4 py-2 rounded-lg transition-colors text-sm font-medium border border-blue-600"
+                title="Inicia sesión"
+              >
+                <UserCheck size={18} />
+                Entrar
+              </button>
+            )}
+          </div>
+
           <div className="text-center mb-8">
             <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
               <Flag className="w-8 h-8 text-green-600" />
@@ -229,36 +258,13 @@ export default function GroupSetup({ onGroupCreated, onGroupJoined, onQuickPlay,
               Unirse a Multipartideta
             </button>
 
-            {onShowAuth && (
-              <>
-                <div className="relative py-2">
-                  <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-gray-300"></div>
-                  </div>
-                  <div className="relative flex justify-center text-sm">
-                    <span className="px-4 bg-white text-gray-500">o</span>
-                  </div>
-                </div>
-                <button
-                  //onClick={() => setShowComingSoonModal(true)}  <-- Muestra el modal Próximamente
-                  onClick={onShowAuth}
-                  className="w-full flex items-center justify-center gap-3 bg-blue-600 text-white px-6 py-4 rounded-xl hover:bg-blue-700 transition-colors font-semibold text-lg shadow-lg"
-                >
-                  <UserCheck className="w-6 h-6" />
-                  Iniciar Sesión / Crear Cuenta
-                </button>
-                <p className="text-xs text-gray-500 text-center">
-                  Guarda tus grupos y accede desde cualquier dispositivo
-                </p>
-                <button
-                  onClick={() => setShowShareModal(true)}
-                  className="w-full flex items-center justify-center gap-3 bg-slate-800 text-white px-6 py-3 rounded-xl hover:bg-slate-900 transition-colors font-semibold shadow"
-                >
-                  <Share2 className="w-5 h-5" />
-                  Compartir App / Código QR
-                </button>
-              </>
-            )}
+            <button
+              onClick={() => setShowShareModal(true)}
+              className="w-full flex items-center justify-center gap-3 bg-slate-800 text-white px-6 py-3 rounded-xl hover:bg-slate-900 transition-colors font-semibold shadow"
+            >
+              <Share2 className="w-5 h-5" />
+              Compartir App / Código QR
+            </button>
           </div>
           {showComingSoonModal && (
             <ComingSoonModal onClose={() => setShowComingSoonModal(false)} />
