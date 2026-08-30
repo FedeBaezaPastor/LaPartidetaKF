@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Mail, Lock, User, ArrowLeft, AlertCircle, Eye, EyeOff } from 'lucide-react';
 import { supabase } from '../services/supabaseClient';
+import { UserTier } from '../types';
 
 interface AuthProps {
   onAuthSuccess: () => void;
@@ -20,6 +21,8 @@ export default function Auth({ onAuthSuccess, onAdminLoginAttempt, onBack }: Aut
   const [message, setMessage] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [selectedTier, setSelectedTier] = useState<UserTier>('Express');
+  const tierOptions: UserTier[] = ['Express', 'Player', 'Team'];
 
   useEffect(() => {
     const { data: authListener } = supabase.auth.onAuthStateChange((event) => {
@@ -47,13 +50,30 @@ export default function Auth({ onAuthSuccess, onAdminLoginAttempt, onBack }: Aut
       if (error) throw error;
 
       if (data.user) {
-        if (email === import.meta.env.VITE_ADMIN_EMAIL && onAdminLoginAttempt) {
-          onAdminLoginAttempt();
-        } else {
-          const { golfService } = await import('../services/golfService');
-          await golfService.linkGroupsToAuthUser();
-          onAuthSuccess();
+        const normalizedEmail = email.trim().toLowerCase();
+        let adminEmail = (import.meta.env.VITE_ADMIN_EMAIL || '').trim().toLowerCase();
+
+        try {
+          const { data: adminConfig } = await supabase
+            .from('admin_config')
+            .select('admin_email')
+            .maybeSingle();
+
+          if (adminConfig?.admin_email) {
+            adminEmail = String(adminConfig.admin_email).trim().toLowerCase();
+          }
+        } catch {
+          // Si no existe configuración o falla la lectura, dejamos el fallback del entorno.
         }
+
+        if (adminEmail && normalizedEmail === adminEmail && onAdminLoginAttempt) {
+          onAdminLoginAttempt();
+          return;
+        }
+
+        const { golfService } = await import('../services/golfService');
+        await golfService.linkGroupsToAuthUser();
+        onAuthSuccess();
       }
     } catch (err: any) {
       setError(err.message || 'Error al iniciar sesión');
@@ -84,6 +104,10 @@ export default function Auth({ onAuthSuccess, onAdminLoginAttempt, onBack }: Aut
         password,
         options: {
           emailRedirectTo: window.location.origin,
+          data: {
+            user_tier: selectedTier,
+            tier: selectedTier,
+          },
         },
       });
 
@@ -347,6 +371,32 @@ export default function Auth({ onAuthSuccess, onAdminLoginAttempt, onBack }: Aut
                 >
                   {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                 </button>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-3">
+                Tipo de usuario
+              </label>
+              <div className="grid grid-cols-3 gap-2">
+                {tierOptions.map((tier) => {
+                  const isSelected = selectedTier === tier;
+
+                  return (
+                    <button
+                      key={tier}
+                      type="button"
+                      onClick={() => setSelectedTier(tier)}
+                      className={`px-3 py-2 rounded-xl border text-sm font-medium transition-colors ${
+                        isSelected
+                          ? 'border-green-600 bg-green-50 text-green-700'
+                          : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300'
+                      }`}
+                    >
+                      {tier}
+                    </button>
+                  );
+                })}
               </div>
             </div>
 

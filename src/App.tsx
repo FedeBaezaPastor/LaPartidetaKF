@@ -21,9 +21,10 @@ import GroupSetup from './components/GroupSetup';
 import Auth from './components/Auth';
 import MyGroups from './components/MyGroups';
 import AdminDashboard from './components/AdminDashboard';
+import ProfileScreen from './components/ProfileScreen';
 import { PremiumModal } from './components/PremiumModal';
 
-type ViewType = 'main' | 'setup' | 'players' | 'scorecard' | 'leaderboard' | 'active-rounds' | 'viewer' | 'game-points' | 'statistics' | 'quickplay-statistics' | 'auth' | 'my-groups' | 'admin-dashboard';
+type ViewType = 'main' | 'setup' | 'players' | 'scorecard' | 'leaderboard' | 'active-rounds' | 'viewer' | 'game-points' | 'statistics' | 'quickplay-statistics' | 'auth' | 'my-groups' | 'admin-dashboard' | 'profile';
 
 interface RoundState {
   round: GolfRound | null;
@@ -38,6 +39,7 @@ interface RoundState {
 
 function App() {
   const [isIncognito, setIsIncognito] = useState(false);
+  const [authUser, setAuthUser] = useState<any>(null);
   const [currentGroup, setCurrentGroup] = useState<Group | null>(null);
   const [isGroupCreator, setIsGroupCreator] = useState(false);
   const [hasLimitedAccess, setHasLimitedAccess] = useState(false);
@@ -81,6 +83,20 @@ function App() {
   }, []);
 
   useEffect(() => {
+    const handleOpenProfileScreen = () => {
+      if (authUser) {
+        setCurrentView('profile');
+      }
+    };
+
+    window.addEventListener('open-profile-screen', handleOpenProfileScreen);
+
+    return () => {
+      window.removeEventListener('open-profile-screen', handleOpenProfileScreen);
+    };
+  }, [authUser]);
+
+  useEffect(() => {
     const checkAuth = async () => {
       try {
         console.log('🔐 Checking auth...');
@@ -93,14 +109,20 @@ function App() {
 
         if (!user) {
           console.log('No user authenticated');
+          setAuthUser(null);
         } else {
           console.log('✅ User authenticated:', user.email);
+          setAuthUser(user);
         }
 
-        const { data: authListener } = supabase.auth.onAuthStateChange((event) => {
+        const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
           console.log('🔄 Auth state change:', event);
           if (event === 'PASSWORD_RECOVERY') {
             setCurrentView('auth');
+          } else if (event === 'SIGNED_IN') {
+            setAuthUser(session?.user || null);
+          } else if (event === 'SIGNED_OUT') {
+            setAuthUser(null);
           }
         });
 
@@ -820,6 +842,27 @@ const handleFinishRound = async () => {
     );
   }
 
+  if (currentView === 'profile') {
+    return (
+      <>
+        <IncognitoWarning />
+        <div className={isIncognito ? 'pt-10' : ''}>
+          <ProfileScreen
+            authUser={authUser}
+            onBack={() => setCurrentView('main')}
+            onUserUpdated={(user) => setAuthUser(user)}
+            onLogout={async () => {
+              const { supabase } = await import('./services/supabaseClient');
+              await supabase.auth.signOut();
+              setAuthUser(null);
+              setCurrentView('main');
+            }}
+          />
+        </div>
+      </>
+    );
+  }
+
   if (!currentGroup && currentView === 'main') {
     return (
       <>
@@ -836,6 +879,12 @@ const handleFinishRound = async () => {
             }}
             onShowAuth={() => setCurrentView('auth')}
             onJoinRound={handleJoinRound}
+            authUser={authUser}
+            onLogout={async () => {
+              const { supabase } = await import('./services/supabaseClient');
+              await supabase.auth.signOut();
+              setAuthUser(null);
+            }}
           />
           {showAccessCodeModal && (
             <AccessCodeModal

@@ -3,14 +3,17 @@ import { QRCodeSVG } from 'qrcode.react';
 import { X, Zap, CheckCircle2, Copy, Check } from 'lucide-react';
 import { createInvoice, checkPayment, LightningInvoice } from '../services/lightningService';
 import { supabase } from '../services/supabaseClient';
+import { UserTier } from '../types';
 
 interface PremiumModalProps {
   isOpen: boolean;
   onClose: () => void;
   userId: string;
+  targetTier?: UserTier;
+  onSuccess?: (tier?: UserTier) => void;
 }
 
-export const PremiumModal: React.FC<PremiumModalProps> = ({ isOpen, onClose, userId }) => {
+export const PremiumModal: React.FC<PremiumModalProps> = ({ isOpen, onClose, userId, targetTier, onSuccess }) => {
   const [invoiceData, setInvoiceData] = useState<LightningInvoice | null>(null);
   const [loading, setLoading] = useState(false);
   const [paid, setPaid] = useState(false);
@@ -24,12 +27,14 @@ export const PremiumModal: React.FC<PremiumModalProps> = ({ isOpen, onClose, use
     setError(null);
 
     try {
-      // 1. Generar la factura en BTCPay Server
-      const invoice = await createInvoice(15, `Suscripción Premium User: ${userId}`);
+      const invoiceMemo = targetTier
+        ? `Actualización de tier: ${targetTier} - Usuario ${userId}`
+        : `Suscripción Premium User: ${userId}`;
+
+      const invoice = await createInvoice(15, invoiceMemo);
       setInvoiceData(invoice);
       setLoading(false);
 
-      // 2. Iniciar polling para detectar cuando se liquide el pago
       const intervalId = setInterval(async () => {
         try {
           const status = await checkPayment(invoice.chargeId);
@@ -37,7 +42,6 @@ export const PremiumModal: React.FC<PremiumModalProps> = ({ isOpen, onClose, use
             clearInterval(intervalId);
             setPaid(true);
 
-            // Guardar suscripción activa en Supabase
             if (userId) {
               const expiresAt = new Date();
               expiresAt.setMonth(expiresAt.getMonth() + 1);
@@ -48,6 +52,17 @@ export const PremiumModal: React.FC<PremiumModalProps> = ({ isOpen, onClose, use
                 current_period_end: expiresAt.toISOString(),
                 updated_at: new Date().toISOString(),
               });
+
+              if (targetTier) {
+                await supabase.auth.updateUser({
+                  data: {
+                    user_tier: targetTier,
+                    tier: targetTier,
+                  },
+                });
+              }
+
+              onSuccess?.(targetTier);
             }
           }
         } catch (err) {
@@ -84,7 +99,9 @@ export const PremiumModal: React.FC<PremiumModalProps> = ({ isOpen, onClose, use
           <div className="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-3">
             <Zap className="text-amber-500" size={24} />
           </div>
-          <h2 className="text-2xl font-bold text-gray-900">Suscripción Premium</h2>
+          <h2 className="text-2xl font-bold text-gray-900">
+            {targetTier ? `Actualizar a ${targetTier}` : 'Suscripción Premium'}
+          </h2>
           <p className="text-sm text-gray-500 mt-1">Paga instantáneamente con Bitcoin Lightning</p>
         </div>
 
@@ -97,7 +114,9 @@ export const PremiumModal: React.FC<PremiumModalProps> = ({ isOpen, onClose, use
         {!invoiceData ? (
           <div className="space-y-4">
             <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-amber-800 text-sm">
-              Obtén acceso ilimitado a todas las funciones por solo 15 sats.
+              {targetTier
+                ? `Actualiza tu perfil a ${targetTier} con un pago único de 15 sats.`
+                : 'Obtén acceso ilimitado a todas las funciones por solo 15 sats.'}
             </div>
             <button
               onClick={handleGenerateInvoice}

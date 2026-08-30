@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 //import { Users, LogIn, Plus, Zap, User, Flag, UserCheck, RefreshCw, Mail, Lock, Eye, EyeOff, AlertCircle } from 'lucide-react';
 // 1. Añade Share2 al import de lucide-react
 import { Users, LogIn, Plus, Zap, User, Flag, UserCheck, RefreshCw, Mail, Lock, Eye, EyeOff, AlertCircle, Share2, LogOut } from 'lucide-react';
-import { Group } from '../types';
+import { Group, UserTier } from '../types';
 import { supabase } from '../services/supabaseClient';
 import ComingSoonModal from './ComingSoonModal';
 import CreateGroupComingSoonModal from './CreateGroupComingSoonModal';
@@ -47,6 +47,8 @@ export default function GroupSetup({ onGroupCreated, onGroupJoined, onQuickPlay,
   const [showCreateGroupModal, setShowCreateGroupModal] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [showProfileDetails, setShowProfileDetails] = useState(false);
+  const userTier = ((authUser?.user_metadata?.user_tier || authUser?.user_metadata?.tier || 'Express') as UserTier) || 'Express';
 
   useEffect(() => {
     if (mode === 'create') {
@@ -217,13 +219,26 @@ export default function GroupSetup({ onGroupCreated, onGroupJoined, onQuickPlay,
                     <button
                       onClick={() => {
                         setShowUserMenu(false);
-                        // TODO: Implementar "Mis Datos"
+                        if (typeof window !== 'undefined') {
+                          const event = new CustomEvent('open-profile-screen');
+                          window.dispatchEvent(event);
+                        }
                       }}
                       className="w-full px-4 py-3 text-left text-sm text-gray-700 hover:bg-gray-50 transition-colors flex items-center gap-2"
                     >
                       <UserCheck size={16} />
                       Mis Datos
                     </button>
+
+                    {showProfileDetails && (
+                      <div className="border-t border-gray-100 bg-gray-50 px-4 py-3">
+                        <p className="text-[10px] font-semibold uppercase tracking-wide text-gray-500">Perfil</p>
+                        <p className="mt-1 text-sm text-gray-900 font-medium truncate">{authUser.email}</p>
+                        <div className="mt-2 inline-flex items-center rounded-full bg-green-100 px-2.5 py-1 text-xs font-semibold text-green-700">
+                          Tier: {userTier}
+                        </div>
+                      </div>
+                    )}
 
                     {/* Separator */}
                     <div className="border-t border-gray-100"></div>

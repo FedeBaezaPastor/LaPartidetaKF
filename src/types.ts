@@ -72,6 +72,7 @@ export interface RoundScore {
 }
 
 export type GameMode = 'stableford' | 'match' | 'sindicato' | 'parejas';
+export type UserTier = 'Express' | 'Player' | 'Team';
 
 export interface GolfRound {
   id: string;
