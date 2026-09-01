@@ -358,23 +358,15 @@ export const Scorecard: React.FC<ScorecardProps> = ({
 
                     const totalGrossStrokes = playableHoles.reduce((sum, h) => {
                       const score = round?.scores[h.hole_number];
-                      if (score?.abandoned || !score?.gross_strokes) return sum;
+                      if (!score?.gross_strokes) return sum;
                       return sum + score.gross_strokes;
                     }, 0);
 
                     const totalNetStrokes = playableHoles.reduce((sum, h) => {
                       const score = round?.scores[h.hole_number];
-                      if (score?.abandoned || !score?.gross_strokes) return sum;
+                      if (!score?.gross_strokes) return sum;
 
-                      const allStrokeIndexes = holes.map(hole => hole.stroke_index);
-                      const strokesReceived = getStrokesReceived(
-                        player.playing_handicap,
-                        h.stroke_index,
-                        numHoles,
-                        allStrokeIndexes
-                      );
-
-                      return sum + (score.gross_strokes - strokesReceived);
+                      return sum + (score.gross_strokes - (score.strokes_received || 0));
                     }, 0);
 
                     return (
@@ -407,16 +399,13 @@ export const Scorecard: React.FC<ScorecardProps> = ({
                               }`}
                             >
                               <div className="flex flex-col items-center justify-center gap-1">
-                                {score && score.abandoned ? (
-                                  <div className="w-7 h-7 flex items-center justify-center">
-                                    <span className="text-gray-800 text-2xl font-black leading-none">-</span>
-                                  </div>
-                                ) : score ? (
+                                {score ? (
                                   <div className="w-7 h-7 flex items-center justify-center">
                                     <ScoreSymbol
                                       grossStrokes={score.gross_strokes}
                                       par={h.par}
                                       strokesReceived={strokesReceived}
+                                      abandoned={score.abandoned}
                                     />
                                   </div>
                                 ) : (
@@ -425,7 +414,7 @@ export const Scorecard: React.FC<ScorecardProps> = ({
                                   </div>
                                 )}
                                 <div className="flex gap-0.5 h-1 min-h-[4px]">
-                                  {!score?.abandoned && strokesReceived > 0 && Array.from({ length: strokesReceived }).map((_, idx) => (
+                                  {strokesReceived > 0 && Array.from({ length: strokesReceived }).map((_, idx) => (
                                     <div
                                       key={idx}
                                       className="w-1 h-1 rounded-full bg-blue-500"
@@ -510,16 +499,6 @@ export const Scorecard: React.FC<ScorecardProps> = ({
                             </td>
                           );
                         }
-                        if (gameMode === 'sindicato' && players.length === 3) {
-                          const max = Math.max(...holeScores as number[]);
-                          const winnerIdx = (holeScores as number[]).indexOf(max);
-                          const label = players[winnerIdx].name.slice(0, 3).toUpperCase();
-                          return (
-                            <td key={h.hole_number} className="text-center p-1">
-                              <span className="text-[10px] font-bold px-1 py-0.5 rounded bg-emerald-200 text-emerald-900">{label}</span>
-                            </td>
-                          );
-                        }
                         return (
                           <td key={h.hole_number} className="text-center p-2">
                             <span className="text-gray-400 text-xs">·</span>
@@ -589,7 +568,7 @@ export const Scorecard: React.FC<ScorecardProps> = ({
               </div>
             </div>
 
-            <h3 className="font-semibold text-gray-700 mb-3 mt-6">Resumen de Puntos</h3>
+            <h3 className="font-semibold text-gray-700 mb-3 mt-6">Resumen de Puntos Stableford</h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
               {players.map((player) => {
                 const round = roundsMap.get(player.id);
@@ -598,7 +577,7 @@ export const Scorecard: React.FC<ScorecardProps> = ({
 
                 const totalGrossStrokes = playableHoles.reduce((sum, h) => {
                   const score = round?.scores[h.hole_number];
-                  if (score?.abandoned || !score?.gross_strokes) return sum;
+                  if (!score?.gross_strokes) return sum;
                   return sum + (score?.gross_strokes || 0);
                 }, 0);
 
@@ -740,7 +719,6 @@ export const Scorecard: React.FC<ScorecardProps> = ({
           gameMode={gameMode}
           onClose={() => setHandshakeData(null)}
           onFinishRound={onFinishRound}
-          onShowLeaderboard={onShowLeaderboard} // <--- AÑADIR ESTA LÍNEA
         />
       )}
     </div>

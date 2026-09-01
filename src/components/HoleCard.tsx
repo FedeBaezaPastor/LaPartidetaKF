@@ -226,7 +226,7 @@ export const HoleCard: React.FC<HoleCardProps> = ({
     return 'bg-blue-100 border-blue-500';
   };*/
 const getScoreColor = (points: number, isAbandoned?: boolean): string => {
-  if (isAbandoned) return 'bg-gray-100 border-black text-black';               // Raya / Abandonado (Guión)
+  if (isAbandoned) return 'bg-black border-black text-white';                  // Raya / Abandonado (Fondo Negro)
   if (points === 0) return 'bg-black border-black text-white';                 // Doble bogey+ / 0 pts (Fondo Negro, Texto Blanco)
   if (points === 1) return 'bg-blue-100 border-blue-500 text-blue-900';        // Bogey
   if (points === 2) return 'bg-white border-gray-400 text-gray-800';          // Par
@@ -305,24 +305,32 @@ const getScoreColor = (points: number, isAbandoned?: boolean): string => {
                 {FBP-Fin*/}
                 {score ? (
                   (() => {
-                    // Es raya si está marcado como abandonado o no se registraron golpes brutos
-                    const isRaya = score.abandoned || score.gross_strokes === 0;
+                    // Es raya si está marcado como abandonado
+                    const isRaya = score.abandoned === true;
                     const isParejas = gameMode === 'parejas';
                 
                     const displayPoints = isModeScoring ? (score.mode_points ?? 0) : score.stableford_points;
-                    const modeText = isParejas
-                      ? (score.abandoned ? '-' : `${score.gross_strokes}`)
+                    const modeText = isRaya
+                      ? `${score.gross_strokes}` // Mostrar el gross_strokes (PAR + 2) cuando es raya
+                      : isParejas
+                      ? `${score.gross_strokes}`
                       : isModeScoring
-                      ? (score.abandoned ? '-' : `${displayPoints} pts`)
+                      ? `${displayPoints} pts`
                       : getPointsText(score.stableford_points, isRaya);
                     return (
                       <div
-                        className={`px-4 py-2 rounded-lg border-2 font-bold text-lg flex items-center justify-center min-w-[75px] ${getScoreColor(
+                        className={`px-4 py-2 rounded-lg border-2 font-bold text-lg flex items-center justify-center min-w-[75px] relative ${getScoreColor(
                           isParejas ? score.stableford_points : (isModeScoring ? displayPoints : score.stableford_points),
                           isRaya
                         )}`}
                       >
                         {modeText}
+                        {isRaya && (
+                          <div 
+                            className="absolute w-full h-0.5 bg-white/90 opacity-90"
+                            style={{ width: '60px', transform: 'rotate(45deg)' }}
+                          />
+                        )}
                       </div>
                     );
                   })()
@@ -407,28 +415,31 @@ const getScoreColor = (points: number, isAbandoned?: boolean): string => {
                           type="button"
                           onClick={() => {
                             const isQuickPlay = groupCode === null;
+                            const rayaScore = hole.par + strokesReceived + 2; // Par + golpes recibidos + 2
+                            
                             if (isQuickPlay) {
                               const newScore = {
-                                gross_strokes: 0,
-                                strokes_received: 0,
-                                net_strokes: 0,
-                                stableford_points: 0,
+                                grossStrokes: rayaScore,
+                                strokesReceived: strokesReceived,
+                                netStrokes: rayaScore - strokesReceived,
+                                stablefordPoints: 0,
                                 no_paso_rojas: false,
                                 abandoned: true,
                                 mode_points: 0,
                               };
                               onScoreChange(player.id, newScore);
                             } else {
-                              const maxStrokes = hole.par + strokesReceived + 3;
-                              const newScore = calculateScore(maxStrokes, player.playing_handicap, {
+                              const newScore = calculateScore(rayaScore, player.playing_handicap, {
                                 par: hole.par,
                                 strokeIndex: hole.stroke_index,
                               }, numHoles, allHoles);
                               if (pendingNoPasoRojas[player.id]) {
                                 newScore.no_paso_rojas = true;
                               }
-                              newScore.mode_points = computeModePointsForPlayer(player.id, maxStrokes, newScore.strokesReceived, false);
-                              onScoreChange(player.id, { ...newScore, stableford_points: 0, abandoned: false });
+                              newScore.abandoned = true;
+                              newScore.stablefordPoints = 0;
+                              newScore.mode_points = computeModePointsForPlayer(player.id, rayaScore, newScore.strokesReceived, true);
+                              onScoreChange(player.id, newScore);
                             }
                             setExpandedPlayerId(null);
                             setFirstDigit(null);
@@ -439,7 +450,7 @@ const getScoreColor = (points: number, isAbandoned?: boolean): string => {
                               return newState;
                             });
                           }}
-                          className="h-11 bg-gray-600 hover:bg-gray-700 text-white rounded-lg font-bold transition-colors shadow-sm active:scale-95 flex items-center justify-center"
+                          className="h-11 bg-black hover:bg-gray-800 text-white rounded-lg font-bold transition-colors shadow-sm active:scale-95 flex items-center justify-center"
                         >
                           <Minus size={20} />
                         </button>

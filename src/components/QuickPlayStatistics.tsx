@@ -19,6 +19,7 @@ interface PlayerHighlights {
   totalPoints: number;
   totalGrossStrokes: number;
   scoreToPar: { value: number; display: string };
+  eagles: number;
   birdies: number;
   pares: number;
   bogeys: number;
@@ -111,15 +112,25 @@ export const QuickPlayStatistics: React.FC<QuickPlayStatisticsProps> = ({ onBack
     }
   };
 
+  const getEffectiveGrossStrokes = (score: any, hole: any) => {
+    if (!score) return 0;
+    if (typeof score.gross_strokes === 'number' && score.gross_strokes > 0) {
+      return score.gross_strokes;
+    }
+    if (score.abandoned && hole) {
+      return hole.par + (score.strokes_received || 0) + 2;
+    }
+    return 0;
+  };
+
   const calculatePlayerHighlights = (players: any[], scores: any[], holes: any[]): PlayerHighlights[] => {
     const coursePar = holes.reduce((sum, h) => sum + h.par, 0);
     const numHoles = holes.length;
 
     return players.map(player => {
-      const playerScores = scores.filter(s => s.player_id === player.id && !s.abandoned);
-      const hasAbandonedScores = scores.some(s => s.player_id === player.id && s.abandoned);
+      const playerScores = scores.filter(s => s.player_id === player.id);
 
-      let birdies = 0, pares = 0, bogeys = 0, doubleBogeyPlus = 0;
+      let eagles = 0, birdies = 0, pares = 0, bogeys = 0, doubleBogeyPlus = 0;
       let bestHole = { holeNumber: 0, points: -999 };
       let worstHole = { holeNumber: 0, points: 999 };
       let totalPoints = 0;
@@ -127,11 +138,16 @@ export const QuickPlayStatistics: React.FC<QuickPlayStatisticsProps> = ({ onBack
 
       playerScores.forEach(score => {
         const hole = holes.find(h => h.hole_number === score.hole_number);
+        totalGrossStrokes += getEffectiveGrossStrokes(score, hole);
+
+        if (score.abandoned) {
+          doubleBogeyPlus++;
+          return;
+        }
         const diff = score.net_strokes - (hole?.par || 0);
         const points = score.stableford_points || 0;
 
         totalPoints += points;
-        totalGrossStrokes += score.gross_strokes;
 
         if (points > bestHole.points) {
           bestHole = { holeNumber: score.hole_number, points };
@@ -140,14 +156,14 @@ export const QuickPlayStatistics: React.FC<QuickPlayStatisticsProps> = ({ onBack
           worstHole = { holeNumber: score.hole_number, points };
         }
 
-        if (diff <= -2) birdies++;
+        if (diff <= -2) eagles++;
         else if (diff === -1) birdies++;
         else if (diff === 0) pares++;
         else if (diff === 1) bogeys++;
         else if (diff >= 2) doubleBogeyPlus++;
       });
 
-      const scoreToPar = hasAbandonedScores || totalGrossStrokes === 0
+      const scoreToPar = totalGrossStrokes === 0
         ? { value: 0, display: '-' }
         : calculateScoreToPar(
             totalGrossStrokes,
@@ -162,6 +178,7 @@ export const QuickPlayStatistics: React.FC<QuickPlayStatisticsProps> = ({ onBack
         totalPoints,
         totalGrossStrokes,
         scoreToPar,
+        eagles,
         birdies,
         pares,
         bogeys,
@@ -312,6 +329,7 @@ export const QuickPlayStatistics: React.FC<QuickPlayStatisticsProps> = ({ onBack
   const rollerCoaster = highlights.reduce((max, h) => h.variability > max.variability ? h : max, highlights[0]);
   const bogeyKing = highlights.reduce((max, h) => h.bogeys > max.bogeys ? h : max, highlights[0]);
   const doubleBogeyKing = highlights.reduce((max, h) => h.doubleBogeyPlus > max.doubleBogeyPlus ? h : max, highlights[0]);
+  const getPlayerGrossStrokes = (playerId: string) => highlights.find((h) => h.playerId === playerId)?.totalGrossStrokes ?? 0;
 
   const bestIndividualHole = highlights.reduce((max, h) =>
     h.bestHole.points > max.bestHole.points ? h : max, highlights[0]
@@ -386,7 +404,7 @@ export const QuickPlayStatistics: React.FC<QuickPlayStatisticsProps> = ({ onBack
             <p className="text-yellow-900 font-bold text-xl mb-2">{ranking[0].player.name}</p>
             <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 mb-2">
               <p className="text-5xl font-black text-yellow-900 mb-1">{ranking[0].totalPoints}</p>
-              <p className="text-yellow-900 text-sm font-semibold">puntos</p>
+              <p className="text-yellow-900 text-sm font-semibold">{ranking[0].totalPoints} puntos / {getPlayerGrossStrokes(ranking[0].player.id)} golpes</p>
             </div>
             {gameMode === 'stableford' && (
               <div className="bg-yellow-600/30 backdrop-blur-sm rounded-lg py-2 px-3 mb-2">
@@ -411,7 +429,7 @@ export const QuickPlayStatistics: React.FC<QuickPlayStatisticsProps> = ({ onBack
               <p className="text-slate-100 font-bold text-xl mb-2">{ranking[1].player.name}</p>
               <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 mb-2">
                 <p className="text-5xl font-black text-white mb-1">{ranking[1].totalPoints}</p>
-                <p className="text-slate-300 text-sm font-semibold">puntos</p>
+                <p className="text-slate-300 text-sm font-semibold">{ranking[1].totalPoints} puntos / {getPlayerGrossStrokes(ranking[1].player.id)} golpes</p>
               </div>
               {gameMode === 'stableford' && (
                 <div className="bg-slate-500/30 backdrop-blur-sm rounded-lg py-2 px-3 mb-2">
@@ -437,7 +455,7 @@ export const QuickPlayStatistics: React.FC<QuickPlayStatisticsProps> = ({ onBack
               <p className="text-orange-100 font-bold text-xl mb-2">{ranking[2].player.name}</p>
               <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 mb-2">
                 <p className="text-5xl font-black text-white mb-1">{ranking[2].totalPoints}</p>
-                <p className="text-orange-300 text-sm font-semibold">puntos</p>
+                <p className="text-orange-300 text-sm font-semibold">{ranking[2].totalPoints} puntos / {getPlayerGrossStrokes(ranking[2].player.id)} golpes</p>
               </div>
               {gameMode === 'stableford' && (
                 <div className="bg-orange-500/30 backdrop-blur-sm rounded-lg py-2 px-3 mb-2">
@@ -621,13 +639,15 @@ export const QuickPlayStatistics: React.FC<QuickPlayStatisticsProps> = ({ onBack
                   <div className="flex-1 text-center">
                     <div className="bg-gradient-to-br from-yellow-400 to-amber-500 rounded-2xl p-6 shadow-xl border-4 border-yellow-300 relative">
                       <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-yellow-300 text-yellow-900 text-xs font-black px-3 py-1 rounded-full uppercase tracking-wider">
-                        Ganadora
+                        {teamResult.isTie ? 'Empate' : 'Ganadora'}
                       </div>
                       <Trophy size={32} className="mx-auto text-yellow-900 mb-2" />
                       <p className="text-yellow-900 font-black text-lg">
-                        {teamResult.winningTeam?.players.map((p: any) => p.name).join(' / ') || '—'}
+                        {teamResult.isTie
+                          ? `${teamResult.winningTeam?.players.map((p: any) => p.name).join(' / ') || '—'} / ${teamResult.losingTeam?.players.map((p: any) => p.name).join(' / ') || '—'}`
+                          : teamResult.winningTeam?.players.map((p: any) => p.name).join(' / ') || '—'}
                       </p>
-                      <p className="text-5xl font-black text-yellow-900 mt-2">{teamResult.winningTeam?.totalPoints || 0}</p>
+                      <p className="text-5xl font-black text-yellow-900 mt-2">{teamResult.winningTeam?.totalPoints ?? teamResult.losingTeam?.totalPoints ?? 0}</p>
                       <p className="text-yellow-800 text-sm font-semibold mt-1">puntos</p>
                     </div>
                   </div>
@@ -638,22 +658,24 @@ export const QuickPlayStatistics: React.FC<QuickPlayStatisticsProps> = ({ onBack
                     </div>
                     <div className="mt-3 bg-white/10 rounded-lg px-4 py-2">
                       <p className="text-white font-bold text-lg">
-                        +{teamResult.margin}
+                        {teamResult.isTie ? '0' : `+${teamResult.margin}`}
                       </p>
-                      <p className="text-white/60 text-xs">diferencia</p>
+                      <p className="text-white/60 text-xs">{teamResult.isTie ? 'empate' : 'diferencia'}</p>
                     </div>
                   </div>
 
                   <div className="flex-1 text-center">
                     <div className="bg-gradient-to-br from-slate-600 to-slate-700 rounded-2xl p-6 shadow-xl border-4 border-slate-500 relative">
                       <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-slate-500 text-white text-xs font-black px-3 py-1 rounded-full uppercase tracking-wider">
-                        Perdedora
+                        {teamResult.isTie ? 'Empate' : 'Perdedora'}
                       </div>
                       <TrendingDown size={32} className="mx-auto text-slate-300 mb-2" />
                       <p className="text-white font-black text-lg">
-                        {teamResult.losingTeam?.players.map((p: any) => p.name).join(' / ') || '—'}
+                        {teamResult.isTie
+                          ? `${teamResult.winningTeam?.players.map((p: any) => p.name).join(' / ') || '—'} / ${teamResult.losingTeam?.players.map((p: any) => p.name).join(' / ') || '—'}`
+                          : teamResult.losingTeam?.players.map((p: any) => p.name).join(' / ') || '—'}
                       </p>
-                      <p className="text-5xl font-black text-white mt-2">{teamResult.losingTeam?.totalPoints || 0}</p>
+                      <p className="text-5xl font-black text-white mt-2">{teamResult.losingTeam?.totalPoints ?? teamResult.winningTeam?.totalPoints ?? 0}</p>
                       <p className="text-slate-300 text-sm font-semibold mt-1">puntos</p>
                     </div>
                   </div>
@@ -769,7 +791,7 @@ export const QuickPlayStatistics: React.FC<QuickPlayStatisticsProps> = ({ onBack
               animateIn ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
             }`}
           >
-            <h3 className="text-2xl font-black text-white mb-6">Tabla Completa de Estadísticas</h3>
+            <h3 className="text-2xl font-black text-white mb-6">Detalle contra Par</h3>
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
@@ -777,6 +799,7 @@ export const QuickPlayStatistics: React.FC<QuickPlayStatisticsProps> = ({ onBack
                     <th className="text-left text-white font-bold p-3">Jugador</th>
                     <th className="text-center text-white font-bold p-3">Puntos</th>
                     <th className="text-center text-white font-bold p-3">vs Par</th>
+                    <th className="text-center text-white font-bold p-3">Eagles+</th>
                     <th className="text-center text-white font-bold p-3">Birdies</th>
                     <th className="text-center text-white font-bold p-3">Pares</th>
                     <th className="text-center text-white font-bold p-3">Bogeys</th>
@@ -807,6 +830,7 @@ export const QuickPlayStatistics: React.FC<QuickPlayStatisticsProps> = ({ onBack
                       }`}>
                         {h.scoreToPar.display}
                       </td>
+                      <td className="text-center text-white p-3">{h.eagles}</td>
                       <td className="text-center text-white p-3">{h.birdies}</td>
                       <td className="text-center text-white p-3">{h.pares}</td>
                       <td className="text-center text-white p-3">{h.bogeys}</td>
@@ -868,9 +892,17 @@ export const QuickPlayStatistics: React.FC<QuickPlayStatisticsProps> = ({ onBack
                           const points = isMatchMode || isSindicatoMode || isParejasMode
                             ? (score?.mode_points || 0)
                             : (score?.stableford_points || 0);
+
+                          if (isAbandoned) {
+                            return (
+                              <td key={hole.hole_number} className="text-center p-2 font-bold text-white">
+                                0
+                              </td>
+                            );
+                          }
+
                           return (
                             <td key={hole.hole_number} className={`text-center p-2 font-bold ${
-                              isAbandoned ? 'text-gray-400' :
                               isMatchMode || isSindicatoMode || isParejasMode ? (
                                 points > 0 ? 'text-emerald-300' :
                                 points === 0 ? 'text-red-300' :
@@ -883,13 +915,74 @@ export const QuickPlayStatistics: React.FC<QuickPlayStatisticsProps> = ({ onBack
                                 'text-red-300'
                               )
                             }`}>
-                              {isAbandoned ? '-' : points}
+                              {points}
                             </td>
                           );
                         })}
                         <td className="text-center text-emerald-300 font-black p-2 text-lg bg-emerald-900/50">
                           {row.totalPoints}
                         </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* TABLA DE GOLPES */}
+          <div
+            className={`bg-white/10 backdrop-blur-md rounded-2xl p-6 shadow-2xl mb-8 transition-all duration-1000 delay-600 ${
+              animateIn ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+            }`}
+          >
+            <h3 className="text-2xl font-black text-white mb-6">Tabla de Golpes</h3>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b-2 border-white/20">
+                    <th className="text-left text-white font-bold p-2 sticky left-0 bg-slate-900/90 backdrop-blur-md">Jugador</th>
+                    {holes.map((hole: any) => (
+                      <th key={hole.hole_number} className="text-center text-white font-bold p-2 min-w-[40px]">
+                        {hole.hole_number}
+                      </th>
+                    ))}
+                    <th className="text-center text-white font-bold p-2 bg-emerald-900/50">Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {ranking.map((entry: any, index: number) => {
+                    const playerScores = roundData.scores.filter((s: any) => s.player_id === entry.player.id);
+                    const totalGross = playerScores.reduce((sum: number, score: any) => {
+                      const hole = holes.find((h: any) => h.hole_number === score.hole_number);
+                      return sum + getEffectiveGrossStrokes(score, hole);
+                    }, 0);
+
+                    return (
+                      <tr key={entry.player.id} className="border-b border-white/10 hover:bg-white/5 transition-colors">
+                        <td className="text-white font-semibold p-2 sticky left-0 bg-slate-900/90 backdrop-blur-md">
+                          <div className="flex items-center gap-2">
+                            <span className={`w-6 h-6 flex-shrink-0 flex items-center justify-center rounded-full text-xs font-bold ${
+                              index === 0 ? 'bg-yellow-400 text-yellow-900' :
+                              index === 1 ? 'bg-slate-400 text-slate-900' :
+                              index === 2 ? 'bg-orange-400 text-orange-900' :
+                              'bg-gray-600 text-white'
+                            }`}>
+                              {index + 1}
+                            </span>
+                            {entry.player.name}
+                          </div>
+                        </td>
+                        {holes.map((hole: any) => {
+                          const score = playerScores.find((s: any) => s.hole_number === hole.hole_number);
+                          const value = getEffectiveGrossStrokes(score, hole);
+                          return (
+                            <td key={hole.hole_number} className="text-center text-white p-2 font-bold">
+                              {value}
+                            </td>
+                          );
+                        })}
+                        <td className="text-center text-emerald-300 font-black p-2 text-lg bg-emerald-900/50">{totalGross}</td>
                       </tr>
                     );
                   })}
@@ -986,24 +1079,28 @@ export const QuickPlayStatistics: React.FC<QuickPlayStatisticsProps> = ({ onBack
             {isParejasMode && teamResult && (
               <div className="flex items-center justify-between gap-6 mb-8 bg-slate-800/80 p-6 rounded-2xl border border-blue-500/30">
                 <div className="flex-1 text-center bg-amber-500/20 p-6 rounded-xl border-2 border-amber-400">
-                  <span className="text-amber-300 text-xs font-black uppercase">Pareja Ganadora</span>
+                  <span className="text-amber-300 text-xs font-black uppercase">{teamResult.isTie ? 'Empate' : 'Pareja Ganadora'}</span>
                   <h2 className="text-2xl font-black text-white mt-1">
-                    {teamResult.winningTeam?.players.map((p: any) => p.name).join(' / ') || '—'}
+                    {teamResult.isTie
+                      ? `${teamResult.winningTeam?.players.map((p: any) => p.name).join(' / ') || '—'} / ${teamResult.losingTeam?.players.map((p: any) => p.name).join(' / ') || '—'}`
+                      : teamResult.winningTeam?.players.map((p: any) => p.name).join(' / ') || '—'}
                   </h2>
-                  <p className="text-5xl font-black text-amber-400 mt-2">{teamResult.winningTeam?.totalPoints || 0} <span className="text-sm">pts</span></p>
+                  <p className="text-5xl font-black text-amber-400 mt-2">{teamResult.winningTeam?.totalPoints ?? teamResult.losingTeam?.totalPoints ?? 0} <span className="text-sm">pts</span></p>
                 </div>
 
                 <div className="text-center px-4">
                   <div className="bg-blue-600 text-white font-black text-2xl px-6 py-2 rounded-xl">VS</div>
-                  <p className="text-white font-bold text-lg mt-2">+{teamResult.margin} <span className="text-xs text-white/60">dif</span></p>
+                  <p className="text-white font-bold text-lg mt-2">{teamResult.isTie ? '0' : `+${teamResult.margin}`} <span className="text-xs text-white/60">{teamResult.isTie ? 'emp' : 'dif'}</span></p>
                 </div>
 
                 <div className="flex-1 text-center bg-slate-700/40 p-6 rounded-xl border border-slate-600">
-                  <span className="text-slate-400 text-xs font-black uppercase">Pareja Perdedora</span>
+                  <span className="text-slate-400 text-xs font-black uppercase">{teamResult.isTie ? 'Empate' : 'Pareja Perdedora'}</span>
                   <h2 className="text-2xl font-black text-white mt-1">
-                    {teamResult.losingTeam?.players.map((p: any) => p.name).join(' / ') || '—'}
+                    {teamResult.isTie
+                      ? `${teamResult.winningTeam?.players.map((p: any) => p.name).join(' / ') || '—'} / ${teamResult.losingTeam?.players.map((p: any) => p.name).join(' / ') || '—'}`
+                      : teamResult.losingTeam?.players.map((p: any) => p.name).join(' / ') || '—'}
                   </h2>
-                  <p className="text-5xl font-black text-white mt-2">{teamResult.losingTeam?.totalPoints || 0} <span className="text-sm">pts</span></p>
+                  <p className="text-5xl font-black text-white mt-2">{teamResult.losingTeam?.totalPoints ?? teamResult.winningTeam?.totalPoints ?? 0} <span className="text-sm">pts</span></p>
                 </div>
               </div>
             )}
@@ -1126,7 +1223,16 @@ export const QuickPlayStatistics: React.FC<QuickPlayStatisticsProps> = ({ onBack
                         const points = isMatchMode || isSindicatoMode || isParejasMode 
                           ? (score?.mode_points || 0) 
                           : (score?.stableford_points || 0);
-                        return <td key={hole.hole_number} className="p-2 font-bold">{isAbandoned ? '-' : points}</td>;
+
+                        if (isAbandoned) {
+                          return (
+                            <td key={hole.hole_number} className="p-2 font-bold text-white">
+                              0
+                            </td>
+                          );
+                        }
+
+                        return <td key={hole.hole_number} className="p-2 font-bold">{points}</td>;
                       })}
                       <td className="p-2 font-black text-emerald-400 text-base">{row.totalPoints}</td>
                     </tr>

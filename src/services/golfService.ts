@@ -2809,15 +2809,17 @@ async getQuickPlayCompletedRound(roundId?: string): Promise<any | null> {
         { team: 1, players: team1Players, totalPoints: team1Points, label: 'Pareja 2' },
       ].sort((a, b) => b.totalPoints - a.totalPoints);
 
+      const isTie = team0Points === team1Points;
       const margin = Math.abs(team0Points - team1Points);
 
       return {
         ranking: playerRankings,
         teamRanking,
         teamResult: {
-          winningTeam: teamRanking[0],
-          losingTeam: teamRanking[1],
-          margin,
+          isTie,
+          winningTeam: isTie ? null : teamRanking[0],
+          losingTeam: isTie ? null : teamRanking[1],
+          margin: isTie ? 0 : margin,
         },
         awards: baseAwards,
       };
