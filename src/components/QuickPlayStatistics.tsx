@@ -644,10 +644,10 @@ export const QuickPlayStatistics: React.FC<QuickPlayStatisticsProps> = ({ onBack
                       <Trophy size={32} className="mx-auto text-yellow-900 mb-2" />
                       <p className="text-yellow-900 font-black text-lg">
                         {teamResult.isTie
-                          ? `${teamResult.winningTeam?.players.map((p: any) => p.name).join(' / ') || '—'} / ${teamResult.losingTeam?.players.map((p: any) => p.name).join(' / ') || '—'}`
+                          ? `${teamResult.winningTeam?.players.map((p: any) => p.name).join(' / ') || '—'}`
                           : teamResult.winningTeam?.players.map((p: any) => p.name).join(' / ') || '—'}
                       </p>
-                      <p className="text-5xl font-black text-yellow-900 mt-2">{teamResult.winningTeam?.totalPoints ?? teamResult.losingTeam?.totalPoints ?? 0}</p>
+                      <p className="text-5xl font-black text-yellow-900 mt-2">{teamResult.winningTeam?.totalPoints ?? 0}</p>
                       <p className="text-yellow-800 text-sm font-semibold mt-1">puntos</p>
                     </div>
                   </div>
@@ -672,10 +672,10 @@ export const QuickPlayStatistics: React.FC<QuickPlayStatisticsProps> = ({ onBack
                       <TrendingDown size={32} className="mx-auto text-slate-300 mb-2" />
                       <p className="text-white font-black text-lg">
                         {teamResult.isTie
-                          ? `${teamResult.winningTeam?.players.map((p: any) => p.name).join(' / ') || '—'} / ${teamResult.losingTeam?.players.map((p: any) => p.name).join(' / ') || '—'}`
+                          ? `${teamResult.losingTeam?.players.map((p: any) => p.name).join(' / ') || '—'}`
                           : teamResult.losingTeam?.players.map((p: any) => p.name).join(' / ') || '—'}
                       </p>
-                      <p className="text-5xl font-black text-white mt-2">{teamResult.losingTeam?.totalPoints ?? teamResult.winningTeam?.totalPoints ?? 0}</p>
+                      <p className="text-5xl font-black text-white mt-2">{teamResult.losingTeam?.totalPoints ?? 0}</p>
                       <p className="text-slate-300 text-sm font-semibold mt-1">puntos</p>
                     </div>
                   </div>
