@@ -508,17 +508,17 @@ function App() {
               playerId: p.id,
               netStrokes: abandoned ? 999 : netStrokes,
               abandoned,
+              entered: true,
             };
           }
           const existing = otherScores.find((s) => s.player_id === p.id);
-          if (!existing || existing.abandoned) {
-            return { playerId: p.id, netStrokes: 999, abandoned: true };
+          if (!existing) {
+            return { playerId: p.id, netStrokes: 999, abandoned: true, entered: false };
           }
-          return { playerId: p.id, netStrokes: existing.net_strokes, abandoned: false };
+          return { playerId: p.id, netStrokes: existing.abandoned ? 999 : existing.net_strokes, abandoned: existing.abandoned, entered: true };
         });
 
         for (const existing of otherScores) {
-          if (existing.abandoned) continue;
           const newModePoints = calculateModePoints(gameMode, existing.player_id, allInputs, teamAssignments);
           if (newModePoints !== existing.mode_points) {
             await golfService.recordScore(

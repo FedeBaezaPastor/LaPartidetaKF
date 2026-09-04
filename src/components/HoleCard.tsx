@@ -47,10 +47,10 @@ export const HoleCard: React.FC<HoleCardProps> = ({
     const allScores: ModeScoreInput[] = players.map(p => {
       const pscore = scores[p.id];
       if (p.id === playerId) {
-        return { playerId: p.id, netStrokes: abandonedVal ? 999 : grossStrokesVal - strokesRecv, abandoned: abandonedVal };
+        return { playerId: p.id, netStrokes: abandonedVal ? 999 : grossStrokesVal - strokesRecv, abandoned: abandonedVal, entered: true };
       }
-      if (!pscore || pscore.abandoned) return { playerId: p.id, netStrokes: 999, abandoned: true };
-      return { playerId: p.id, netStrokes: pscore.net_strokes, abandoned: false };
+      if (!pscore) return { playerId: p.id, netStrokes: 999, abandoned: true, entered: false };
+      return { playerId: p.id, netStrokes: pscore.abandoned ? 999 : pscore.net_strokes, abandoned: pscore.abandoned, entered: true };
     });
     return calculateModePoints(gameMode, playerId, allScores, teamAssignments);
   };
@@ -66,7 +66,7 @@ export const HoleCard: React.FC<HoleCardProps> = ({
       let totalPoints = 0;
       for (const h of allHoles) {
         const ps = allHoleScores[p.id]?.[h.hole_number];
-        if (ps && !ps.abandoned) {
+        if (ps) {
           totalPoints += ps.mode_points ?? 0;
           const pts = ps.mode_points ?? 0;
           if (pts === 1) won++;
@@ -414,22 +414,8 @@ const getScoreColor = (points: number, isAbandoned?: boolean): string => {
                         <button
                           type="button"
                           onClick={() => {
-                            const isQuickPlay = groupCode === null;
                             const rayaScore = hole.par + strokesReceived + 2; // Par + golpes recibidos + 2
-                            
-                            if (isQuickPlay) {
-                              const newScore = {
-                                grossStrokes: rayaScore,
-                                strokesReceived: strokesReceived,
-                                netStrokes: rayaScore - strokesReceived,
-                                stablefordPoints: 0,
-                                no_paso_rojas: false,
-                                abandoned: true,
-                                mode_points: 0,
-                              };
-                              onScoreChange(player.id, newScore);
-                            } else {
-                              const newScore = calculateScore(rayaScore, player.playing_handicap, {
+                            const newScore = calculateScore(rayaScore, player.playing_handicap, {
                                 par: hole.par,
                                 strokeIndex: hole.stroke_index,
                               }, numHoles, allHoles);
@@ -440,7 +426,6 @@ const getScoreColor = (points: number, isAbandoned?: boolean): string => {
                               newScore.stablefordPoints = 0;
                               newScore.mode_points = computeModePointsForPlayer(player.id, rayaScore, newScore.strokesReceived, true);
                               onScoreChange(player.id, newScore);
-                            }
                             setExpandedPlayerId(null);
                             setFirstDigit(null);
                             setPendingPlayerId(null);
@@ -556,7 +541,7 @@ const getScoreColor = (points: number, isAbandoned?: boolean): string => {
               {gameMode === 'match' && players.map((p) => {
                 const total = allHoles.reduce((sum, h) => {
                   const ps = allHoleScores[p.id]?.[h.hole_number];
-                  return ps && !ps.abandoned ? sum + (ps.mode_points ?? 0) : sum;
+                  return ps ? sum + (ps.mode_points ?? 0) : sum;
                 }, 0);
                 const isLeader = matchStatus.leader === p.name;
                 return (
@@ -573,17 +558,17 @@ const getScoreColor = (points: number, isAbandoned?: boolean): string => {
               {gameMode === 'sindicato' && [...players].sort((a, b) => {
                 const totalA = allHoles.reduce((sum, h) => {
                   const ps = allHoleScores[a.id]?.[h.hole_number];
-                  return ps && !ps.abandoned ? sum + (ps.mode_points ?? 0) : sum;
+                  return ps ? sum + (ps.mode_points ?? 0) : sum;
                 }, 0);
                 const totalB = allHoles.reduce((sum, h) => {
                   const ps = allHoleScores[b.id]?.[h.hole_number];
-                  return ps && !ps.abandoned ? sum + (ps.mode_points ?? 0) : sum;
+                  return ps ? sum + (ps.mode_points ?? 0) : sum;
                 }, 0);
                 return totalB - totalA;
               }).map((p) => {
                 const total = allHoles.reduce((sum, h) => {
                   const ps = allHoleScores[p.id]?.[h.hole_number];
-                  return ps && !ps.abandoned ? sum + (ps.mode_points ?? 0) : sum;
+                  return ps ? sum + (ps.mode_points ?? 0) : sum;
                 }, 0);
                 const isLeader = matchStatus.leader === p.name;
                 return (
@@ -604,11 +589,11 @@ const getScoreColor = (points: number, isAbandoned?: boolean): string => {
                 // Both players on a team have identical mode_points, so use one player's total per team
                 const team0Pts = team0.length > 0 ? allHoles.reduce((s, h) => {
                   const ps = allHoleScores[team0[0].id]?.[h.hole_number];
-                  return ps && !ps.abandoned ? s + (ps.mode_points ?? 0) : s;
+                  return ps ? s + (ps.mode_points ?? 0) : s;
                 }, 0) : 0;
                 const team1Pts = team1.length > 0 ? allHoles.reduce((s, h) => {
                   const ps = allHoleScores[team1[0].id]?.[h.hole_number];
-                  return ps && !ps.abandoned ? s + (ps.mode_points ?? 0) : s;
+                  return ps ? s + (ps.mode_points ?? 0) : s;
                 }, 0) : 0;
                 return (
                   <div className="flex items-center gap-2 text-sm font-bold">

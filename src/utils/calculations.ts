@@ -94,10 +94,17 @@ export interface ModeScoreInput {
   playerId: string;
   netStrokes: number;
   abandoned: boolean;
+  /** False only when the player has not entered a result for this hole yet. */
+  entered?: boolean;
 }
 
+const getEnteredModeScores = (allScores: ModeScoreInput[]): ModeScoreInput[] =>
+  allScores
+    .filter(s => s.entered !== false)
+    .map(s => ({ ...s, netStrokes: s.abandoned ? 999 : s.netStrokes }));
+
 export const calculateMatchPoints = (playerId: string, allScores: ModeScoreInput[]): number => {
-  const valid = allScores.filter(s => !s.abandoned);
+  const valid = getEnteredModeScores(allScores);
   if (valid.length < 2) return 0;
   const myScore = valid.find(s => s.playerId === playerId);
   if (!myScore) return 0;
@@ -109,7 +116,7 @@ export const calculateMatchPoints = (playerId: string, allScores: ModeScoreInput
 };
 
 export const calculateSindicatoPoints = (playerId: string, allScores: ModeScoreInput[]): number => {
-  const valid = allScores.filter(s => !s.abandoned);
+  const valid = getEnteredModeScores(allScores);
   if (valid.length < 3) return 0;
   const myScore = valid.find(s => s.playerId === playerId);
   if (!myScore) return 0;
@@ -135,12 +142,17 @@ export const calculateParejasPoints = (
   allScores: ModeScoreInput[],
   teamAssignments: Record<string, 0 | 1>
 ): number => {
-  const valid = allScores.filter(s => !s.abandoned);
-  if (valid.length < 4) return 0;
+  const enteredScores = getEnteredModeScores(allScores);
+  if (enteredScores.length < 4) return 0;
+
   const myTeam = teamAssignments[playerId];
   if (myTeam === undefined) return 0;
-  const teamScores = valid.filter(s => teamAssignments[s.playerId] === myTeam);
-  const oppScores = valid.filter(s => teamAssignments[s.playerId] !== myTeam);
+
+  const processedScores = enteredScores;
+
+  const teamScores = processedScores.filter(s => teamAssignments[s.playerId] === myTeam);
+  const oppScores = processedScores.filter(s => teamAssignments[s.playerId] !== myTeam);
+
   if (teamScores.length < 2 || oppScores.length < 2) return 0;
 
   const teamBest = Math.min(...teamScores.map(s => s.netStrokes));
@@ -150,10 +162,10 @@ export const calculateParejasPoints = (
 
   let points = 0;
   if (teamBest < oppBest) points += 1;
-  else if (teamBest === oppBest) points += 0.5;
+  else if (teamBest === oppBest && teamBest < 999) points += 0.5;
 
   if (teamWorst < oppWorst) points += 1;
-  else if (teamWorst === oppWorst) points += 0.5;
+  else if (teamWorst === oppWorst && teamWorst < 999) points += 0.5;
 
   return points;
 };
@@ -231,8 +243,8 @@ export const checkMatchPlayStatus = (
     const s1 = roundsMap.get(p1.id)?.scores[h.hole_number];
     const s2 = roundsMap.get(p2.id)?.scores[h.hole_number];
 
-    const s1Valid = s1 && !s1.abandoned && (s1.gross_strokes !== undefined || s1.mode_points !== undefined);
-    const s2Valid = s2 && !s2.abandoned && (s2.gross_strokes !== undefined || s2.mode_points !== undefined);
+    const s1Valid = s1 && (s1.gross_strokes !== undefined || s1.mode_points !== undefined);
+    const s2Valid = s2 && (s2.gross_strokes !== undefined || s2.mode_points !== undefined);
 
     if (s1Valid && s2Valid) {
       playedHolesCount++;
@@ -240,7 +252,7 @@ export const checkMatchPlayStatus = (
       const p2Pts = s2.mode_points ?? 0;
 
       if (p1Pts > p2Pts) p1Wins++;
-      else if (p2Pts > p1Wins) p2Wins++;
+      else if (p2Pts > p1Pts) p2Wins++;
     }
   }
 
@@ -283,7 +295,7 @@ export const checkParejasStatus = (
     const s3 = roundsMap.get(team1[1].id)?.scores[h.hole_number];
 
     const isHoleComplete = [s0, s1, s2, s3].every(
-      s => s && !s.abandoned && (s.gross_strokes !== undefined || s.mode_points !== undefined)
+      s => s && (s.gross_strokes !== undefined || s.mode_points !== undefined)
     );
 
     if (isHoleComplete) {

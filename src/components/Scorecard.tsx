@@ -459,7 +459,7 @@ export const Scorecard: React.FC<ScorecardProps> = ({
                       {playableHoles.map((h) => {
                         const holeScores = players.map((p) => {
                           const s = roundsMap.get(p.id)?.scores[h.hole_number];
-                          return s && !s.abandoned ? s.mode_points ?? 0 : null;
+                          return s ? s.mode_points ?? 0 : null;
                         });
                         const allPlayed = holeScores.every((v) => v !== null);
                         if (!allPlayed) {
@@ -484,7 +484,7 @@ export const Scorecard: React.FC<ScorecardProps> = ({
                           playableHoles.forEach((ph) => {
                             const ps = players.map((p) => {
                               const s = roundsMap.get(p.id)?.scores[ph.hole_number];
-                              return s && !s.abandoned ? s.mode_points ?? 0 : null;
+                              return s ? s.mode_points ?? 0 : null;
                             });
                             if (ps.every((v) => v !== null)) {
                               t0Accum += ps[0] ?? 0;
@@ -512,7 +512,7 @@ export const Scorecard: React.FC<ScorecardProps> = ({
                             playableHoles.forEach((h) => {
                               const s0 = roundsMap.get(players[0].id)?.scores[h.hole_number];
                               const s1 = roundsMap.get(players[1].id)?.scores[h.hole_number];
-                              if (s0 && s1 && !s0.abandoned && !s1.abandoned) {
+                              if (s0 && s1) {
                                 if ((s0.mode_points ?? 0) > (s1.mode_points ?? 0)) p0Won++;
                                 else if ((s0.mode_points ?? 0) < (s1.mode_points ?? 0)) p1Won++;
                               }
@@ -527,7 +527,7 @@ export const Scorecard: React.FC<ScorecardProps> = ({
                             playableHoles.forEach((h) => {
                               const s0 = roundsMap.get(players[0].id)?.scores[h.hole_number];
                               const s2 = roundsMap.get(players[2].id)?.scores[h.hole_number];
-                              if (s0 && s2 && !s0.abandoned && !s2.abandoned) {
+                              if (s0 && s2) {
                                 t0 += s0.mode_points ?? 0;
                                 t1 += s2.mode_points ?? 0;
                               }
