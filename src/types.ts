@@ -8,6 +8,16 @@ export interface GolfHole {
   updated_at: string;
 }
 
+export interface Hole {
+  number: number;
+  par: 3 | 4 | 5;
+  strokeIndex: number;
+}
+
+export interface GameState {
+  [key: string]: unknown;
+}
+
 export interface GolfCourse {
   id: string;
   name: string;
@@ -86,7 +96,7 @@ export interface GolfRound {
   tee_id?: string;
   manual_slope?: number;
   game_mode: GameMode;
-  status: 'active' | 'completed' | 'cancelled';
+  status: 'active' | 'completed' | 'archived' | 'cancelled';
   reference_number: number;
   access_code: string;
   created_at: string;
@@ -108,4 +118,4 @@ export interface PlayerStats {
   totalHoles: number;
 }
 
-export type RoundStatus = 'active' | 'completed' | 'cancelled';
+export type RoundStatus = 'active' | 'completed' | 'archived' | 'cancelled';

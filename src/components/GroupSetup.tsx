@@ -247,7 +247,7 @@ export default function GroupSetup({ onGroupCreated, onGroupJoined, onQuickPlay,
                     <button
                       onClick={() => {
                         setShowUserMenu(false);
-                        onLogout();
+                        onLogout?.();
                       }}
                       className="w-full px-4 py-3 text-left text-sm text-red-600 hover:bg-red-50 transition-colors flex items-center gap-2 font-medium"
                     >

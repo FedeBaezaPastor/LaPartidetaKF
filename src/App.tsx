@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { AlertTriangle } from 'lucide-react';
-import { GolfRound, GolfHole, RoundPlayer, RoundScore, Group, GameMode } from './types';
+import { GolfRound, GolfHole, GolfCourse, RoundPlayer, RoundScore, Group, GameMode } from './types';
 import { golfService } from './services/golfService';
 import { calculateModePoints, ModeScoreInput } from './utils/calculations';
 import { accessCodeStorage } from './utils/accessCode';
@@ -35,6 +35,7 @@ interface RoundState {
   isCreator: boolean;
   hasEditAccess: boolean;
   courseName: string;
+  course?: GolfCourse;
 }
 
 function App() {
@@ -492,8 +493,8 @@ function App() {
       const gameMode = (roundState.round.game_mode || 'stableford') as GameMode;
       const isModeScoring = gameMode !== 'stableford';
 
-      const teamAssignments = gameMode === 'parejas' && roundState.players.length === 4
-        ? Object.fromEntries(roundState.players.map((p, i) => [p.id, i < 2 ? 0 : 1]))
+      const teamAssignments: Record<string, 0 | 1> | undefined = gameMode === 'parejas' && roundState.players.length === 4
+        ? Object.fromEntries(roundState.players.map((p, i) => [p.id, i < 2 ? 0 as const : 1 as const]))
         : undefined;
 
       const otherScores = roundState.scores.filter(
@@ -549,7 +550,7 @@ function App() {
           ...updatedOtherScores,
           {
             id: `score_${Date.now()}`,
-            round_id: roundState.round.id,
+            round_id: roundState.round!.id,
             player_id: playerId,
             hole_number: holeNumber,
             gross_strokes: grossStrokes,

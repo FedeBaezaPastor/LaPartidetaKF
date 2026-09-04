@@ -168,27 +168,8 @@ useEffect(() => {
     return p.bestHole.points > best.bestHole.points ? p : best;
   });
 //FBP.Ini
-const [availableRounds, setAvailableRounds] = useState<Array<{ id: string; created_at: string; status: string }>>([]);
-const [selectedRoundId, setSelectedRoundId] = useState<string>(initialRoundId);
-
-useEffect(() => {
-  const loadAvailableRounds = async () => {
-    try {
       // Obtenemos todas las partidas del usuario (completed + archived)
-      const rounds = await golfService.getAvailableRoundsForStats();
-      setAvailableRounds(rounds);
-
       // Por defecto seleccionamos la más reciente si no hay una preseleccionada
-      if (rounds.length > 0 && !initialRoundId) {
-        setSelectedRoundId(rounds[0].id);
-      }
-    } catch (err) {
-      console.error('Error cargando lista de partidas:', err);
-    }
-  };
-
-  loadAvailableRounds();
-}, [initialRoundId]);
 //FBP.Fin
   return (
     <div className="space-y-4">

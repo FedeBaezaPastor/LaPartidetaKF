@@ -64,7 +64,7 @@ export const ArchivedRoundsModal: React.FC<ArchivedRoundsModalProps> = ({
           ) : (
             <div className="space-y-4">
               {sortedDates.map((dateKey) => {
-                const dayRounds = groupedByDate[dateKey];
+                const dayRounds: any[] = groupedByDate[dateKey];
                 const date = new Date(dateKey);
                 const formattedDate = date.toLocaleDateString('es-ES', {
                   weekday: 'long',
@@ -80,8 +80,8 @@ export const ArchivedRoundsModal: React.FC<ArchivedRoundsModalProps> = ({
                   });
                 });
 
-                const courses = dayRounds.map((r) => r.course_name);
-                const uniqueCourses = [...new Set(courses)];
+                const courses: string[] = dayRounds.map((r: any) => String(r.course_name));
+                const uniqueCourses: string[] = [...new Set(courses)];
 
                 return (
                   <button

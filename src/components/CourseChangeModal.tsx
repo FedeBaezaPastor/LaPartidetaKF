@@ -5,7 +5,7 @@ import { golfService } from '../services/golfService';
 interface Course {
   id: string;
   name: string;
-  description: string | null;
+  description?: string | null;
 }
 
 interface CourseChangeModalProps {

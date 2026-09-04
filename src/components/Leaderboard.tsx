@@ -79,6 +79,18 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
     if (b.totalPoints !== a.totalPoints) {
       return b.totalPoints - a.totalPoints;
     }
+    if (gameMode === 'parejas' && players.length === 4) {
+      const teamHandicap = (playerId: string) => {
+        const index = players.findIndex(player => player.id === playerId);
+        const team = index < 2 ? players.slice(0, 2) : players.slice(2, 4);
+        return team.reduce((sum, player) => sum + player.playing_handicap, 0);
+      };
+      const teamDifference = teamHandicap(a.player.id) - teamHandicap(b.player.id);
+      if (teamDifference !== 0) return teamDifference;
+    }
+    if (a.player.playing_handicap !== b.player.playing_handicap) {
+      return a.player.playing_handicap - b.player.playing_handicap;
+    }
     return b.holesCompleted - a.holesCompleted;
   });
 

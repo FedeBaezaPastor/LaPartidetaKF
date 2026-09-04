@@ -61,6 +61,7 @@ export interface CalculatedScore {
   stablefordPoints: number;
   no_paso_rojas?: boolean;
   abandoned?: boolean;
+  mode_points?: number;
 }
 
 export const calculateScore = (
@@ -68,9 +69,9 @@ export const calculateScore = (
   playingHandicap: number,
   hole: { par: number; strokeIndex: number },
   numHoles: number = 18,
-  allHoles?: { strokeIndex: number }[]
+  allHoles?: Array<{ strokeIndex?: number; stroke_index?: number }>
 ): CalculatedScore => {
-  const allStrokeIndexes = allHoles?.map(h => h.strokeIndex);
+  const allStrokeIndexes = allHoles?.map(h => h.strokeIndex ?? h.stroke_index ?? 0);
   const strokesReceived = getStrokesReceived(playingHandicap, hole.strokeIndex, numHoles, allStrokeIndexes);
   const netStrokes = calculateNetStrokes(grossStrokes, strokesReceived);
   const stablefordPoints = calculateStablefordPoints(netStrokes, hole.par);
@@ -227,7 +228,7 @@ export interface MatchStatusResult {
 
 export const checkMatchPlayStatus = (
   roundsMap: Map<string, { scores: Record<number, any> }>,
-  players: { id: string; name: string }[],
+  players: { id: string; name: string; playing_handicap: number }[],
   playableHoles: { hole_number: number }[]
 ): MatchStatusResult => {
   if (players.length < 2) return { isFinished: false, leaderName: '', marginText: '' };
@@ -318,5 +319,43 @@ export const checkParejasStatus = (
     isFinished,
     leaderName,
     marginText: `${t0Points} - ${t1Points} ptos`,
+  };
+};
+
+export const checkSindicatoStatus = (
+  roundsMap: Map<string, { scores: Record<number, any> }>,
+  players: { id: string; name: string; playing_handicap: number }[],
+  playableHoles: { hole_number: number }[]
+): MatchStatusResult => {
+  if (players.length < 3) return { isFinished: false, leaderName: '', marginText: '' };
+
+  const totals = players.map(player => ({ player, points: 0 }));
+  let playedHolesCount = 0;
+
+  for (const hole of playableHoles) {
+    const holeScores = players.map(player => roundsMap.get(player.id)?.scores[hole.hole_number]);
+    const isHoleComplete = holeScores.every(
+      score => score && (score.gross_strokes !== undefined || score.mode_points !== undefined)
+    );
+
+    if (isHoleComplete) {
+      playedHolesCount++;
+      holeScores.forEach((score, index) => {
+        totals[index].points += score.mode_points ?? 0;
+      });
+    }
+  }
+
+  const sorted = [...totals].sort((a, b) =>
+    b.points - a.points || a.player.playing_handicap - b.player.playing_handicap
+  );
+  const remainingHoles = playableHoles.length - playedHolesCount;
+  const lead = sorted[0].points - sorted[1].points;
+  const isFinished = lead > remainingHoles * 4 && remainingHoles >= 0;
+
+  return {
+    isFinished,
+    leaderName: sorted[0].player.name,
+    marginText: `${lead} puntos de ventaja`,
   };
 };

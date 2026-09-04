@@ -171,7 +171,7 @@ export function GamePoints({ onBack }: GamePointsProps) {
       setShowEditNameModal(true);
     } else if (pendingAction.type === 'editHandicap') {
       setEditingPlayerId(pendingAction.player.id);
-      setEditHandicap(pendingAction.player.exact_handicap_18.toFixed(1));
+      setEditHandicap((pendingAction.player.exact_handicap_18 ?? pendingAction.player.exact_handicap).toFixed(1));
       setEditError('');
     } else if (pendingAction.type === 'deletePlayer') {
       setPlayerToDelete({ playerId: pendingAction.player.id, playerName: pendingAction.player.name });
@@ -596,7 +596,7 @@ export function GamePoints({ onBack }: GamePointsProps) {
                     </p>
                   ) : (
                     <div className="grid gap-3">
-                      {[...players].sort((a, b) => a.exact_handicap_18 - b.exact_handicap_18).map((player, index) => (
+                      {[...players].sort((a, b) => (a.exact_handicap_18 ?? a.exact_handicap) - (b.exact_handicap_18 ?? b.exact_handicap)).map((player, index) => (
                         <div
                           key={player.id}
                           className="bg-emerald-50 border border-emerald-200 rounded-lg p-3"
@@ -658,7 +658,7 @@ export function GamePoints({ onBack }: GamePointsProps) {
                               ) : (
                                 <div className="flex items-center gap-2 flex-wrap">
                                   <span className="text-emerald-700 font-semibold text-sm whitespace-nowrap">
-                                    HCP: {player.exact_handicap_18.toFixed(1)}
+                                    HCP: {(player.exact_handicap_18 ?? player.exact_handicap).toFixed(1)}
                                   </span>
                                   <button
                                     onClick={() => handleEditHandicapClick(player)}

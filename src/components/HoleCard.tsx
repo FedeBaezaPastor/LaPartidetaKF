@@ -90,15 +90,29 @@ export const HoleCard: React.FC<HoleCardProps> = ({
       const diff = team0Pts - team1Pts;
       if (diff > 0) return { label: `${diff}UP`, leader: 'Equipo 1', diff };
       if (diff < 0) return { label: `${Math.abs(diff)}UP`, leader: 'Equipo 2', diff };
+      const team0Handicap = team0.reduce((sum, player) => {
+        const source = players.find(p => p.id === player.playerId);
+        return sum + (source?.playing_handicap ?? 0);
+      }, 0);
+      const team1Handicap = team1.reduce((sum, player) => {
+        const source = players.find(p => p.id === player.playerId);
+        return sum + (source?.playing_handicap ?? 0);
+      }, 0);
+      if (team0Handicap < team1Handicap) return { label: 'HCP', leader: 'Equipo 1', diff: 0 };
+      if (team1Handicap < team0Handicap) return { label: 'HCP', leader: 'Equipo 2', diff: 0 };
       return { label: 'AS', leader: null, diff: 0 };
     }
     if (gameMode === 'sindicato' && totals.length === 3) {
-      const sorted = [...totals].sort((a, b) => b.totalPoints - a.totalPoints);
+      const sorted = [...totals].sort((a, b) => {
+        if (b.totalPoints !== a.totalPoints) return b.totalPoints - a.totalPoints;
+        const handicapA = players.find(p => p.id === a.playerId)?.playing_handicap ?? 0;
+        const handicapB = players.find(p => p.id === b.playerId)?.playing_handicap ?? 0;
+        return handicapA - handicapB;
+      });
       const leader = sorted[0];
-      const tied = sorted[0].totalPoints === sorted[1].totalPoints;
       return {
-        label: tied ? 'AS' : `${leader.name}`,
-        leader: tied ? null : leader.name,
+        label: `${leader.name}`,
+        leader: leader.name,
         diff: sorted[0].totalPoints - sorted[1].totalPoints,
       };
     }

@@ -17,6 +17,37 @@ import { storageUtils } from '../utils/storage';
 import { generateAccessCode, accessCodeStorage } from '../utils/accessCode';
 
 export const golfService = {
+  async getHandicapUpdatePreview(): Promise<Array<{
+    id: string; name: string; exact_handicap: number; exact_handicap_18: number;
+    playing_handicap: number; new_value: number;
+  }>> {
+    const { data, error } = await supabase
+      .from('players')
+      .select('id, name, exact_handicap, exact_handicap_18, playing_handicap')
+      .not('playing_handicap', 'is', null)
+      .order('name');
+    if (error) throw error;
+    return (data || []).map(player => ({
+      ...player,
+      exact_handicap_18: player.exact_handicap_18 ?? player.exact_handicap,
+      playing_handicap: player.playing_handicap,
+      new_value: player.playing_handicap,
+    }));
+  },
+
+  async applyHandicapUpdate(): Promise<void> {
+    const preview = await this.getHandicapUpdatePreview();
+    const updates = preview
+      .filter(player => player.exact_handicap !== player.new_value || player.exact_handicap_18 !== player.new_value)
+      .map(player => supabase
+        .from('players')
+        .update({ exact_handicap: player.new_value, exact_handicap_18: player.new_value })
+        .eq('id', player.id));
+    const results = await Promise.all(updates);
+    const failed = results.find(result => result.error);
+    if (failed?.error) throw failed.error;
+  },
+
   // Group operations
   async createGroup(name?: string, customCode?: string): Promise<Group> {
     const userId = getUserId();
@@ -774,7 +805,7 @@ async getAvailableRoundsForStats(limit?: number): Promise<Array<{ id: string; cr
           ...player,
           exact_handicap: newExactHandicap,
           playing_handicap: playingHandicap
-        });
+        } as RoundPlayer);
         console.log(`🟢 EXITING LOOP FOR: ${player.name}`);
       }
 
@@ -1438,7 +1469,9 @@ async getAvailableRoundsForStats(limit?: number): Promise<Array<{ id: string; cr
 
     const playerStats = players.map((player) => {
       const playerScores = scores.filter((s) => s.player_id === player.id);
-      const totalPoints = playerScores.reduce((sum, s) => sum + s.stableford_points, 0);
+      const totalPoints = round.game_mode === 'stableford'
+        ? playerScores.reduce((sum, s) => sum + s.stableford_points, 0)
+        : playerScores.reduce((sum, s) => sum + (s.mode_points ?? 0), 0);
 
       return {
         playerId: player.player_id,
@@ -1601,7 +1634,9 @@ async getAvailableRoundsForStats(limit?: number): Promise<Array<{ id: string; cr
 
     const playerStats = players.map((player) => {
       const playerScores = scores.filter((s) => s.player_id === player.id);
-      const totalPoints = playerScores.reduce((sum, s) => sum + s.stableford_points, 0);
+      const totalPoints = round.game_mode === 'stableford'
+        ? playerScores.reduce((sum, s) => sum + s.stableford_points, 0)
+        : playerScores.reduce((sum, s) => sum + (s.mode_points ?? 0), 0);
       const noPasoRojasCount = playerScores.filter((s) => s.no_paso_rojas === true).length;
 
       const eagles = playerScores.filter((s) => {
@@ -1653,10 +1688,20 @@ async getAvailableRoundsForStats(limit?: number): Promise<Array<{ id: string; cr
       };
     });
 
-    // Sort by points DESC, then by playing handicap ASC (lower handicap wins tie)
+    const teamHandicap = (playerId: string): number => {
+      const playerIndex = players.findIndex(player => player.id === playerId);
+      const teamPlayers = playerIndex < 2 ? players.slice(0, 2) : players.slice(2, 4);
+      return teamPlayers.reduce((sum, player) => sum + player.playing_handicap, 0);
+    };
+
+    // Puntos descendentes; en empate gana el HCP menor (suma del equipo en parejas).
     const sortedPlayers = playerStats.sort((a, b) => {
       if (b.totalPoints !== a.totalPoints) {
         return b.totalPoints - a.totalPoints;
+      }
+      if (round.game_mode === 'parejas') {
+        const teamDifference = teamHandicap(a.playerId) - teamHandicap(b.playerId);
+        if (teamDifference !== 0) return teamDifference;
       }
       return a.playingHandicap - b.playingHandicap;
     });
@@ -2486,25 +2531,10 @@ async getAvailableRoundsForStats(limit?: number): Promise<Array<{ id: string; cr
       const playerScores = scores.filter(s => s.player_id === player.id);
       const totalPoints = playerScores.reduce((sum, s) => sum + s.stableford_points, 0);
 
-      const eagles = playerScores.filter(s => {
-        const netScore = s.gross_strokes - s.strokes_given;
-        return netScore <= s.hole_par - 2;
-      }).length;
-
-      const birdies = playerScores.filter(s => {
-        const netScore = s.gross_strokes - s.strokes_given;
-        return netScore === s.hole_par - 1;
-      }).length;
-
-      const pars = playerScores.filter(s => {
-        const netScore = s.gross_strokes - s.strokes_given;
-        return netScore === s.hole_par;
-      }).length;
-
-      const bogeys = playerScores.filter(s => {
-        const netScore = s.gross_strokes - s.strokes_given;
-        return netScore === s.hole_par + 1;
-      }).length;
+      const eagles = playerScores.filter(s => s.stableford_points >= 4).length;
+      const birdies = playerScores.filter(s => s.stableford_points === 3).length;
+      const pars = playerScores.filter(s => s.stableford_points === 2).length;
+      const bogeys = playerScores.filter(s => s.stableford_points === 1).length;
 
       return {
         name: player.name,
@@ -2642,7 +2672,7 @@ async getQuickPlayCompletedRound(roundId?: string): Promise<any | null> {
     return null;
   }, // <-- AQUÍ ES DONDE DEBE CERRARSE LA FUNCIÓN
 
-  async deleteQuickPlayCompletedRound(): Promise<void> {
+  async deleteQuickPlayCompletedRound(roundId?: string): Promise<void> {
     const userId = getUserId();
 
     const { data: rounds, error: findError } = await supabase
@@ -2651,6 +2681,7 @@ async getQuickPlayCompletedRound(roundId?: string): Promise<any | null> {
       .eq('user_id', userId)
       .is('group_id', null)
       .eq('status', 'completed')
+      .match(roundId ? { id: roundId } : {})
       .limit(1);
 
     if (findError) throw findError;
@@ -2689,6 +2720,7 @@ async getQuickPlayCompletedRound(roundId?: string): Promise<any | null> {
         player,
         totalStablefordPoints,
         totalModePoints,
+        totalPoints: gameMode === 'stableford' ? totalStablefordPoints : totalModePoints,
         doubleBogeysOrWorse,
         noPasoRojasCount,
         holeInOnes,
@@ -2698,20 +2730,17 @@ async getQuickPlayCompletedRound(roundId?: string): Promise<any | null> {
 
     // Determinar campo de puntuación según modalidad
     let playerRankings = players.map(getPlayerStats);
-    let rankingField: 'totalStablefordPoints' | 'totalModePoints' = 'totalStablefordPoints';
-
     if (gameMode === 'match' || gameMode === 'sindicato' || gameMode === 'parejas') {
-      rankingField = 'totalModePoints';
-      playerRankings = playerRankings.sort((a, b) => b.totalModePoints - a.totalModePoints);
+      playerRankings = playerRankings.sort((a, b) => {
+        if (b.totalModePoints !== a.totalModePoints) return b.totalModePoints - a.totalModePoints;
+        return a.player.playing_handicap - b.player.playing_handicap;
+      });
     } else {
-      playerRankings = playerRankings.sort((a, b) => b.totalStablefordPoints - a.totalStablefordPoints);
+      playerRankings = playerRankings.sort((a, b) => {
+        if (b.totalStablefordPoints !== a.totalStablefordPoints) return b.totalStablefordPoints - a.totalStablefordPoints;
+        return a.player.playing_handicap - b.player.playing_handicap;
+      });
     }
-
-    // Normalizar totalPoints para compatibilidad con el resto del UI
-    playerRankings = playerRankings.map(r => ({
-      ...r,
-      totalPoints: r[rankingField],
-    }));
 
     // Awards comunes
     const reyDelBosque = [...playerRankings].sort((a, b) => b.doubleBogeysOrWorse - a.doubleBogeysOrWorse)[0];
@@ -2794,22 +2823,23 @@ async getQuickPlayCompletedRound(roundId?: string): Promise<any | null> {
       // porque ambos miembros reciben los mismos puntos por hoyo
       const team0Points = team0Players[0]
         ? scores
-            .filter(s => s.player_id === team0Players[0].id && !s.abandoned)
+            .filter(s => s.player_id === team0Players[0].id)
             .reduce((sum, s) => sum + (s.mode_points || 0), 0)
         : 0;
 
       const team1Points = team1Players[0]
         ? scores
-            .filter(s => s.player_id === team1Players[0].id && !s.abandoned)
+            .filter(s => s.player_id === team1Players[0].id)
             .reduce((sum, s) => sum + (s.mode_points || 0), 0)
         : 0;
 
       const teamRanking = [
-        { team: 0, players: team0Players, totalPoints: team0Points, label: 'Pareja 1' },
-        { team: 1, players: team1Players, totalPoints: team1Points, label: 'Pareja 2' },
-      ].sort((a, b) => b.totalPoints - a.totalPoints);
+        { team: 0, players: team0Players, totalPoints: team0Points, handicap: team0Players.reduce((sum, p) => sum + p.playing_handicap, 0), label: 'Pareja 1' },
+        { team: 1, players: team1Players, totalPoints: team1Points, handicap: team1Players.reduce((sum, p) => sum + p.playing_handicap, 0), label: 'Pareja 2' },
+      ].sort((a, b) => b.totalPoints - a.totalPoints || a.handicap - b.handicap);
 
-      const isTie = team0Points === team1Points;
+      const isTie = teamRanking[0].totalPoints === teamRanking[1].totalPoints
+        && teamRanking[0].handicap === teamRanking[1].handicap;
       const margin = Math.abs(team0Points - team1Points);
 
       return {

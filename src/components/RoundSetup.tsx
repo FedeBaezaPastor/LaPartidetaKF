@@ -209,6 +209,7 @@ export const RoundSetup: React.FC<RoundSetupProps> = ({
   };
 
   const proceedWithRoundCreation = async () => {
+    if (!selectedCourse) return;
     try {
       setLoading(true);
       setError('');
@@ -708,6 +709,7 @@ export const RoundSetup: React.FC<RoundSetupProps> = ({
       <ParTeeUpgradeModal
         isOpen={showUpgradeModal}
         onClose={() => setShowUpgradeModal(false)}
+        onSelectTier={() => setShowUpgradeModal(false)}
       />
     </div>
   );

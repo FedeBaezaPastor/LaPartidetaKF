@@ -11,6 +11,7 @@ import { GameMode } from '../types';
 
 interface QuickPlayStatisticsProps {
   onBack: () => void;
+  roundId?: string;
 }
 
 interface PlayerHighlights {
@@ -350,6 +351,7 @@ export const QuickPlayStatistics: React.FC<QuickPlayStatisticsProps> = ({ onBack
     key: string;
     name: string;
     totalPoints: number;
+    handicap?: number;
     scores: any[];
     rank: number;
   }[] = [];
@@ -365,13 +367,13 @@ export const QuickPlayStatistics: React.FC<QuickPlayStatisticsProps> = ({ onBack
         : [];
       const totalPoints = rep
         ? playerScores
-            .filter((s: any) => !s.abandoned)
             .reduce((sum: number, s: any) => sum + (s.mode_points || 0), 0)
         : 0;
       return {
         key: label,
         name: players.map((p: any) => p.name).join(' / '),
         totalPoints,
+        handicap: players.reduce((sum: number, player: any) => sum + player.playing_handicap, 0),
         scores: playerScores,
         rank: 0,
       };
@@ -380,7 +382,7 @@ export const QuickPlayStatistics: React.FC<QuickPlayStatisticsProps> = ({ onBack
     holeTableRows = [
       buildTeamRow(team0Players, 'team0'),
       buildTeamRow(team1Players, 'team1'),
-    ].sort((a, b) => b.totalPoints - a.totalPoints);
+    ].sort((a, b) => b.totalPoints - a.totalPoints || (a.handicap ?? 0) - (b.handicap ?? 0));
 
     holeTableRows.forEach((row, idx) => { row.rank = idx; });
   } else {
@@ -1248,13 +1250,9 @@ export const QuickPlayStatistics: React.FC<QuickPlayStatisticsProps> = ({ onBack
 
       {showDeleteConfirm && (
         <ConfirmModal
-          isOpen={showDeleteConfirm}
-          title="Eliminar Partida"
           message="¿Estás seguro de que deseas eliminar esta partida? Esta acción no se puede deshacer."
-          confirmText="Eliminar"
-          cancelText="Cancelar"
           onConfirm={handleDelete}
-          onClose={() => setShowDeleteConfirm(false)}
+          onCancel={() => setShowDeleteConfirm(false)}
         />
       )}
     </div>

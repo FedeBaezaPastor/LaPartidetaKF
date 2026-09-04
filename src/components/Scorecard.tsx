@@ -6,7 +6,7 @@ import { CourseChangeModal } from './CourseChangeModal';
 import { CourseChangeConfirmModal } from './CourseChangeConfirmModal';
 import { ScoreSymbol } from './ScoreSymbol';
 import { golfService } from '../services/golfService';
-import { getStrokesReceived, calculateScoreToPar, checkMatchPlayStatus, checkParejasStatus } from '../utils/calculations';
+import { getStrokesReceived, calculateScoreToPar, checkMatchPlayStatus, checkParejasStatus, checkSindicatoStatus } from '../utils/calculations';
 import { ChevronLeft, ChevronRight, Trophy, Home, Lock, MapPin, Eye, EyeOff } from 'lucide-react';
 import { HandshakeModal } from './HandshakeModal';
 
@@ -100,7 +100,7 @@ export const Scorecard: React.FC<ScorecardProps> = ({
     }
   };
 
-  const handleSelectCourse = (course: { id: string; name: string; description: string | null }) => {
+  const handleSelectCourse = (course: { id: string; name: string; description?: string | null }) => {
     setSelectedCourse({ id: course.id, name: course.name });
     setShowCourseChangeModal(false);
     setShowCourseConfirmModal(true);
@@ -137,8 +137,16 @@ export const Scorecard: React.FC<ScorecardProps> = ({
     winner: string;
     margin: string;
   } | null>(null);
+  const [handshakeAcknowledged, setHandshakeAcknowledged] = useState(false);
 
   useEffect(() => {
+    setHandshakeAcknowledged(false);
+    setHandshakeData(null);
+  }, [roundId, gameMode]);
+
+  useEffect(() => {
+    if (handshakeAcknowledged) return;
+
     if (gameMode === 'match') {
       const result = checkMatchPlayStatus(roundsMap, players, playableHoles);
       if (result.isFinished && !handshakeData?.isOpen) {
@@ -149,8 +157,13 @@ export const Scorecard: React.FC<ScorecardProps> = ({
       if (result.isFinished && !handshakeData?.isOpen) {
         setHandshakeData({ isOpen: true, winner: result.leaderName, margin: result.marginText });
       }
+    } else if (gameMode === 'sindicato') {
+      const result = checkSindicatoStatus(roundsMap, players, playableHoles);
+      if (result.isFinished && !handshakeData?.isOpen) {
+        setHandshakeData({ isOpen: true, winner: result.leaderName, margin: result.marginText });
+      }
     }
-  }, [rounds, players, gameMode]);
+  }, [rounds, players, gameMode, handshakeAcknowledged]);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-emerald-50 to-emerald-100 p-4 md:p-8">
@@ -717,7 +730,10 @@ export const Scorecard: React.FC<ScorecardProps> = ({
           winnerName={handshakeData.winner}
           marginText={handshakeData.margin}
           gameMode={gameMode}
-          onClose={() => setHandshakeData(null)}
+          onContinue={() => {
+            setHandshakeAcknowledged(true);
+            setHandshakeData(null);
+          }}
           onFinishRound={onFinishRound}
         />
       )}

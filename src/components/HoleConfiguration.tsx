@@ -68,7 +68,7 @@ export const HoleConfiguration: React.FC<HoleConfigurationProps> = ({
         stroke_index: editingHoles[hole.id],
       }));
 
-      onHolesUpdated(updatedHoles);
+      onHolesUpdated(updatedHoles as GolfHole[]);
       setSuccess(true);
       setTimeout(() => onClose(), 1500);
     } catch (err) {
