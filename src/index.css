@@ -1,3 +1,155 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* ─────────────────────────────────────────────────────────────
+   La Partideta — tokens de tema
+   Una sola escala. El tema solo reasigna valores, nunca estructura.
+   ───────────────────────────────────────────────────────────── */
+
+:root {
+  color-scheme: light;
+
+  /* Superficies */
+  --app: #F0FDF4;          /* antes: gradientes green-50 / emerald-50 / slate-50 */
+  --card: #FFFFFF;         /* antes: bg-white */
+  --card-2: #F9FAFB;       /* antes: bg-gray-50 */
+
+  /* Bordes */
+  --line: #E5E7EB;         /* antes: border-gray-200 / -100 */
+  --line-2: #D1D5DB;       /* antes: border-gray-300 */
+
+  /* Tinta */
+  --ink: #111827;          /* antes: text-gray-900 / -800 */
+  --ink-2: #374151;        /* antes: text-gray-700 */
+  --ink-3: #6B7280;        /* antes: text-gray-600 / -500 */
+  --ink-4: #9CA3AF;        /* antes: text-gray-400 / -300 (placeholders) */
+  --title: #064E3B;        /* antes: text-emerald-900 */
+
+  /* Marca — un solo verde (antes convivían green-600 y emerald-600) */
+  --accent: #059669;
+  --accent-hover: #047857;
+  --accent-deep: #047857;  /* antes: from-emerald-700 to-emerald-600 */
+  --accent-soft: #DCFCE7;  /* antes: bg-green-100 / bg-emerald-50 */
+  --accent-ring: #A7F3D0;  /* antes: border-emerald-200 */
+  --accent-ink: #047857;   /* texto verde sobre superficie clara */
+  --on-accent: #FFFFFF;    /* texto sobre el verde sólido */
+  --on-deep: #D1FAE5;      /* texto secundario sobre accent-deep */
+
+  /* Neutro de acción (Home / Anterior / Cancelar) */
+  --neutral: #E5E7EB;
+  --neutral-hover: #D1D5DB;
+  --neutral-ink: #1F2937;
+
+  /* Sombra */
+  --shadow-card: 0 10px 25px -18px rgba(6, 78, 59, .5);
+  --shadow-soft: 0 2px 6px -3px rgba(6, 78, 59, .4);
+}
+
+.dark {
+  color-scheme: dark;
+
+  --app: #071710;
+  --card: #0F241A;
+  --card-2: #152D22;
+
+  --line: #1E3A2C;
+  --line-2: #2C4C3B;
+
+  --ink: #ECFDF5;
+  --ink-2: #C6DCD0;
+  --ink-3: #8FA79A;
+  --ink-4: #6E8578;
+  --title: #6EE7B7;
+
+  /* El verde se aclara: emerald-600 sobre fondo oscuro no llega a AA */
+  --accent: #34D399;
+  --accent-hover: #6EE7B7;
+  --accent-deep: #04120C;
+  --accent-soft: #12301F;
+  --accent-ring: #1E5B3E;
+  --accent-ink: #6EE7B7;
+  --on-accent: #04120C;    /* tinta oscura sobre verde claro */
+  --on-deep: #A7F3D0;
+
+  --neutral: #1E3A2C;
+  --neutral-hover: #2C4C3B;
+  --neutral-ink: #C6DCD0;
+
+  /* En oscuro la jerarquía la marca el escalón de superficie, no la sombra */
+  --shadow-card: none;
+  --shadow-soft: none;
+}
+
+/* Los inputs heredan el tema (sin esto Chrome los pinta blancos en oscuro) */
+input, select, textarea {
+  background-color: var(--card);
+  color: var(--ink);
+}
+input::placeholder, textarea::placeholder {
+  color: var(--ink-4);
+}
+
+/* Transición suave al cambiar de tema, sin animar layout */
+html.theme-transition,
+html.theme-transition * {
+  transition: background-color .2s ease, border-color .2s ease, color .2s ease;
+}
+
+/* Colores semánticos: conservan su significado sin perder contraste en oscuro. */
+.dark .bg-red-50, .dark .bg-red-100 { background-color: #450a0a; }
+.dark .bg-red-200 { background-color: #7f1d1d; }
+.dark .text-red-600, .dark .text-red-700, .dark .text-red-800, .dark .text-red-900 { color: #fca5a5; }
+
+.dark .bg-blue-50, .dark .bg-blue-100 { background-color: #172554; }
+.dark .bg-blue-200 { background-color: #1e3a8a; }
+.dark .text-blue-600, .dark .text-blue-700, .dark .text-blue-800, .dark .text-blue-900 { color: #bfdbfe; }
+.dark .from-blue-50, .dark .from-blue-100 {
+  --tw-gradient-from: #172554 var(--tw-gradient-from-position);
+  --tw-gradient-to: rgb(23 37 84 / 0) var(--tw-gradient-to-position);
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
+}
+.dark .to-blue-100 { --tw-gradient-to: #1e3a8a var(--tw-gradient-to-position); }
+
+.dark .bg-yellow-50, .dark .bg-yellow-100 { background-color: #422006; }
+.dark .bg-yellow-200 { background-color: #713f12; }
+.dark .text-yellow-600, .dark .text-yellow-700, .dark .text-yellow-800, .dark .text-yellow-900 { color: #fde68a; }
+.dark .from-yellow-100 {
+  --tw-gradient-from: #422006 var(--tw-gradient-from-position);
+  --tw-gradient-to: rgb(66 32 6 / 0) var(--tw-gradient-to-position);
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
+}
+.dark .to-yellow-50 { --tw-gradient-to: #713f12 var(--tw-gradient-to-position); }
+.dark .bg-yellow-300.text-yellow-900,
+.dark .bg-yellow-400.text-yellow-900 { color: #713f12; }
+
+.dark .bg-amber-50, .dark .bg-amber-100 { background-color: #451a03; }
+.dark .bg-amber-200 { background-color: #78350f; }
+.dark .text-amber-600, .dark .text-amber-700, .dark .text-amber-800, .dark .text-amber-900 { color: #fcd34d; }
+
+.dark .bg-orange-50, .dark .bg-orange-100 { background-color: #431407; }
+.dark .bg-orange-200 { background-color: #7c2d12; }
+.dark .text-orange-600, .dark .text-orange-700, .dark .text-orange-800, .dark .text-orange-900 { color: #fdba74; }
+.dark .from-orange-100 {
+  --tw-gradient-from: #431407 var(--tw-gradient-from-position);
+  --tw-gradient-to: rgb(67 20 7 / 0) var(--tw-gradient-to-position);
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
+}
+.dark .to-orange-50 { --tw-gradient-to: #7c2d12 var(--tw-gradient-to-position); }
+.dark .bg-orange-400.text-orange-900 { color: #7c2d12; }
+
+.dark .bg-purple-50, .dark .bg-purple-100 { background-color: #3b0764; }
+.dark .bg-purple-200 { background-color: #581c87; }
+.dark .text-purple-600, .dark .text-purple-700, .dark .text-purple-800, .dark .text-purple-900 { color: #e9d5ff; }
+.dark .from-purple-50, .dark .from-purple-100 {
+  --tw-gradient-from: #3b0764 var(--tw-gradient-from-position);
+  --tw-gradient-to: rgb(59 7 100 / 0) var(--tw-gradient-to-position);
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
+}
+.dark .to-purple-50, .dark .to-purple-100 { --tw-gradient-to: #581c87 var(--tw-gradient-to-position); }
+
+/* QuickPlayStatistics ya tiene una paleta oscura cerrada: el tema no la recolorea. */
+.dark .theme-static .text-yellow-800 { color: #854d0e; }
+.dark .theme-static .text-yellow-900 { color: #713f12; }
+.dark .theme-static .text-orange-900 { color: #7c2d12; }
+.dark .theme-static .text-red-700 { color: #b91c1c; }

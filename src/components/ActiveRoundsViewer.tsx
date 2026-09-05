@@ -348,20 +348,20 @@ export const ActiveRoundsViewer: React.FC<ActiveRoundsViewerProps> = ({
   const hasCompletedRounds = rounds.some(r => r.round.status === 'completed');
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-emerald-900 to-emerald-800 p-4 md:p-8">
+    <div className="min-h-screen bg-app p-4 md:p-8">
       <div className="max-w-4xl mx-auto">
         {showGlobalLeaderboard ? (
           <div>
             <div className="flex items-center justify-between mb-6">
               <button
                 onClick={() => setShowGlobalLeaderboard(false)}
-                className="bg-white hover:bg-gray-100 text-emerald-900 font-bold py-2 px-4 rounded-lg flex items-center gap-2 transition-colors"
+                className="bg-card hover:bg-card-2 text-title font-bold py-2 px-4 rounded-lg flex items-center gap-2 transition-colors"
               >
                 <ArrowLeft size={20} />
                Atrás
               </button>
 
-              <h1 className="text-3xl font-bold text-white">
+              <h1 className="text-3xl font-bold text-title">
                 {currentGroup
                   ? `Clasificación ${currentGroup.name || 'del Grupo'}`
                   : 'Todas las Partidas'}
@@ -370,7 +370,7 @@ export const ActiveRoundsViewer: React.FC<ActiveRoundsViewerProps> = ({
               <div className="w-24"></div>
             </div>
 
-            <div className="bg-white rounded-lg shadow-2xl p-6">
+            <div className="bg-card rounded-lg shadow-card p-6">
               <div className="space-y-3">
                 {getGlobalLeaderboard().map((player, index) => (
                   <div
@@ -379,10 +379,10 @@ export const ActiveRoundsViewer: React.FC<ActiveRoundsViewerProps> = ({
                       index === 0
                         ? 'bg-gradient-to-r from-yellow-100 to-yellow-50 border-2 border-yellow-400'
                         : index === 1
-                        ? 'bg-gradient-to-r from-gray-100 to-gray-50 border-2 border-gray-400'
+                        ? 'bg-card-2 border-2 border-line-2'
                         : index === 2
                         ? 'bg-gradient-to-r from-orange-100 to-orange-50 border-2 border-orange-400'
-                        : 'bg-gray-50 border border-gray-200'
+                        : 'bg-card-2 border border-line'
                     }`}
                   >
                     <div className="flex items-center gap-4">
@@ -391,17 +391,17 @@ export const ActiveRoundsViewer: React.FC<ActiveRoundsViewerProps> = ({
                           index === 0
                             ? 'bg-yellow-400 text-yellow-900'
                             : index === 1
-                            ? 'bg-gray-400 text-gray-900'
+                            ? 'bg-ink-4 text-ink'
                             : index === 2
                             ? 'bg-orange-400 text-orange-900'
-                            : 'bg-gray-300 text-gray-700'
+                            : 'bg-neutral-hover text-ink-2'
                         }`}
                       >
                         {index + 1}
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
-                          <p className="font-bold text-lg text-gray-800">{player.name}</p>
+                          <p className="font-bold text-lg text-ink">{player.name}</p>
                           {player.noPasoRojasHoles.length > 0 && (
                             <div className="flex items-center gap-1">
                               {player.noPasoRojasHoles.map((holeNumber) => (
@@ -415,7 +415,7 @@ export const ActiveRoundsViewer: React.FC<ActiveRoundsViewerProps> = ({
                             </div>
                           )}
                         </div>
-                        <p className="text-sm text-gray-600">
+                        <p className="text-sm text-ink-3">
                           HCP {player.handicap} • {player.roundName} • {player.holesPlayed} hoyos
                         </p>
                       </div>
@@ -426,15 +426,15 @@ export const ActiveRoundsViewer: React.FC<ActiveRoundsViewerProps> = ({
                           index === 0
                             ? 'text-yellow-600'
                             : index === 1
-                            ? 'text-gray-600'
+                            ? 'text-ink-3'
                             : index === 2
                             ? 'text-orange-600'
-                            : 'text-emerald-700'
+                            : 'text-accent-ink'
                         }`}
                       >
                         {player.totalPoints}
                       </p>
-                      <p className="text-xs text-gray-500">puntos</p>
+                      <p className="text-xs text-ink-3">puntos</p>
                     </div>
                   </div>
                 ))}
@@ -447,7 +447,7 @@ export const ActiveRoundsViewer: React.FC<ActiveRoundsViewerProps> = ({
               <div className="flex items-center justify-between mb-3">
                 <button
                   onClick={onBack}
-                  className="bg-white hover:bg-gray-100 text-emerald-900 font-bold py-2 px-4 rounded-lg flex items-center gap-2 transition-colors"
+                  className="bg-card hover:bg-card-2 text-title font-bold py-2 px-4 rounded-lg flex items-center gap-2 transition-colors"
                 >
                   <ArrowLeft size={20} />
 
@@ -498,12 +498,12 @@ export const ActiveRoundsViewer: React.FC<ActiveRoundsViewerProps> = ({
               </div>
 
               <div>
-                <h1 className="text-3xl font-bold text-white">
+                <h1 className="text-3xl font-bold text-title">
                   {currentGroup
                     ? `Partidas ${currentGroup.name || 'del Grupo'}`
                     : 'Mis Partidas'}
                 </h1>
-                <p className="text-emerald-100 text-sm mt-1">
+                <p className="text-accent-ink text-sm mt-1">
                   {rounds.length} {rounds.length === 1 ? 'partida' : 'partidas'}
                 </p>
               </div>
@@ -517,11 +517,11 @@ export const ActiveRoundsViewer: React.FC<ActiveRoundsViewerProps> = ({
 
         {loading && rounds.length === 0 ? (
           <div className="text-center py-12">
-            <p className="text-white text-lg">Cargando partidas...</p>
+            <p className="text-ink text-lg">Cargando partidas...</p>
           </div>
         ) : rounds.length === 0 ? (
-          <div className="bg-white rounded-lg shadow-lg p-8 text-center">
-            <p className="text-gray-600 text-lg">No hay partidas activas en este momento</p>
+          <div className="bg-card rounded-lg shadow-card p-8 text-center">
+            <p className="text-ink-3 text-lg">No hay partidas activas en este momento</p>
           </div>
         ) : (
           <div className="space-y-4">
@@ -538,13 +538,13 @@ export const ActiveRoundsViewer: React.FC<ActiveRoundsViewerProps> = ({
               return (
                 <div key={roundStats.round.id} className="space-y-4">
                   <div
-                    className={`bg-white rounded-lg shadow-lg overflow-hidden transition-all ${
+                    className={`bg-card rounded-lg shadow-card overflow-hidden transition-all ${
                       isCompleted && isExpanded ? 'max-h-[400px]' : ''
                     }`}
                   >
                     <button
                       onClick={() => setSelectedRound(isExpanded ? null : roundStats.round.id)}
-                      className="w-full p-4 md:p-6 flex items-center justify-between hover:bg-gray-50 transition-colors"
+                      className="w-full p-4 md:p-6 flex items-center justify-between hover:bg-card-2 transition-colors"
                     >
                     <div className="flex-1 text-left">
                       <div className="flex items-center justify-between flex-wrap gap-2 w-full">
@@ -552,17 +552,17 @@ export const ActiveRoundsViewer: React.FC<ActiveRoundsViewerProps> = ({
                           <span className="bg-blue-600 text-white text-sm font-bold px-2.5 py-1 rounded">
                             {roundStats.round.reference_number}
                           </span>
-                          <p className="font-bold text-lg text-gray-800">{courseHoles}</p>
+                          <p className="font-bold text-lg text-ink">{courseHoles}</p>
                           {roundStats.round.status === 'completed' ? (
-                            <span className="bg-green-600 text-white text-xs font-semibold px-2.5 py-1 rounded">
+                            <span className="bg-accent text-on-accent text-xs font-semibold px-2.5 py-1 rounded">
                               FINALIZADA
                             </span>
                           ) : roundStats.round.status === 'archived' ? (
-                            <span className="bg-gray-600 text-white text-xs font-semibold px-2.5 py-1 rounded">
+                            <span className="bg-ink-3 text-white text-xs font-semibold px-2.5 py-1 rounded">
                               ARCHIVADA
                             </span>
                           ) : maxHole > 0 ? (
-                            <span className="bg-emerald-100 text-emerald-800 text-xs font-semibold px-2 py-1 rounded">
+                            <span className="bg-accent-soft text-accent-ink text-xs font-semibold px-2 py-1 rounded">
                               Hoyo {maxHole}
                             </span>
                           ) : null}
@@ -593,29 +593,29 @@ export const ActiveRoundsViewer: React.FC<ActiveRoundsViewerProps> = ({
                           </button>
                         </div>
                       </div>
-                      <div className="flex gap-2 text-sm text-gray-600 mt-1 flex-wrap">
+                      <div className="flex gap-2 text-sm text-ink-3 mt-1 flex-wrap">
                         <span>{roundStats.players.length} {roundStats.players.length === 1 ? 'Jugador' : 'Jugadores'}</span>
                         {roundStats.players.length > 0 && (
                           <>
                             <span>•</span>
-                            <span className="font-medium text-emerald-700">
+                            <span className="font-medium text-accent-ink">
                               {roundStats.players.map(p => p.name).join(', ')}
                             </span>
                           </>
                         )}
                       </div>
-                      <div className="text-xs text-gray-500 mt-1">
+                      <div className="text-xs text-ink-3 mt-1">
                         Iniciada hace {getTimeElapsed(roundStats.round.created_at)}
                       </div>
                     </div>
 
-                    <Eye className="text-emerald-600" size={24} />
+                    <Eye className="text-accent-ink" size={24} />
                   </button>
 
                   {isExpanded && !isCompleted && (
-                    <div className="border-t bg-gray-50 p-4 md:p-6 space-y-4">
+                    <div className="border-t bg-card-2 p-4 md:p-6 space-y-4">
                       <div>
-                        <h3 className="font-bold text-gray-800 mb-3">Clasificación</h3>
+                        <h3 className="font-bold text-ink mb-3">Clasificación</h3>
                         <div className="space-y-2">
                           {roundStats.players
                             .map((player) => {
@@ -636,19 +636,19 @@ export const ActiveRoundsViewer: React.FC<ActiveRoundsViewerProps> = ({
                                 key={item.player.id}
                                 className={`p-3 rounded-lg flex items-center justify-between gap-3 ${
                                   index === 0
-                                    ? 'bg-yellow-100 border border-yellow-400'
-                                    : 'bg-white border border-gray-200'
+                                    ? 'bg-yellow-100 dark:bg-yellow-950 border border-yellow-400 dark:border-yellow-700'
+                                    : 'bg-card border border-line'
                                 }`}
                               >
                                 <div className="flex-1">
-                                  <p className="font-semibold text-gray-800">{item.player.name}</p>
-                                  <p className="text-xs text-gray-600">
+                                  <p className={`font-semibold ${index === 0 ? 'text-yellow-950 dark:text-yellow-100' : 'text-ink'}`}>{item.player.name}</p>
+                                  <p className="text-xs text-ink-3">
                                     HCP {item.player.playing_handicap} • {item.stats.scoresEntered} hoyos
                                   </p>
                                 </div>
                                 <p
                                   className={`text-2xl font-bold ${
-                                    index === 0 ? 'text-yellow-600' : 'text-emerald-700'
+                                    index === 0 ? 'text-yellow-600' : 'text-accent-ink'
                                   }`}
                                 >
                                   {item.stats.totalPoints}
@@ -676,7 +676,7 @@ export const ActiveRoundsViewer: React.FC<ActiveRoundsViewerProps> = ({
                             onJoinRound(roundStats.round.id);
                             setSelectedRound(null);
                           }}
-                          className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-lg transition-colors"
+                          className="flex-1 bg-accent hover:bg-accent-hover text-on-accent font-bold py-3 rounded-lg transition-colors"
                         >
                           {roundStats.round.status === 'completed'
                             ? 'Ver Resultados'
@@ -702,9 +702,9 @@ export const ActiveRoundsViewer: React.FC<ActiveRoundsViewerProps> = ({
                   )}
 
                   {isExpanded && isCompleted && (
-                    <div className="border-t bg-gray-50 p-4 md:p-6 space-y-4">
+                    <div className="border-t bg-card-2 p-4 md:p-6 space-y-4">
                       <div>
-                        <h3 className="font-bold text-gray-800 mb-3">Resumen</h3>
+                        <h3 className="font-bold text-ink mb-3">Resumen</h3>
                         <div className="space-y-2">
                           {roundStats.players
                             .map((player) => {
@@ -727,18 +727,18 @@ export const ActiveRoundsViewer: React.FC<ActiveRoundsViewerProps> = ({
                                 className={`p-3 rounded-lg flex items-center justify-between gap-3 ${
                                   index === 0
                                     ? 'bg-yellow-100 border border-yellow-400'
-                                    : 'bg-white border border-gray-200'
+                                    : 'bg-card border border-line'
                                 }`}
                               >
                                 <div className="flex-1">
-                                  <p className="font-semibold text-gray-800">{item.player.name}</p>
-                                  <p className="text-xs text-gray-600">
+                                  <p className="font-semibold text-ink">{item.player.name}</p>
+                                  <p className="text-xs text-ink-3">
                                     HCP {item.player.playing_handicap}
                                   </p>
                                 </div>
                                 <p
                                   className={`text-2xl font-bold ${
-                                    index === 0 ? 'text-yellow-600' : 'text-emerald-700'
+                                    index === 0 ? 'text-yellow-600' : 'text-accent-ink'
                                   }`}
                                 >
                                   {item.stats.totalPoints}
@@ -761,7 +761,7 @@ export const ActiveRoundsViewer: React.FC<ActiveRoundsViewerProps> = ({
                             onJoinRound(roundStats.round.id);
                             setSelectedRound(null);
                           }}
-                          className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-lg transition-colors"
+                          className="flex-1 bg-accent hover:bg-accent-hover text-on-accent font-bold py-3 rounded-lg transition-colors"
                         >
                           Ver Resultados Completos
                         </button>
@@ -807,17 +807,17 @@ export const ActiveRoundsViewer: React.FC<ActiveRoundsViewerProps> = ({
 
       {playerToDelete && !showAdminPinModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg shadow-2xl max-w-md w-full p-6">
+          <div className="bg-card rounded-lg shadow-card max-w-md w-full p-6">
             <div className="flex items-center gap-3 mb-4">
               <div className="bg-red-100 p-3 rounded-full">
                 <UserX className="text-red-600" size={24} />
               </div>
-              <h2 className="text-xl font-bold text-gray-900">
+              <h2 className="text-xl font-bold text-ink">
                 Eliminar Jugador
               </h2>
             </div>
 
-            <p className="text-gray-700 mb-4">
+            <p className="text-ink-2 mb-4">
               ¿Estás seguro de que quieres eliminar a <strong>{playerToDelete.playerName}</strong> de esta partida?
             </p>
 
@@ -839,7 +839,7 @@ export const ActiveRoundsViewer: React.FC<ActiveRoundsViewerProps> = ({
             <div className="flex gap-3">
               <button
                 onClick={handleCancelDeletePlayer}
-                className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-3 rounded-lg transition-colors"
+                className="flex-1 bg-neutral hover:bg-neutral-hover text-ink font-semibold py-3 rounded-lg transition-colors"
               >
                 Cancelar
               </button>
@@ -857,24 +857,24 @@ export const ActiveRoundsViewer: React.FC<ActiveRoundsViewerProps> = ({
 
       {showAddPlayerModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg shadow-2xl max-w-md w-full p-6">
+          <div className="bg-card rounded-lg shadow-card max-w-md w-full p-6">
             <div className="flex items-center gap-3 mb-4">
               <div className="bg-blue-100 p-3 rounded-full">
                 <UserPlus className="text-blue-600" size={24} />
               </div>
-              <h2 className="text-xl font-bold text-gray-900">
+              <h2 className="text-xl font-bold text-ink">
                 Añadir Jugador
               </h2>
             </div>
 
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-ink-2 mb-2">
                 Selecciona un jugador
               </label>
               <select
                 value={selectedPlayerId}
                 onChange={(e) => setSelectedPlayerId(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 border border-line-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               >
                 <option value="">-- Selecciona --</option>
                 {availablePlayers.map((player) => (
@@ -887,21 +887,21 @@ export const ActiveRoundsViewer: React.FC<ActiveRoundsViewerProps> = ({
             </div>
 
             {selectedPlayerId === 'new' && (
-              <div className="space-y-3 mb-4 p-3 bg-gray-50 rounded-lg">
+              <div className="space-y-3 mb-4 p-3 bg-card-2 rounded-lg">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-ink-2 mb-1">
                     Nombre
                   </label>
                   <input
                     type="text"
                     value={newPlayerName}
                     onChange={(e) => setNewPlayerName(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2 border border-line-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     placeholder="Nombre del jugador"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-ink-2 mb-1">
                     Handicap Exacto
                   </label>
                   <input
@@ -909,7 +909,7 @@ export const ActiveRoundsViewer: React.FC<ActiveRoundsViewerProps> = ({
                     step="0.1"
                     value={newPlayerHandicap}
                     onChange={(e) => setNewPlayerHandicap(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2 border border-line-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     placeholder="ej: 18.5"
                   />
                 </div>
@@ -919,7 +919,7 @@ export const ActiveRoundsViewer: React.FC<ActiveRoundsViewerProps> = ({
             <div className="flex gap-3">
               <button
                 onClick={() => setShowAddPlayerModal(null)}
-                className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-3 rounded-lg transition-colors"
+                className="flex-1 bg-neutral hover:bg-neutral-hover text-ink font-semibold py-3 rounded-lg transition-colors"
               >
                 Cancelar
               </button>

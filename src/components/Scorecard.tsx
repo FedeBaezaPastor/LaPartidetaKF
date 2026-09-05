@@ -166,36 +166,36 @@ export const Scorecard: React.FC<ScorecardProps> = ({
   }, [rounds, players, gameMode, handshakeAcknowledged]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-emerald-50 to-emerald-100 p-4 md:p-8">
+    <div className="min-h-screen bg-app p-4 md:p-8">
       <div className="max-w-2xl mx-auto">
-        <div className="bg-white rounded-lg shadow-2xl p-6 md:p-8">
+        <div className="bg-card rounded-lg shadow-card p-6 md:p-8">
           <div className="flex items-center justify-between mb-6">
             <button
               onClick={onResetGame}
-              className="bg-gray-200 hover:bg-gray-300 text-gray-800 p-2 rounded-lg transition-colors"
+              className="bg-neutral hover:bg-neutral-hover text-ink p-2 rounded-lg transition-colors"
               title="Volver al menú principal"
             >
               <Home size={20} />
             </button>
-            <h1 className="text-2xl md:text-3xl font-bold text-emerald-900 flex-1 text-center">
+            <h1 className="text-2xl md:text-3xl font-bold text-title flex-1 text-center">
               Tarjeta de Puntuación
             </h1>
             <button
               onClick={onShowLeaderboard}
-              className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 font-semibold transition-colors"
+              className="bg-accent hover:bg-accent-hover text-on-accent px-4 py-2 rounded-lg flex items-center gap-2 font-semibold transition-colors"
             >
               <Trophy size={20} />
               <span className="hidden sm:inline">Clasificación</span>
             </button>
           </div>
 
-          <div className="mb-4 bg-emerald-600 rounded-lg p-4 text-white">
+          <div className="mb-4 bg-accent rounded-lg p-4 text-on-accent">
             <div className="flex items-center justify-between">
               <div className="flex-1">
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className="text-lg font-bold">{courseName || 'Campo de Golf'}</span>
                   {isModeScoring && (
-                    <span className="bg-white/25 text-white text-xs font-bold px-2 py-0.5 rounded-md uppercase tracking-wide">
+                    <span className="bg-on-accent/25 text-white text-xs font-bold px-2 py-0.5 rounded-md uppercase tracking-wide">
                       {modeLabels[gameMode]}
                     </span>
                   )}
@@ -203,7 +203,7 @@ export const Scorecard: React.FC<ScorecardProps> = ({
                     <button
                       onClick={() => setShowCourseChangeModal(true)}
                       disabled={changingCourse}
-                      className="bg-white/20 hover:bg-white/30 text-white text-xs px-2 py-1 rounded-md flex items-center gap-1 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="bg-on-accent/20 hover:bg-on-accent/30 text-white text-xs px-2 py-1 rounded-md flex items-center gap-1 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                       title="Cambiar campo de golf"
                     >
                       <MapPin size={12} />
@@ -219,30 +219,30 @@ export const Scorecard: React.FC<ScorecardProps> = ({
           </div>
 
           {accessCode && hasEditAccess && (
-            <div className="mb-4 bg-white border-2 border-emerald-200 rounded-lg p-4 shadow-sm">
+            <div className="mb-4 bg-card border-2 border-accent-ring rounded-lg p-4 shadow-soft">
               <div className="flex items-center gap-2 justify-between">
                 <div className="flex items-center gap-2">
-                  <Lock className="text-emerald-600" size={20} />
-                  <span className="text-sm font-medium text-gray-700">
+                  <Lock className="text-accent-ink" size={20} />
+                  <span className="text-sm font-medium text-ink-2">
                     Código de Acceso:
                   </span>
-                  <code className="text-2xl font-bold text-emerald-700 tracking-[0.5em] ml-2">
+                  <code className="text-2xl font-bold text-accent-ink tracking-[0.5em] ml-2">
                     {showAccessCode ? accessCode : <span className="text-base">••••</span>}
                   </code>
                 </div>
                 <button
                   onClick={() => setShowAccessCode(!showAccessCode)}
-                  className="p-2 hover:bg-emerald-50 rounded-lg transition-colors"
+                  className="p-2 hover:bg-accent-soft rounded-lg transition-colors"
                   aria-label={showAccessCode ? 'Ocultar código' : 'Mostrar código'}
                 >
                   {showAccessCode ? (
-                    <EyeOff className="text-emerald-600" size={20} />
+                    <EyeOff className="text-accent-ink" size={20} />
                   ) : (
-                    <Eye className="text-emerald-600" size={20} />
+                    <Eye className="text-accent-ink" size={20} />
                   )}
                 </button>
               </div>
-              <p className="text-xs text-gray-600 mt-2">
+              <p className="text-xs text-ink-3 mt-2">
                 Comparte este código con otros jugadores para que puedan ver y editar puntuaciones
               </p>
             </div>
@@ -291,13 +291,13 @@ export const Scorecard: React.FC<ScorecardProps> = ({
 
           <div className="mb-6">
             <div className="relative">
-              <div className="w-full bg-gray-200 rounded-full h-3 shadow-inner">
+              <div className="w-full bg-neutral rounded-full h-3 shadow-inner">
                 <div
-                  className="bg-gradient-to-r from-emerald-500 to-emerald-600 h-3 rounded-full transition-all duration-300 shadow-sm"
+                  className="bg-gradient-to-r from-emerald-500 to-emerald-600 h-3 rounded-full transition-all duration-300 shadow-soft"
                   style={{ width: `${(currentHole / playableHoles.length) * 100}%` }}
                 />
               </div>
-              <p className="text-sm font-medium text-gray-700 mt-2 text-center">
+              <p className="text-sm font-medium text-ink-2 mt-2 text-center">
                 Hoyo {currentHole} de {playableHoles.length}
               </p>
             </div>
@@ -307,7 +307,7 @@ export const Scorecard: React.FC<ScorecardProps> = ({
             <button
               onClick={() => onHoleChange(Math.max(1, currentHole - 1))}
               disabled={currentHole === 1}
-              className="flex-1 bg-gray-200 hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed text-gray-800 font-semibold py-3 rounded-lg flex items-center justify-center gap-2 transition-colors"
+              className="flex-1 bg-neutral hover:bg-neutral-hover disabled:opacity-50 disabled:cursor-not-allowed text-ink font-semibold py-3 rounded-lg flex items-center justify-center gap-2 transition-colors"
             >
               <ChevronLeft size={20} />
               Anterior
@@ -325,7 +325,7 @@ export const Scorecard: React.FC<ScorecardProps> = ({
               <button
                 onClick={() => onHoleChange(Math.min(playableHoles.length, currentHole + 1))}
                 disabled={currentHole === playableHoles.length}
-                className="flex-1 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-lg flex items-center justify-center gap-2 transition-colors"
+                className="flex-1 bg-accent hover:bg-accent-hover disabled:opacity-50 disabled:cursor-not-allowed text-on-accent font-semibold py-3 rounded-lg flex items-center justify-center gap-2 transition-colors"
               >
                 Siguiente
                 <ChevronRight size={20} />
@@ -334,32 +334,32 @@ export const Scorecard: React.FC<ScorecardProps> = ({
           </div>
 
           <div className="border-t pt-4">
-            <h3 className="font-semibold text-gray-700 mb-3">Tabla de Golpes</h3>
+            <h3 className="font-semibold text-ink-2 mb-3">Tabla de Golpes</h3>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="bg-gray-100 border-b">
-                    <th className="text-left p-2 font-semibold text-gray-700">Jugador</th>
+                  <tr className="bg-card-2 border-b">
+                    <th className="text-left p-2 font-semibold text-ink-2">Jugador</th>
                     {playableHoles.map((h) => (
-                      <th key={h.hole_number} className="text-center p-2 font-semibold text-gray-700 min-w-[40px]">
+                      <th key={h.hole_number} className="text-center p-2 font-semibold text-ink-2 min-w-[40px]">
                         <div className="flex flex-col items-center gap-0.5">
                           <span>{h.hole_number}</span>
-                          <span className="text-xs font-normal text-gray-500">
+                          <span className="text-xs font-normal text-ink-3">
                             P{h.par}•H{h.stroke_index}
                           </span>
                         </div>
                       </th>
                     ))}
-                    <th className="text-center p-2 font-semibold text-gray-700 bg-gray-200 min-w-[50px]">
+                    <th className="text-center p-2 font-semibold text-ink-2 bg-neutral min-w-[50px]">
                       <div className="flex flex-col items-center gap-0.5">
                         <span>Total</span>
-                        <span className="text-xs font-normal text-gray-500">Brutos</span>
+                        <span className="text-xs font-normal text-ink-3">Brutos</span>
                       </div>
                     </th>
-                    <th className="text-center p-2 font-semibold text-gray-700 bg-emerald-100 min-w-[50px]">
+                    <th className="text-center p-2 font-semibold text-ink-2 bg-accent-soft min-w-[50px]">
                       <div className="flex flex-col items-center gap-0.5">
                         <span>Total</span>
-                        <span className="text-xs font-normal text-gray-500">Netos</span>
+                        <span className="text-xs font-normal text-ink-3">Netos</span>
                       </div>
                     </th>
                   </tr>
@@ -383,8 +383,8 @@ export const Scorecard: React.FC<ScorecardProps> = ({
                     }, 0);
 
                     return (
-                      <tr key={player.id} className="border-b hover:bg-gray-50">
-                        <td className="p-2 font-medium text-gray-800">
+                      <tr key={player.id} className="border-b hover:bg-card-2">
+                        <td className="p-2 font-medium text-ink">
                           <div className="flex items-center gap-2">
                             {gameMode === 'parejas' && players.length === 4 && (
                               <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${players.indexOf(player) < 2 ? 'bg-blue-100 text-blue-800' : 'bg-orange-100 text-orange-800'}`}>
@@ -408,7 +408,7 @@ export const Scorecard: React.FC<ScorecardProps> = ({
                             <td
                               key={h.hole_number}
                               className={`text-center p-2 relative ${
-                                h.hole_number === currentHole ? 'bg-emerald-100 font-bold' : ''
+                                h.hole_number === currentHole ? 'bg-accent-soft font-bold' : ''
                               }`}
                             >
                               <div className="flex flex-col items-center justify-center gap-1">
@@ -422,14 +422,14 @@ export const Scorecard: React.FC<ScorecardProps> = ({
                                     />
                                     {score.no_paso_rojas && (
                                       <span
-                                        className="absolute -left-1 -top-1 h-2.5 w-2.5 rounded-full border border-white bg-red-600 shadow-sm"
+                                        className="absolute -left-1 -top-1 h-2.5 w-2.5 rounded-full border border-white bg-red-600 shadow-soft"
                                         title={`No pasó de rojas · Hoyo ${h.hole_number}`}
                                         aria-label={`No pasó de rojas en el hoyo ${h.hole_number}`}
                                       />
                                     )}
                                     {score.spanish_hands && (
                                       <span
-                                        className="absolute -right-1 -top-1 h-2.5 w-2.5 rounded-full border border-white bg-emerald-500 shadow-sm"
+                                        className="absolute -right-1 -top-1 h-2.5 w-2.5 rounded-full border border-white bg-emerald-500 shadow-soft"
                                         title={`Spanish Hands · Hoyo ${h.hole_number}`}
                                         aria-label={`Spanish Hands en el hoyo ${h.hole_number}`}
                                       />
@@ -437,7 +437,7 @@ export const Scorecard: React.FC<ScorecardProps> = ({
                                   </div>
                                 ) : (
                                   <div className="w-7 h-7 flex items-center justify-center">
-                                    <span className="text-gray-300">-</span>
+                                    <span className="text-ink-4">-</span>
                                   </div>
                                 )}
                                 <div className="flex gap-0.5 h-1 min-h-[4px]">
@@ -456,8 +456,8 @@ export const Scorecard: React.FC<ScorecardProps> = ({
                         <td
                           className={`text-center p-2 font-bold ${
                             hasAbandonedScores
-                              ? 'text-gray-500'
-                              : 'bg-gray-100 text-gray-900'
+                              ? 'text-ink-3'
+                              : 'bg-card-2 text-ink'
                           }`}
                           style={hasAbandonedScores ? {
                             background: 'repeating-linear-gradient(45deg, #e5e7eb, #e5e7eb 5px, #d1d5db 5px, #d1d5db 10px)'
@@ -468,8 +468,8 @@ export const Scorecard: React.FC<ScorecardProps> = ({
                         <td
                           className={`text-center p-2 font-bold ${
                             hasAbandonedScores
-                              ? 'text-gray-500'
-                              : 'bg-emerald-50 text-emerald-900'
+                              ? 'text-ink-3'
+                              : 'bg-accent-soft text-title'
                           }`}
                           style={hasAbandonedScores ? {
                             background: 'repeating-linear-gradient(45deg, #e5e7eb, #e5e7eb 5px, #d1d5db 5px, #d1d5db 10px)'
@@ -481,8 +481,8 @@ export const Scorecard: React.FC<ScorecardProps> = ({
                     );
                   })}
                   {isModeScoring && gameMode !== 'sindicato' && (
-                    <tr className="border-b-2 border-emerald-300 bg-emerald-50">
-                      <td className="p-2 font-bold text-emerald-800 text-xs uppercase tracking-wide">Marcador</td>
+                    <tr className="border-b-2 border-accent-ring bg-accent-soft">
+                      <td className="p-2 font-bold text-accent-ink text-xs uppercase tracking-wide">Marcador</td>
                       {playableHoles.map((h) => {
                         const holeScores = players.map((p) => {
                           const s = roundsMap.get(p.id)?.scores[h.hole_number];
@@ -492,14 +492,14 @@ export const Scorecard: React.FC<ScorecardProps> = ({
                         if (!allPlayed) {
                           return (
                             <td key={h.hole_number} className="text-center p-2">
-                              <span className="text-gray-300 text-xs">-</span>
+                              <span className="text-ink-4 text-xs">-</span>
                             </td>
                           );
                         }
                         if (gameMode === 'match' && players.length === 2) {
                           const diff = (holeScores[0] ?? 0) - (holeScores[1] ?? 0);
                           const label = diff > 0 ? `${players[0].name.slice(0, 3).toUpperCase()}` : diff < 0 ? `${players[1].name.slice(0, 3).toUpperCase()}` : 'AS';
-                          const color = diff > 0 ? 'bg-emerald-200 text-emerald-900' : diff < 0 ? 'bg-gray-200 text-gray-700' : 'bg-gray-100 text-gray-500';
+                          const color = diff > 0 ? 'bg-emerald-200 text-title' : diff < 0 ? 'bg-neutral text-ink-2' : 'bg-card-2 text-ink-3';
                           return (
                             <td key={h.hole_number} className="text-center p-1">
                               <span className={`text-[10px] font-bold px-1 py-0.5 rounded ${color}`}>{label}</span>
@@ -525,7 +525,7 @@ export const Scorecard: React.FC<ScorecardProps> = ({
                             }
                           });
                           const label = `${t0Accum}-${t1Accum}`;
-                          const color = t0Accum > t1Accum ? 'bg-emerald-200 text-emerald-900' : t0Accum < t1Accum ? 'bg-gray-200 text-gray-700' : 'bg-gray-100 text-gray-500';
+                          const color = t0Accum > t1Accum ? 'bg-emerald-200 text-title' : t0Accum < t1Accum ? 'bg-neutral text-ink-2' : 'bg-card-2 text-ink-3';
                           return (
                             <td key={h.hole_number} className="text-center p-1">
                               <span className={`text-[10px] font-bold px-1 py-0.5 rounded ${color}`}>{label}</span>
@@ -534,7 +534,7 @@ export const Scorecard: React.FC<ScorecardProps> = ({
                         }
                         return (
                           <td key={h.hole_number} className="text-center p-2">
-                            <span className="text-gray-400 text-xs">·</span>
+                            <span className="text-ink-4 text-xs">·</span>
                           </td>
                         );
                       })}
@@ -552,7 +552,7 @@ export const Scorecard: React.FC<ScorecardProps> = ({
                             });
                             const diff = p0Won - p1Won;
                             const label = diff > 0 ? `${diff}UP` : diff < 0 ? `${Math.abs(diff)}UP` : 'AS';
-                            const color = diff > 0 ? 'bg-emerald-600 text-white' : diff < 0 ? 'bg-gray-500 text-white' : 'bg-gray-200 text-gray-700';
+                            const color = diff > 0 ? 'bg-accent text-on-accent' : diff < 0 ? 'bg-gray-500 text-white' : 'bg-neutral text-ink-2';
                             return <span className={`text-xs font-bold px-2 py-1 rounded ${color}`}>{label}</span>;
                           }
                           if (gameMode === 'parejas' && players.length === 4) {
@@ -568,10 +568,10 @@ export const Scorecard: React.FC<ScorecardProps> = ({
                               }
                             });
                             const label = `${t0}-${t1}`;
-                            const color = t0 > t1 ? 'bg-emerald-600 text-white' : t0 < t1 ? 'bg-gray-500 text-white' : 'bg-gray-200 text-gray-700';
+                            const color = t0 > t1 ? 'bg-accent text-on-accent' : t0 < t1 ? 'bg-gray-500 text-white' : 'bg-neutral text-ink-2';
                             return <span className={`text-xs font-bold px-2 py-1 rounded ${color}`}>{label}</span>;
                           }
-                          return <span className="text-gray-400 text-xs">-</span>;
+                          return <span className="text-ink-4 text-xs">-</span>;
                         })()}
                       </td>
                     </tr>
@@ -580,30 +580,30 @@ export const Scorecard: React.FC<ScorecardProps> = ({
               </table>
             </div>
 
-            <div className="mt-3 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs text-gray-600">
+            <div className="mt-3 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs text-ink-3">
               <div className="flex items-center gap-1.5">
-                <div className="w-4 h-4 rounded-full bg-gradient-to-br from-yellow-400 to-amber-500 border border-gray-300"></div>
+                <div className="w-4 h-4 rounded-full bg-gradient-to-br from-yellow-400 to-amber-500 border border-line-2"></div>
                 <span>Eagle</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <div className="w-4 h-4 rounded-full bg-red-500 border border-gray-300"></div>
+                <div className="w-4 h-4 rounded-full bg-red-500 border border-line-2"></div>
                 <span>Birdie</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <div className="w-4 h-4 rounded-full bg-white border-2 border-gray-300"></div>
+                <div className="w-4 h-4 rounded-full bg-card border-2 border-line-2"></div>
                 <span>Par</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <div className="w-4 h-4 rounded-full bg-blue-500 border border-gray-300"></div>
+                <div className="w-4 h-4 rounded-full bg-blue-500 border border-line-2"></div>
                 <span>Bogey</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <div className="w-4 h-4 rounded-full bg-black border border-gray-300"></div>
+                <div className="w-4 h-4 rounded-full bg-black border border-line-2"></div>
                 <span>Doble bogey+</span>
               </div>
             </div>
 
-            <h3 className="font-semibold text-gray-700 mb-3 mt-6">Resumen de Puntos Stableford</h3>
+            <h3 className="font-semibold text-ink-2 mb-3 mt-6">Resumen de Puntos Stableford</h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
               {players.map((player) => {
                 const round = roundsMap.get(player.id);
@@ -624,10 +624,10 @@ export const Scorecard: React.FC<ScorecardProps> = ({
                 return (
                   <div
                     key={player.id}
-                    className={`bg-gradient-to-br border-2 rounded-lg p-3 text-center ${
+                    className={`border-2 rounded-lg p-3 text-center ${
                       hasAbandonedScores
-                        ? 'from-gray-50 to-gray-100 border-gray-300'
-                        : 'from-emerald-50 to-emerald-100 border-emerald-300'
+                        ? 'bg-card-2 border-line-2'
+                        : 'bg-accent-soft border-accent-ring'
                     }`}
                   >
                     <div className="flex items-center justify-center gap-2">
@@ -636,27 +636,27 @@ export const Scorecard: React.FC<ScorecardProps> = ({
                           {players.indexOf(player) < 2 ? 'P1' : 'P2'}
                         </span>
                       )}
-                      <p className="text-sm font-semibold text-gray-800 truncate">{player.name}</p>
+                      <p className="text-sm font-semibold text-ink truncate">{player.name}</p>
                     </div>
                     {hasAbandonedScores ? (
                       <>
-                        <p className="text-2xl font-bold text-gray-400">-</p>
-                        <p className="text-xs text-gray-500">Abandonado</p>
+                        <p className="text-2xl font-bold text-ink-4">-</p>
+                        <p className="text-xs text-ink-3">Abandonado</p>
                       </>
                     ) : (
                       <>
-                        <p className="text-2xl font-bold text-emerald-700">{totalPoints}</p>
-                        <p className="text-xs text-gray-600">Puntos Stableford</p>
+                        <p className="text-2xl font-bold text-accent-ink">{totalPoints}</p>
+                        <p className="text-xs text-ink-3">Puntos Stableford</p>
                         {scoreToPar && (
-                          <div className="mt-2 pt-2 border-t border-emerald-300">
+                          <div className="mt-2 pt-2 border-t border-accent-ring">
                             <p className={`text-xl font-bold ${
-                              scoreToPar.value === 0 ? 'text-gray-700' :
-                              scoreToPar.value < 0 ? 'text-green-600' :
+                              scoreToPar.value === 0 ? 'text-ink-2' :
+                              scoreToPar.value < 0 ? 'text-accent-ink' :
                               'text-red-600'
                             }`}>
                               {scoreToPar.display}
                             </p>
-                            <p className="text-xs text-gray-600">vs Par Personal</p>
+                            <p className="text-xs text-ink-3">vs Par Personal</p>
                           </div>
                         )}
                       </>
@@ -668,7 +668,7 @@ export const Scorecard: React.FC<ScorecardProps> = ({
 
             {isDivend && (
               <>
-                <h3 className="font-semibold text-gray-700 mb-3 mt-6">No pasó de rojas</h3>
+                <h3 className="font-semibold text-ink-2 mb-3 mt-6">No pasó de rojas</h3>
                 <div className="space-y-3">
                   {players.map((player) => {
                     const round = roundsMap.get(player.id);
@@ -698,9 +698,9 @@ export const Scorecard: React.FC<ScorecardProps> = ({
                                 {players.indexOf(player) < 2 ? 'P1' : 'P2'}
                               </span>
                             )}
-                            <p className="font-semibold text-gray-800">{player.name}</p>
+                            <p className="font-semibold text-ink">{player.name}</p>
                           </div>
-                          <p className="text-xs text-gray-600">{holesList}</p>
+                          <p className="text-xs text-ink-3">{holesList}</p>
                         </div>
                         <div className="bg-red-100 border-2 border-red-300 rounded-lg px-4 py-2 min-w-[60px] text-center">
                           <p className="text-2xl font-bold text-red-600">{noPasoRojasCount}</p>
@@ -714,7 +714,7 @@ export const Scorecard: React.FC<ScorecardProps> = ({
 
             {groupCode !== null && (
               <>
-                <h3 className="font-semibold text-gray-700 mb-3 mt-6">Spanish Hands</h3>
+                <h3 className="font-semibold text-ink-2 mb-3 mt-6">Spanish Hands</h3>
                 <div className="space-y-3">
                   {players.map((player) => {
                     const playerRound = roundsMap.get(player.id);
@@ -722,21 +722,21 @@ export const Scorecard: React.FC<ScorecardProps> = ({
                       .filter(h => playerRound?.scores[h.hole_number]?.spanish_hands)
                       .map(h => h.hole_number);
                     return (
-                      <div key={player.id} className="bg-emerald-50 border-2 border-emerald-200 rounded-lg p-3 flex items-center justify-between">
+                      <div key={player.id} className="bg-accent-soft border-2 border-accent-ring rounded-lg p-3 flex items-center justify-between">
                         <div>
-                          <p className="font-semibold text-gray-800">{player.name}</p>
+                          <p className="font-semibold text-ink">{player.name}</p>
                           <div className="flex flex-wrap gap-1 mt-1">
                             {spanishHandsHoles.length > 0
                               ? spanishHandsHoles.map(holeNumber => (
-                                  <span key={holeNumber} className="bg-emerald-600 text-white text-xs font-bold rounded-full px-2 py-0.5">
+                                  <span key={holeNumber} className="bg-accent text-on-accent text-xs font-bold rounded-full px-2 py-0.5">
                                     Hoyo {holeNumber}
                                   </span>
                                 ))
-                              : <span className="text-xs text-gray-500">Ninguno</span>}
+                              : <span className="text-xs text-ink-3">Ninguno</span>}
                           </div>
                         </div>
-                        <div className="bg-emerald-100 border-2 border-emerald-300 rounded-lg px-4 py-2 min-w-[60px] text-center">
-                          <p className="text-2xl font-bold text-emerald-700">{spanishHandsHoles.length}</p>
+                        <div className="bg-accent-soft border-2 border-accent-ring rounded-lg px-4 py-2 min-w-[60px] text-center">
+                          <p className="text-2xl font-bold text-accent-ink">{spanishHandsHoles.length}</p>
                         </div>
                       </div>
                     );

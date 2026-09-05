@@ -103,7 +103,7 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
 
   const getMedalIcon = (position: number) => {
     if (position === 0) return <Trophy size={24} className="text-yellow-500" />;
-    if (position === 1) return <Medal size={24} className="text-gray-400" />;
+    if (position === 1) return <Medal size={24} className="text-ink-4" />;
     if (position === 2) return <Medal size={24} className="text-orange-600" />;
     return null;
   };
@@ -120,10 +120,10 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-emerald-900 to-emerald-800 p-4 md:p-8">
+    <div className="min-h-screen bg-app p-4 md:p-8">
       <div className="max-w-2xl mx-auto">
-        <div className="bg-white rounded-lg shadow-2xl overflow-hidden">
-          <div className="bg-gradient-to-r from-emerald-700 to-emerald-600 p-6 md:p-8">
+        <div className="bg-card rounded-lg shadow-card overflow-hidden">
+          <div className="bg-accent-deep p-6 md:p-8">
             <div className="flex items-center gap-3 mb-2">
               <Trophy size={32} className="text-yellow-400" />
               <h1 className="text-3xl md:text-4xl font-bold text-white">
@@ -131,7 +131,7 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
               </h1>
             </div>
             {!showAllRounds && (
-              <p className="text-emerald-100">
+              <p className="text-on-deep">
                 Hoyo {currentHole} - {sorted[0]?.player.name || 'En Juego'}
               </p>
             )}
@@ -144,8 +144,8 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
                   onClick={() => setShowAllRounds(false)}
                   className={`flex-1 py-3 px-4 rounded-lg font-semibold transition-colors ${
                     !showAllRounds
-                      ? 'bg-emerald-600 text-white'
-                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                      ? 'bg-accent text-on-accent'
+                      : 'bg-neutral text-ink-2 hover:bg-neutral-hover'
                   }`}
                 >
                   Mi Partida
@@ -157,8 +157,8 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
                   }}
                   className={`flex-1 py-3 px-4 rounded-lg font-semibold transition-colors ${
                     showAllRounds
-                      ? 'bg-emerald-600 text-white'
-                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                      ? 'bg-accent text-on-accent'
+                      : 'bg-neutral text-ink-2 hover:bg-neutral-hover'
                   }`}
                 >
                   Todas las Partidas ({allActiveRounds.length})
@@ -169,7 +169,7 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
             {!showAllRounds ? (
               <>
                 <div className="mb-6">
-                  <div className="text-sm text-gray-600 bg-blue-50 p-3 rounded-lg border border-blue-200">
+                  <div className="text-sm text-ink-3 bg-blue-50 p-3 rounded-lg border border-blue-200">
                     <p className="font-semibold text-blue-900">
                       Progreso: {currentHole}/
                       {players.length > 0
@@ -189,24 +189,24 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
                       className={`border-2 rounded-lg p-4 flex items-center gap-4 transition-all ${
                         index === 0
                           ? 'bg-gradient-to-r from-yellow-50 to-yellow-100 border-yellow-400'
-                          : 'bg-white border-gray-200 hover:border-gray-300'
+                          : 'bg-card border-line hover:border-line-2'
                       }`}
                     >
                       <div className="flex items-center justify-center w-12 h-12 rounded-full font-bold text-lg">
                         {getMedalIcon(index) || (
-                          <span className="text-gray-600 font-bold text-xl">{index + 1}</span>
+                          <span className="text-ink-3 font-bold text-xl">{index + 1}</span>
                         )}
                       </div>
 
                       <div className="flex-1">
                         <p
                           className={`font-bold text-lg ${
-                            index === 0 ? 'text-emerald-900' : 'text-gray-800'
+                            index === 0 ? 'text-title' : 'text-ink'
                           }`}
                         >
                           {stat.player.name}
                         </p>
-                        <div className="flex gap-4 text-sm text-gray-600">
+                        <div className="flex gap-4 text-sm text-ink-3">
                           <span>HCP: {stat.player.playing_handicap}</span>
                           <span>Hoyos: {stat.holesCompleted}</span>
                         </div>
@@ -218,7 +218,7 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
                               </span>
                             ))}
                             {stat.spanishHandsHoles.map(holeNumber => (
-                              <span key={`sh-${holeNumber}`} className="bg-emerald-600 text-white text-[10px] font-bold rounded-full px-2 py-0.5">
+                              <span key={`sh-${holeNumber}`} className="bg-accent text-on-accent text-[10px] font-bold rounded-full px-2 py-0.5">
                                 Spanish Hands H{holeNumber}
                               </span>
                             ))}
@@ -229,12 +229,12 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
                       <div className="text-right">
                         <p
                           className={`text-3xl font-bold ${
-                            index === 0 ? 'text-yellow-600' : 'text-emerald-700'
+                            index === 0 ? 'text-yellow-600' : 'text-accent-ink'
                           }`}
                         >
                           {stat.totalPoints}
                         </p>
-                        <p className="text-xs text-gray-600">
+                        <p className="text-xs text-ink-3">
                           {isModeScoring ? 'Puntos Modal.' : 'Puntos Obtenidos'}
                         </p>
                       </div>
@@ -246,12 +246,12 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
 
                 {sorted.length === 0 && (
                   <div className="text-center py-8">
-                    <p className="text-gray-500 text-lg">No hay jugadores en la partida</p>
+                    <p className="text-ink-3 text-lg">No hay jugadores en la partida</p>
                   </div>
                 )}
 
                 <div className="mt-8 border-t pt-6">
-                  <h3 className="font-bold text-lg text-gray-800 mb-4">
+                  <h3 className="font-bold text-lg text-ink mb-4">
                     {isModeScoring ? `Detalles de Puntuación (${gameMode === 'match' ? 'Match' : gameMode === 'sindicato' ? 'Sindicato' : 'Parejas'})` : 'Detalles de Puntuación Stableford'}
                   </h3>
                   {isModeScoring ? (
@@ -285,17 +285,17 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
                         <p className="font-semibold text-red-900">3 Puntos</p>
                         <p className="text-xs text-red-700">Birdie</p>
                       </div>
-                      <div className="bg-white p-3 rounded border-2 border-gray-300">
-                        <p className="font-semibold text-gray-900">2 Puntos</p>
-                        <p className="text-xs text-gray-700">Par Neto</p>
+                      <div className="bg-card p-3 rounded border-2 border-line-2">
+                        <p className="font-semibold text-ink">2 Puntos</p>
+                        <p className="text-xs text-ink-2">Par Neto</p>
                       </div>
                       <div className="bg-blue-50 p-3 rounded border border-blue-500">
                         <p className="font-semibold text-blue-900">1 Punto</p>
                         <p className="text-xs text-blue-700">Bogey</p>
                       </div>
                       <div className="bg-black/10 p-3 rounded border border-black">
-                        <p className="font-semibold text-gray-900">0 Puntos</p>
-                        <p className="text-xs text-gray-700">Doble o peor</p>
+                        <p className="font-semibold text-ink">0 Puntos</p>
+                        <p className="text-xs text-ink-2">Doble o peor</p>
                       </div>
                     </div>
                   )}
@@ -307,7 +307,7 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
                   <button
                     onClick={loadAllActiveRounds}
                     disabled={loading}
-                    className="bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-semibold py-2 px-4 rounded-lg flex items-center gap-2 transition-colors"
+                    className="bg-accent hover:bg-accent-hover disabled:opacity-50 text-on-accent font-semibold py-2 px-4 rounded-lg flex items-center gap-2 transition-colors"
                   >
                     <RefreshCw size={18} className={loading ? 'animate-spin' : ''} />
                     Actualizar
@@ -316,11 +316,11 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
 
                 {loading && allActiveRounds.length === 0 ? (
                   <div className="text-center py-8">
-                    <p className="text-gray-500">Cargando partidas...</p>
+                    <p className="text-ink-3">Cargando partidas...</p>
                   </div>
                 ) : allActiveRounds.length === 0 ? (
                   <div className="text-center py-8">
-                    <p className="text-gray-500">No hay partidas activas</p>
+                    <p className="text-ink-3">No hay partidas activas</p>
                   </div>
                 ) : (
                   <div className="space-y-4">
@@ -341,18 +341,18 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
                       return (
                         <div
                           key={roundStats.round.id}
-                          className="border-2 border-gray-200 rounded-lg overflow-hidden bg-white"
+                          className="border-2 border-line rounded-lg overflow-hidden bg-card"
                         >
-                          <div className="bg-gray-50 p-4 border-b border-gray-200">
+                          <div className="bg-card-2 p-4 border-b border-line">
                             <div className="flex items-center justify-between">
                               <div>
-                                <p className="font-bold text-lg text-gray-800">{courseHoles}</p>
-                                <p className="text-sm text-gray-600">
+                                <p className="font-bold text-lg text-ink">{courseHoles}</p>
+                                <p className="text-sm text-ink-3">
                                   {roundStats.players.length} Jugadores •{' '}
                                   {getTimeElapsed(roundStats.round.created_at)}
                                 </p>
                               </div>
-                              <Eye className="text-emerald-600" size={24} />
+                              <Eye className="text-accent-ink" size={24} />
                             </div>
                           </div>
 
@@ -363,14 +363,14 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
                                 className={`p-3 rounded-lg flex items-center justify-between ${
                                   index === 0
                                     ? 'bg-yellow-100 border border-yellow-400'
-                                    : 'bg-gray-50 border border-gray-200'
+                                    : 'bg-card-2 border border-line'
                                 }`}
                               >
                                 <div className="flex items-center gap-3">
-                                  <span className="font-bold text-gray-600 w-6">{index + 1}</span>
+                                  <span className="font-bold text-ink-3 w-6">{index + 1}</span>
                                   <div>
-                                    <p className="font-semibold text-gray-800">{item.player.name}</p>
-                                    <p className="text-xs text-gray-600">
+                                    <p className="font-semibold text-ink">{item.player.name}</p>
+                                    <p className="text-xs text-ink-3">
                                       HCP {item.player.playing_handicap} • {item.stats.scoresEntered}{' '}
                                       hoyos
                                     </p>
@@ -378,7 +378,7 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
                                 </div>
                                 <p
                                   className={`text-2xl font-bold ${
-                                    index === 0 ? 'text-yellow-600' : 'text-emerald-700'
+                                    index === 0 ? 'text-yellow-600' : 'text-accent-ink'
                                   }`}
                                 >
                                   {item.stats.totalPoints}
@@ -396,7 +396,7 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
 
             <button
               onClick={onBack}
-              className="w-full mt-8 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-4 rounded-lg flex items-center justify-center gap-2 transition-colors"
+              className="w-full mt-8 bg-accent hover:bg-accent-hover text-on-accent font-bold py-4 rounded-lg flex items-center justify-center gap-2 transition-colors"
             >
               <ArrowLeft size={20} />
               Volver a la Tarjeta

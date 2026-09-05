@@ -405,14 +405,14 @@ export const PlayerSetup: React.FC<PlayerSetupProps> = ({
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-emerald-900 to-emerald-800 p-4 md:p-8">
+    <div className="min-h-screen bg-app p-4 md:p-8">
       <div className="max-w-2xl mx-auto">
-        <div className="bg-white rounded-lg shadow-2xl p-6 md:p-8">
+        <div className="bg-card rounded-lg shadow-card p-6 md:p-8">
           <div className="flex items-center justify-between mb-6">
             {onBack && (
               <button
                 onClick={onBack}
-                className="text-emerald-700 hover:text-emerald-900 font-semibold flex items-center gap-2 transition-colors"
+                className="text-accent-ink hover:text-title font-semibold flex items-center gap-2 transition-colors"
               >
                 <ArrowLeft size={20} />
                 Menú Principal
@@ -420,40 +420,40 @@ export const PlayerSetup: React.FC<PlayerSetupProps> = ({
             )}
             <div className="flex-1"></div>
           </div>
-          <h1 className="text-3xl md:text-4xl font-bold text-emerald-900 mb-2 text-center">
+          <h1 className="text-3xl md:text-4xl font-bold text-title mb-2 text-center">
             Configuración de Partida
           </h1>
-          <p className="text-gray-600 text-center mb-2">Añade jugadores y configura la partida</p>
+          <p className="text-ink-3 text-center mb-2">Añade jugadores y configura la partida</p>
           {gameMode !== 'stableford' && (
-            <div className="mb-4 bg-emerald-50 border border-emerald-200 rounded-lg px-4 py-2 text-center">
-              <span className="text-sm font-semibold text-emerald-800">
+            <div className="mb-4 bg-accent-soft border border-accent-ring rounded-lg px-4 py-2 text-center">
+              <span className="text-sm font-semibold text-accent-ink">
                 Modalidad: {gameModeLabel} — {requiredPlayers} jugadores
               </span>
             </div>
           )}
 
           {accessCode && hasEditAccess && (
-            <div className="mb-6 bg-emerald-50 border border-emerald-200 rounded-lg p-4">
+            <div className="mb-6 bg-accent-soft border border-accent-ring rounded-lg p-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <Lock className="text-emerald-600" size={20} />
-                  <span className="text-sm font-medium text-emerald-900">
+                  <Lock className="text-accent-ink" size={20} />
+                  <span className="text-sm font-medium text-title">
                     Código de Acceso:
                   </span>
-                  <code className="text-lg font-bold text-emerald-700 tracking-widest">
+                  <code className="text-lg font-bold text-accent-ink tracking-widest">
                     {showCode ? accessCode : '••••'}
                   </code>
                 </div>
                 <button
                   type="button"
                   onClick={() => setShowCode(!showCode)}
-                  className="text-emerald-600 hover:text-emerald-700 p-1 transition-colors"
+                  className="text-accent-ink hover:text-accent-ink p-1 transition-colors"
                   title={showCode ? 'Ocultar código' : 'Mostrar código'}
                 >
                   {showCode ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
-              <p className="text-xs text-emerald-700 mt-2">
+              <p className="text-xs text-accent-ink mt-2">
                 Comparte este código con otros jugadores para que puedan unirse a la partida
               </p>
             </div>
@@ -483,7 +483,7 @@ export const PlayerSetup: React.FC<PlayerSetupProps> = ({
 
           <form onSubmit={handleAddPlayer} className="space-y-4 mb-8">
             <div className="relative player-search-container">
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <label className="block text-sm font-semibold text-ink-2 mb-2">
                 Nombre del Jugador
               </label>
               <div className="relative">
@@ -494,41 +494,41 @@ export const PlayerSetup: React.FC<PlayerSetupProps> = ({
                   onFocus={() => setShowDropdown(true)}
                   placeholder="Buscar o crear jugador..."
                   disabled={adding || loading || !canAddMorePlayers}
-                  className="w-full px-4 py-3 pr-10 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-emerald-600 transition-colors disabled:bg-gray-100"
+                  className="w-full px-4 py-3 pr-10 border-2 border-line-2 rounded-lg focus:outline-none focus:border-accent transition-colors disabled:bg-gray-100"
                   autoComplete="off"
                 />
                 <ChevronDown
                   size={20}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none"
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-ink-4 pointer-events-none"
                 />
               </div>
 
               {showDropdown && (
-                <div className="absolute z-10 w-full mt-1 bg-white border-2 border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                <div className="absolute z-10 w-full mt-1 bg-card border-2 border-line-2 rounded-lg shadow-card max-h-60 overflow-y-auto">
                   {filteredPlayers.length > 0 ? (
                     <div>
-                      <div className="px-3 py-2 text-xs font-semibold text-gray-500 bg-gray-50 border-b">
+                      <div className="px-3 py-2 text-xs font-semibold text-ink-3 bg-card-2 border-b">
                         JUGADORES EXISTENTES
                       </div>
                       {filteredPlayers.map((player) => (
                         <div
                           key={player.id}
-                          className="flex items-center hover:bg-emerald-50 border-b border-gray-100 transition-colors"
+                          className="flex items-center hover:bg-accent-soft border-b border-line transition-colors"
                         >
                           <button
                             type="button"
                             onClick={() => handleSelectPlayer(player)}
                             className="flex-1 px-4 py-3 text-left"
                           >
-                            <p className="font-semibold text-gray-800">{player.name}</p>
-                            <p className="text-sm text-gray-600">
+                            <p className="font-semibold text-ink">{player.name}</p>
+                            <p className="text-sm text-ink-3">
                               Hándicap ({numHoles} hoyos): {numHoles === 18 ? (player.exact_handicap_18 || player.exact_handicap) * 2 : (player.exact_handicap_18 || player.exact_handicap)}
                             </p>
                           </button>
                           <button
                             type="button"
                             onClick={(e) => handleEditPlayerClick(player, e)}
-                            className="px-3 py-3 text-gray-500 hover:text-emerald-600 transition-colors"
+                            className="px-3 py-3 text-ink-3 hover:text-emerald-600 transition-colors"
                             title="Editar nombre"
                           >
                             <Edit2 size={18} />
@@ -537,7 +537,7 @@ export const PlayerSetup: React.FC<PlayerSetupProps> = ({
                       ))}
                     </div>
                   ) : searchTerm ? (
-                    <div className="px-4 py-3 text-center text-gray-500">
+                    <div className="px-4 py-3 text-center text-ink-3">
                       No se encontraron jugadores
                     </div>
                   ) : null}
@@ -548,14 +548,14 @@ export const PlayerSetup: React.FC<PlayerSetupProps> = ({
                       onClick={() => setShowDropdown(false)}
                       className="w-full"
                     >
-                      <div className="px-3 py-2 text-xs font-semibold text-gray-500 bg-gray-50 border-b">
+                      <div className="px-3 py-2 text-xs font-semibold text-ink-3 bg-card-2 border-b">
                         CREAR NUEVO JUGADOR
                       </div>
-                      <div className="px-4 py-3 bg-emerald-50 hover:bg-emerald-100 transition-colors">
-                        <p className="font-semibold text-emerald-800">
+                      <div className="px-4 py-3 bg-accent-soft hover:bg-accent-soft transition-colors">
+                        <p className="font-semibold text-accent-ink">
                           Crear: {searchTerm}
                         </p>
-                        <p className="text-sm text-gray-600">
+                        <p className="text-sm text-ink-3">
                           Click para continuar
                         </p>
                       </div>
@@ -566,7 +566,7 @@ export const PlayerSetup: React.FC<PlayerSetupProps> = ({
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <label className="block text-sm font-semibold text-ink-2 mb-2">
                 Hándicap Exacto ({numHoles} hoyos)
               </label>
               <input
@@ -576,19 +576,19 @@ export const PlayerSetup: React.FC<PlayerSetupProps> = ({
                 onChange={(e) => setHandicap(e.target.value)}
                 placeholder={numHoles === 9 ? "Ej: 7.0 (para 9 hoyos)" : "Ej: 14.0 (para 18 hoyos)"}
                 disabled={adding || loading || !canAddMorePlayers}
-                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-emerald-600 transition-colors disabled:bg-gray-100"
+                className="w-full px-4 py-3 border-2 border-line-2 rounded-lg focus:outline-none focus:border-accent transition-colors disabled:bg-gray-100"
               />
               {useSlope && (
-                <div className="mt-2 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                <div className="mt-2 p-3 bg-card-2 rounded-lg border border-line">
                   {!editingSlope ? (
                     <div className="flex items-center justify-between">
                       <div className="flex-1">
-                        <p className="text-xs font-semibold text-gray-700">
+                        <p className="text-xs font-semibold text-ink-2">
                           Slope: {currentSlope}
                           {isManualSlope && <span className="text-amber-600 ml-1">(Manual)</span>}
-                          {!isManualSlope && teeName && <span className="text-gray-500 ml-1">({teeName})</span>}
+                          {!isManualSlope && teeName && <span className="text-ink-3 ml-1">({teeName})</span>}
                         </p>
-                        <p className="text-xs text-gray-500 mt-0.5">
+                        <p className="text-xs text-ink-3 mt-0.5">
                           El Hándicap de Juego será calculado automáticamente
                         </p>
                       </div>
@@ -597,7 +597,7 @@ export const PlayerSetup: React.FC<PlayerSetupProps> = ({
                           type="button"
                           onClick={handleEditSlope}
                           disabled={loading}
-                          className="text-xs px-2 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded transition-colors disabled:opacity-50"
+                          className="text-xs px-2 py-1 bg-accent hover:bg-accent-hover text-on-accent rounded transition-colors disabled:opacity-50"
                         >
                           Editar
                         </button>
@@ -606,7 +606,7 @@ export const PlayerSetup: React.FC<PlayerSetupProps> = ({
                             type="button"
                             onClick={handleResetSlope}
                             disabled={loading}
-                            className="text-xs px-2 py-1 bg-gray-600 hover:bg-gray-700 text-white rounded transition-colors disabled:opacity-50"
+                            className="text-xs px-2 py-1 bg-ink-3 hover:bg-gray-700 text-white rounded transition-colors disabled:opacity-50"
                           >
                             Restablecer
                           </button>
@@ -623,24 +623,24 @@ export const PlayerSetup: React.FC<PlayerSetupProps> = ({
                           placeholder="Ej: 125"
                           min="55"
                           max="155"
-                          className="flex-1 px-3 py-2 text-sm border-2 border-gray-300 rounded-lg focus:outline-none focus:border-emerald-600"
+                          className="flex-1 px-3 py-2 text-sm border-2 border-line-2 rounded-lg focus:outline-none focus:border-accent"
                         />
                         <button
                           type="button"
                           onClick={handleSaveSlope}
-                          className="px-3 py-2 text-sm bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors"
+                          className="px-3 py-2 text-sm bg-accent hover:bg-accent-hover text-on-accent rounded-lg transition-colors"
                         >
                           Guardar
                         </button>
                         <button
                           type="button"
                           onClick={handleCancelEditSlope}
-                          className="px-3 py-2 text-sm bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors"
+                          className="px-3 py-2 text-sm bg-ink-3 hover:bg-gray-700 text-white rounded-lg transition-colors"
                         >
                           Cancelar
                         </button>
                       </div>
-                      <p className="text-xs text-gray-500">
+                      <p className="text-xs text-ink-3">
                         Rango válido: 55-155
                       </p>
                     </div>
@@ -658,7 +658,7 @@ export const PlayerSetup: React.FC<PlayerSetupProps> = ({
             <button
               type="submit"
               disabled={adding || loading || !canAddMorePlayers}
-              className="w-full bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-lg transition-colors flex items-center justify-center gap-2"
+              className="w-full bg-accent hover:bg-accent-hover disabled:opacity-50 disabled:cursor-not-allowed text-on-accent font-semibold py-3 rounded-lg transition-colors flex items-center justify-center gap-2"
             >
               <Plus size={20} />
               {adding ? 'Añadiendo...' : isNewPlayer ? 'Crear y Añadir Jugador' : 'Añadir Jugador'}
@@ -666,12 +666,12 @@ export const PlayerSetup: React.FC<PlayerSetupProps> = ({
           </form>
 
           <div className="border-t pt-6 mb-6">
-            <h2 className="text-lg font-semibold text-gray-800 mb-4">
+            <h2 className="text-lg font-semibold text-ink mb-4">
               Jugadores Agregados ({players.length} de {maxPlayers})
             </h2>
 
             {players.length === 0 ? (
-              <p className="text-gray-500 text-center py-4">
+              <p className="text-ink-3 text-center py-4">
                 Añade al menos un jugador para comenzar
               </p>
             ) : (
@@ -684,7 +684,7 @@ export const PlayerSetup: React.FC<PlayerSetupProps> = ({
                 )}
                 {players.map((player, idx) => {
                   const teamIdx = gameMode === 'parejas' && players.length === 4 ? (idx < 2 ? 0 : 1) : -1;
-                  const teamColor = teamIdx === 0 ? 'border-l-4 border-l-blue-500 bg-blue-50' : teamIdx === 1 ? 'border-l-4 border-l-orange-500 bg-orange-50' : 'bg-gray-50 border border-gray-200';
+                  const teamColor = teamIdx === 0 ? 'border-l-4 border-l-blue-500 bg-blue-50' : teamIdx === 1 ? 'border-l-4 border-l-orange-500 bg-orange-50' : 'bg-card-2 border border-line';
                   return (
                   <div
                     key={player.id}
@@ -692,16 +692,16 @@ export const PlayerSetup: React.FC<PlayerSetupProps> = ({
                   >
                     <div className="flex-1">
                       <div className="flex items-center gap-2">
-                        <p className="font-semibold text-gray-800">{player.name}</p>
+                        <p className="font-semibold text-ink">{player.name}</p>
                         {teamIdx >= 0 && (
                           <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${teamIdx === 0 ? 'bg-blue-200 text-blue-800' : 'bg-orange-200 text-orange-800'}`}>
                             P{teamIdx + 1}
                           </span>
                         )}
                       </div>
-                      <div className="text-sm text-gray-600 space-y-0.5">
+                      <div className="text-sm text-ink-3 space-y-0.5">
                         <p>Hándicap Exacto ({numHoles} hoyos): {numHoles === 18 ? (player.exact_handicap_18 || player.exact_handicap) * 2 : (player.exact_handicap_18 || player.exact_handicap)}</p>
-                        <p className="font-medium text-emerald-700">
+                        <p className="font-medium text-accent-ink">
                           Hándicap de Juego: {player.playing_handicap}{useSlope ? ' (con Slope)' : ''}
                         </p>
                       </div>
@@ -736,8 +736,8 @@ export const PlayerSetup: React.FC<PlayerSetupProps> = ({
               disabled={!canStartRound || loading || !canStartWithMode}
               className={`w-full py-3 rounded-lg font-bold text-lg transition-all ${
                 canStartRound && !loading && canStartWithMode
-                  ? 'bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer'
-                  : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                  ? 'bg-accent hover:bg-accent-hover text-on-accent cursor-pointer'
+                  : 'bg-neutral-hover text-ink-3 cursor-not-allowed'
               }`
             }>
               {currentGroup ? 'Guardar y Volver' : 'Comenzar Partida'}

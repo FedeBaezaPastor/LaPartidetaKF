@@ -134,20 +134,20 @@ export const ArchivedRoundDetailModal: React.FC<ArchivedRoundDetailModalProps> =
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-lg shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+      <div className="bg-card rounded-lg shadow-card max-w-6xl w-full max-h-[90vh] overflow-hidden flex flex-col">
         <div className="flex items-center justify-between p-6 border-b bg-gradient-to-r from-emerald-600 to-emerald-700">
           <div className="flex items-center gap-3">
             <button
               onClick={onBack}
-              className="text-white hover:bg-emerald-800 p-2 rounded-lg transition-colors"
+              className="text-white hover:bg-accent-hover p-2 rounded-lg transition-colors"
             >
               <ArrowLeft size={24} />
             </button>
             <div>
               <h2 className="text-2xl font-bold text-white">Detalles del Día</h2>
               <div className="flex items-center gap-2 flex-wrap">
-                <p className="text-emerald-100 text-sm">{date}</p>
-                <span className="bg-white/20 text-white text-xs font-bold px-2 py-1 rounded-md">
+                <p className="text-on-deep text-sm">{date}</p>
+                <span className="bg-on-accent/20 text-white text-xs font-bold px-2 py-1 rounded-md">
                   {modeLabels[gameMode] || modeLabels.stableford}
                 </span>
               </div>
@@ -155,7 +155,7 @@ export const ArchivedRoundDetailModal: React.FC<ArchivedRoundDetailModalProps> =
           </div>
           <button
             onClick={onClose}
-            className="text-white hover:bg-emerald-800 p-2 rounded-lg transition-colors"
+            className="text-white hover:bg-accent-hover p-2 rounded-lg transition-colors"
           >
             <X size={24} />
           </button>
@@ -165,7 +165,7 @@ export const ArchivedRoundDetailModal: React.FC<ArchivedRoundDetailModalProps> =
           <div className="space-y-8">
             {!loadingData && dailyRanking.length > 0 && (
               <div>
-                <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                <h3 className="text-xl font-bold text-ink mb-4 flex items-center gap-2">
                   <Users className="text-blue-500" />
                   Clasificación General del día
                 </h3>
@@ -196,12 +196,12 @@ export const ArchivedRoundDetailModal: React.FC<ArchivedRoundDetailModalProps> =
                       >
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-3">
-                            <div className="text-lg font-bold w-8 text-gray-700">
+                            <div className="text-lg font-bold w-8 text-ink-2">
                               {player.position}°
                             </div>
                             <div>
-                              <p className="font-semibold text-gray-800">{player.player_name}</p>
-                              <p className="text-xs text-gray-600">(HCP juego: {player.hcp_juego})</p>
+                              <p className="font-semibold text-ink">{player.player_name}</p>
+                              <p className="text-xs text-ink-3">(HCP juego: {player.hcp_juego})</p>
                             </div>
                           </div>
                           <div className="flex items-center gap-3">
@@ -215,7 +215,7 @@ export const ArchivedRoundDetailModal: React.FC<ArchivedRoundDetailModalProps> =
                                 ))}
                               </div>
                             )}
-                            <p className="text-2xl font-bold text-gray-800">{player.total_points} pts</p>
+                            <p className="text-2xl font-bold text-ink">{player.total_points} pts</p>
                           </div>
                         </div>
                       </div>
@@ -225,15 +225,15 @@ export const ArchivedRoundDetailModal: React.FC<ArchivedRoundDetailModalProps> =
                 <div className="mt-4 flex items-center justify-center gap-6 text-sm">
                   <div className="flex items-center gap-2">
                     <Beer className="text-blue-500" size={18} />
-                    <span className="text-gray-700">Azul: Recibe cerveza</span>
+                    <span className="text-ink-2">Azul: Recibe cerveza</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="w-4 h-4 bg-amber-300 rounded"></div>
-                    <span className="text-gray-700">Amarillo: Ni recibe ni paga</span>
+                    <span className="text-ink-2">Amarillo: Ni recibe ni paga</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Beer className="text-red-500" size={18} />
-                    <span className="text-gray-700">Rojo: Paga cerveza</span>
+                    <span className="text-ink-2">Rojo: Paga cerveza</span>
                   </div>
                 </div>
               </div>
@@ -244,21 +244,21 @@ export const ArchivedRoundDetailModal: React.FC<ArchivedRoundDetailModalProps> =
 
               return (
                 <div key={roundData.id}>
-                  <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-                    <Target className="text-emerald-500" />
+                  <h3 className="text-xl font-bold text-ink mb-4 flex items-center gap-2">
+                    <Target className="text-accent-ink" />
                     Tarjeta Completa - {roundData.course_name} {allRounds.length > 1 && `(Partida ${roundIndex + 1})`}
                   </h3>
                   <div className="overflow-x-auto">
-                    <table className="w-full text-xs border border-gray-200 rounded-lg">
-                      <thead className="bg-gray-100">
+                    <table className="w-full text-xs border border-line rounded-lg">
+                      <thead className="bg-card-2">
                         <tr>
-                          <th className="text-left py-2 px-2 font-semibold text-gray-700 border-b sticky left-0 bg-gray-100 z-10">Hoyo</th>
-                          <th className="text-center py-2 px-2 font-semibold text-gray-700 border-b">Par</th>
+                          <th className="text-left py-2 px-2 font-semibold text-ink-2 border-b sticky left-0 bg-card-2 z-10">Hoyo</th>
+                          <th className="text-center py-2 px-2 font-semibold text-ink-2 border-b">Par</th>
                           {roundData.final_ranking?.map((player: any, index: number) => (
                             <th
                               key={index}
                               colSpan={3}
-                              className={`text-center py-2 px-2 font-semibold border-b border-l ${index === 0 ? 'bg-amber-200 text-gray-800' : 'text-gray-700'}`}
+                              className={`text-center py-2 px-2 font-semibold border-b border-l ${index === 0 ? 'bg-amber-200 text-ink' : 'text-ink-2'}`}
                             >
                               <div className="flex items-center justify-center gap-1">
                                 {index === 0 && <Trophy size={16} className="text-amber-600" />}
@@ -272,23 +272,23 @@ export const ArchivedRoundDetailModal: React.FC<ArchivedRoundDetailModalProps> =
                             </th>
                           ))}
                         </tr>
-                        <tr className="bg-gray-50">
-                          <th className="py-1 px-2 border-b sticky left-0 bg-gray-50 z-10"></th>
+                        <tr className="bg-card-2">
+                          <th className="py-1 px-2 border-b sticky left-0 bg-card-2 z-10"></th>
                           <th className="py-1 px-2 border-b"></th>
                           {roundData.final_ranking?.map((_: any, index: number) => (
                             <React.Fragment key={index}>
-                              <th className={`text-center py-1 px-1 text-gray-600 border-b border-l text-[10px] ${index === 0 ? 'bg-amber-200' : ''}`}>B</th>
-                              <th className={`text-center py-1 px-1 text-gray-600 border-b text-[10px] ${index === 0 ? 'bg-amber-200' : ''}`}>N</th>
-                              <th className={`text-center py-1 px-1 text-gray-600 border-b text-[10px] ${index === 0 ? 'bg-amber-200' : ''}`}>P</th>
+                              <th className={`text-center py-1 px-1 text-ink-3 border-b border-l text-[10px] ${index === 0 ? 'bg-amber-200' : ''}`}>B</th>
+                              <th className={`text-center py-1 px-1 text-ink-3 border-b text-[10px] ${index === 0 ? 'bg-amber-200' : ''}`}>N</th>
+                              <th className={`text-center py-1 px-1 text-ink-3 border-b text-[10px] ${index === 0 ? 'bg-amber-200' : ''}`}>P</th>
                             </React.Fragment>
                           ))}
                         </tr>
                       </thead>
                       <tbody>
                         {holesArray.map((hole: any) => (
-                          <tr key={hole.hole_number} className="hover:bg-gray-50 border-b">
-                            <td className="py-2 px-2 font-bold text-gray-800 sticky left-0 bg-white z-10">{hole.hole_number}</td>
-                            <td className="text-center py-2 px-2 font-semibold text-gray-700">{hole.par}</td>
+                          <tr key={hole.hole_number} className="hover:bg-card-2 border-b">
+                            <td className="py-2 px-2 font-bold text-ink sticky left-0 bg-card z-10">{hole.hole_number}</td>
+                            <td className="text-center py-2 px-2 font-semibold text-ink-2">{hole.par}</td>
                             {roundData.final_ranking?.map((player: any, index: number) => {
                               const score = getScoreForHole(player.player_name, hole.hole_number);
                               const isWinner = index === 0;
@@ -301,7 +301,7 @@ export const ArchivedRoundDetailModal: React.FC<ArchivedRoundDetailModalProps> =
                                   <td className={`text-center py-2 px-1 ${cellBg}`}>
                                     {score.net}
                                   </td>
-                                  <td className={`text-center py-2 px-1 font-bold ${score.noPasoRojas ? 'bg-red-200 text-red-700' : (isWinner ? 'bg-amber-100 text-emerald-700' : 'text-emerald-700')}`}>
+                                  <td className={`text-center py-2 px-1 font-bold ${score.noPasoRojas ? 'bg-red-200 text-red-700' : (isWinner ? 'bg-amber-100 text-accent-ink' : 'text-accent-ink')}`}>
                                     {score.points}
                                   </td>
                                 </React.Fragment>
@@ -309,8 +309,8 @@ export const ArchivedRoundDetailModal: React.FC<ArchivedRoundDetailModalProps> =
                             })}
                           </tr>
                         ))}
-                        <tr className="bg-gray-100 font-bold">
-                          <td className="py-2 px-2 sticky left-0 bg-gray-100 z-10">TOTAL</td>
+                        <tr className="bg-card-2 font-bold">
+                          <td className="py-2 px-2 sticky left-0 bg-card-2 z-10">TOTAL</td>
                           <td className="text-center py-2 px-2">{holesArray.reduce((sum: number, h: any) => sum + h.par, 0)}</td>
                           {roundData.final_ranking?.map((player: any, index: number) => {
                             const totals = getPlayerTotals(player.player_name);
@@ -319,7 +319,7 @@ export const ArchivedRoundDetailModal: React.FC<ArchivedRoundDetailModalProps> =
                               <React.Fragment key={index}>
                                 <td className={`text-center py-2 px-1 border-l ${isWinner ? 'bg-amber-200' : ''}`}>{totals.totalGross || '-'}</td>
                                 <td className={`text-center py-2 px-1 ${isWinner ? 'bg-amber-200' : ''}`}>{totals.totalNet || '-'}</td>
-                                <td className={`text-center py-2 px-1 ${isWinner ? 'bg-amber-200 text-emerald-700' : 'text-emerald-700'}`}>{totals.totalPoints}</td>
+                                <td className={`text-center py-2 px-1 ${isWinner ? 'bg-amber-200 text-accent-ink' : 'text-accent-ink'}`}>{totals.totalPoints}</td>
                               </React.Fragment>
                             );
                           })}
@@ -327,7 +327,7 @@ export const ArchivedRoundDetailModal: React.FC<ArchivedRoundDetailModalProps> =
                       </tbody>
                     </table>
                   </div>
-                  <div className="mt-2 text-xs text-gray-600">
+                  <div className="mt-2 text-xs text-ink-3">
                     <p><strong>B</strong> = Bruto | <strong>N</strong> = Neto | <strong>P</strong> = Puntos</p>
                     <p className="mt-1">Las celdas con fondo rojo indican "No pasó de rojas"</p>
                   </div>
@@ -340,21 +340,21 @@ export const ArchivedRoundDetailModal: React.FC<ArchivedRoundDetailModalProps> =
 
               return roundData.player_stats && roundData.player_stats.length > 0 && (
                 <div key={`stats-${roundData.id}`}>
-                  <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                  <h3 className="text-xl font-bold text-ink mb-4 flex items-center gap-2">
                     <Award className="text-blue-500" />
                     Estadísticas - {roundData.course_name} {allRounds.length > 1 && `(Partida ${roundIndex + 1})`}
                   </h3>
                   <div className="overflow-x-auto">
-                    <table className="w-full text-sm border border-gray-200 rounded-lg">
-                      <thead className="bg-gray-100">
+                    <table className="w-full text-sm border border-line rounded-lg">
+                      <thead className="bg-card-2">
                         <tr>
-                          <th className="text-left py-3 px-4 font-semibold text-gray-700 border-b">Jugador</th>
-                          <th className="text-center py-3 px-4 font-semibold text-gray-700 border-b">Eagles</th>
-                          <th className="text-center py-3 px-4 font-semibold text-gray-700 border-b">Birdies</th>
-                          <th className="text-center py-3 px-4 font-semibold text-gray-700 border-b">Pares</th>
-                          <th className="text-center py-3 px-4 font-semibold text-gray-700 border-b">Bogeys</th>
-                          <th className="text-center py-3 px-4 font-semibold text-gray-700 border-b">Dobles+</th>
-                          <th className="text-center py-3 px-4 font-semibold text-gray-700 border-b">No Rojas</th>
+                          <th className="text-left py-3 px-4 font-semibold text-ink-2 border-b">Jugador</th>
+                          <th className="text-center py-3 px-4 font-semibold text-ink-2 border-b">Eagles</th>
+                          <th className="text-center py-3 px-4 font-semibold text-ink-2 border-b">Birdies</th>
+                          <th className="text-center py-3 px-4 font-semibold text-ink-2 border-b">Pares</th>
+                          <th className="text-center py-3 px-4 font-semibold text-ink-2 border-b">Bogeys</th>
+                          <th className="text-center py-3 px-4 font-semibold text-ink-2 border-b">Dobles+</th>
+                          <th className="text-center py-3 px-4 font-semibold text-ink-2 border-b">No Rojas</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -362,26 +362,26 @@ export const ArchivedRoundDetailModal: React.FC<ArchivedRoundDetailModalProps> =
                           const stats = getPlayerStats(playerStat.player_name);
                           const isWinner = roundData.final_ranking?.[0]?.player_name === playerStat.player_name;
                           return (
-                            <tr key={index} className={`border-b hover:bg-gray-50 ${isWinner ? 'bg-amber-100' : ''}`}>
-                              <td className="py-3 px-4 font-semibold text-gray-800">
+                            <tr key={index} className={`border-b hover:bg-card-2 ${isWinner ? 'bg-amber-100' : ''}`}>
+                              <td className="py-3 px-4 font-semibold text-ink">
                                 <div className="flex items-center gap-2">
                                   {isWinner && <Trophy size={18} className="text-amber-600" />}
                                   {playerStat.player_name}
                                   {isWinner && <span className="text-xs text-amber-600 font-bold">(Ganador/a)</span>}
                                 </div>
                               </td>
-                              <td className="text-center py-3 px-4 text-gray-700">{stats.eagles}</td>
-                              <td className="text-center py-3 px-4 text-gray-700">{stats.birdies}</td>
-                              <td className="text-center py-3 px-4 text-gray-700">{stats.pars}</td>
-                              <td className="text-center py-3 px-4 text-gray-700">{stats.bogeys}</td>
-                              <td className="text-center py-3 px-4 text-gray-700">{stats.double_bogeys}</td>
+                              <td className="text-center py-3 px-4 text-ink-2">{stats.eagles}</td>
+                              <td className="text-center py-3 px-4 text-ink-2">{stats.birdies}</td>
+                              <td className="text-center py-3 px-4 text-ink-2">{stats.pars}</td>
+                              <td className="text-center py-3 px-4 text-ink-2">{stats.bogeys}</td>
+                              <td className="text-center py-3 px-4 text-ink-2">{stats.double_bogeys}</td>
                               <td className="text-center py-3 px-4">
                                 {stats.no_paso_rojas_count > 0 ? (
                                   <span className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded">
                                     {stats.no_paso_rojas_count}
                                   </span>
                                 ) : (
-                                  <span className="text-gray-400">0</span>
+                                  <span className="text-ink-4">0</span>
                                 )}
                               </td>
                             </tr>
@@ -396,16 +396,16 @@ export const ArchivedRoundDetailModal: React.FC<ArchivedRoundDetailModalProps> =
           </div>
         </div>
 
-        <div className="p-4 border-t bg-gray-50 flex gap-3">
+        <div className="p-4 border-t bg-card-2 flex gap-3">
           <button
             onClick={onBack}
-            className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-3 rounded-lg transition-colors"
+            className="flex-1 bg-neutral hover:bg-neutral-hover text-ink font-semibold py-3 rounded-lg transition-colors"
           >
             Volver a lista
           </button>
           <button
             onClick={onClose}
-            className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3 rounded-lg transition-colors"
+            className="flex-1 bg-accent hover:bg-accent-hover text-on-accent font-semibold py-3 rounded-lg transition-colors"
           >
             Cerrar
           </button>

@@ -20,7 +20,7 @@ export const ScoreSymbol: React.FC<ScoreSymbolProps> = ({
     // Si es raya (abandoned), siempre fondo negro
     if (abandoned) {
       return (
-        <div className="w-7 h-7 rounded-full bg-black flex items-center justify-center shadow-md relative">
+        <div className="w-7 h-7 rounded-full bg-black border border-line-2 flex items-center justify-center shadow-md relative">
           <span className="text-sm font-bold text-white">{grossStrokes}</span>
           <div 
             className="absolute w-full h-0.5 bg-white rotate-45 opacity-90"
@@ -44,7 +44,7 @@ export const ScoreSymbol: React.FC<ScoreSymbolProps> = ({
       );
     } else if (difference === 0) {
       return (
-        <div className="w-7 h-7 rounded-full bg-white border-2 border-gray-300 flex items-center justify-center shadow-sm">
+        <div className="w-7 h-7 rounded-full bg-white border-2 border-line-2 flex items-center justify-center shadow-sm">
           <span className="text-sm font-bold text-black">{grossStrokes}</span>
         </div>
       );

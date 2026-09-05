@@ -85,21 +85,21 @@ export const HoleConfiguration: React.FC<HoleConfigurationProps> = ({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-lg shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-        <div className="bg-gradient-to-r from-emerald-700 to-emerald-600 p-6 sticky top-0">
+      <div className="bg-card rounded-lg shadow-card max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="bg-accent-deep p-6 sticky top-0">
           <h2 className="text-2xl font-bold text-white">Configuración de Hoyos</h2>
-          <p className="text-emerald-100 text-sm mt-1">
+          <p className="text-on-deep text-sm mt-1">
             {editable ? 'Edita el Par y Stroke Index de cada hoyo' : 'Vista de configuración'}
           </p>
         </div>
 
         <div className="p-6">
           {success && (
-            <div className="mb-4 bg-green-50 border-l-4 border-green-500 p-4 rounded flex items-start gap-3">
-              <CheckCircle className="text-green-600 flex-shrink-0 mt-0.5" size={20} />
+            <div className="mb-4 bg-accent-soft border-l-4 border-accent p-4 rounded flex items-start gap-3">
+              <CheckCircle className="text-accent-ink flex-shrink-0 mt-0.5" size={20} />
               <div>
-                <p className="font-semibold text-green-900">Cambios guardados</p>
-                <p className="text-sm text-green-700">La configuración de hoyos ha sido actualizada</p>
+                <p className="font-semibold text-title">Cambios guardados</p>
+                <p className="text-sm text-accent-ink">La configuración de hoyos ha sido actualizada</p>
               </div>
             </div>
           )}
@@ -108,32 +108,32 @@ export const HoleConfiguration: React.FC<HoleConfigurationProps> = ({
             {holes.map((hole) => (
               <div
                 key={hole.id}
-                className="border-2 border-gray-200 rounded-lg p-4 bg-gradient-to-br from-gray-50 to-white hover:border-emerald-400 transition-colors"
+                className="border-2 border-line rounded-lg p-4 bg-card-2 hover:border-accent transition-colors"
               >
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center">
-                      <span className="font-bold text-emerald-900 text-lg">
+                    <div className="w-12 h-12 rounded-full bg-accent-soft flex items-center justify-center">
+                      <span className="font-bold text-title text-lg">
                         {hole.hole_number}
                       </span>
                     </div>
                     <div>
-                      <p className="font-semibold text-gray-800">Hoyo {hole.hole_number}</p>
-                      <p className="text-sm text-gray-600">Par {editingPars[hole.id]}</p>
+                      <p className="font-semibold text-ink">Hoyo {hole.hole_number}</p>
+                      <p className="text-sm text-ink-3">Par {editingPars[hole.id]}</p>
                     </div>
                   </div>
                 </div>
 
                 <div className="space-y-3">
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    <label className="block text-sm font-semibold text-ink-2 mb-2">
                       Par
                     </label>
                     <div className="flex items-center gap-3">
                       <button
                         onClick={() => handleParChange(hole.id, -1)}
                         disabled={!editable}
-                        className="p-1.5 bg-gray-200 hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-colors"
+                        className="p-1.5 bg-neutral hover:bg-neutral-hover disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-colors"
                       >
                         <ChevronDown size={18} />
                       </button>
@@ -148,13 +148,13 @@ export const HoleConfiguration: React.FC<HoleConfigurationProps> = ({
                           setEditingPars({ ...editingPars, [hole.id]: val });
                         }}
                         disabled={!editable}
-                        className="w-16 text-center font-bold text-lg px-2 py-2 border-2 border-emerald-600 rounded-lg focus:outline-none disabled:bg-gray-100"
+                        className="w-16 text-center font-bold text-lg px-2 py-2 border-2 border-accent rounded-lg focus:outline-none disabled:bg-gray-100"
                       />
 
                       <button
                         onClick={() => handleParChange(hole.id, 1)}
                         disabled={!editable}
-                        className="p-1.5 bg-gray-200 hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-colors"
+                        className="p-1.5 bg-neutral hover:bg-neutral-hover disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-colors"
                       >
                         <ChevronUp size={18} />
                       </button>
@@ -169,14 +169,14 @@ export const HoleConfiguration: React.FC<HoleConfigurationProps> = ({
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    <label className="block text-sm font-semibold text-ink-2 mb-2">
                       Stroke Index (HCP)
                     </label>
                     <div className="flex items-center gap-3">
                       <button
                         onClick={() => handleStrokeIndexChange(hole.id, -1)}
                         disabled={!editable}
-                        className="p-1.5 bg-gray-200 hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-colors"
+                        className="p-1.5 bg-neutral hover:bg-neutral-hover disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-colors"
                       >
                         <ChevronDown size={18} />
                       </button>
@@ -191,13 +191,13 @@ export const HoleConfiguration: React.FC<HoleConfigurationProps> = ({
                           setEditingHoles({ ...editingHoles, [hole.id]: val });
                         }}
                         disabled={!editable}
-                        className="w-16 text-center font-bold text-lg px-2 py-2 border-2 border-emerald-600 rounded-lg focus:outline-none disabled:bg-gray-100"
+                        className="w-16 text-center font-bold text-lg px-2 py-2 border-2 border-accent rounded-lg focus:outline-none disabled:bg-gray-100"
                       />
 
                       <button
                         onClick={() => handleStrokeIndexChange(hole.id, 1)}
                         disabled={!editable}
-                        className="p-1.5 bg-gray-200 hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-colors"
+                        className="p-1.5 bg-neutral hover:bg-neutral-hover disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-colors"
                       >
                         <ChevronUp size={18} />
                       </button>
@@ -219,14 +219,14 @@ export const HoleConfiguration: React.FC<HoleConfigurationProps> = ({
             <div className="flex gap-3 mt-8 pt-6 border-t">
               <button
                 onClick={onClose}
-                className="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-3 rounded-lg transition-colors"
+                className="flex-1 bg-neutral-hover hover:bg-gray-400 text-ink font-bold py-3 rounded-lg transition-colors"
               >
                 Cancelar
               </button>
               <button
                 onClick={handleSave}
                 disabled={!hasChanges || saving}
-                className="flex-1 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-3 rounded-lg transition-colors"
+                className="flex-1 bg-accent hover:bg-accent-hover disabled:opacity-50 disabled:cursor-not-allowed text-on-accent font-bold py-3 rounded-lg transition-colors"
               >
                 {saving ? 'Guardando...' : hasChanges ? 'Guardar Cambios' : 'Sin cambios'}
               </button>
@@ -237,7 +237,7 @@ export const HoleConfiguration: React.FC<HoleConfigurationProps> = ({
             <div className="mt-8 pt-6 border-t">
               <button
                 onClick={onClose}
-                className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-lg transition-colors"
+                className="w-full bg-accent hover:bg-accent-hover text-on-accent font-bold py-3 rounded-lg transition-colors"
               >
                 Cerrar
               </button>

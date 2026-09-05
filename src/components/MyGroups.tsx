@@ -121,23 +121,23 @@ export default function MyGroups({ onBack, onGroupSelected, onLogout }: MyGroups
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 p-4 flex items-center justify-center">
+      <div className="min-h-screen bg-app p-4 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Cargando tus grupos...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent mx-auto mb-4"></div>
+          <p className="text-ink-3">Cargando tus grupos...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 p-4">
+    <div className="min-h-screen bg-app p-4">
       <div className="max-w-2xl mx-auto">
-        <div className="bg-white rounded-2xl shadow-xl p-6 mb-4">
+        <div className="bg-card rounded-2xl shadow-card p-6 mb-4">
           <div className="flex items-center justify-between mb-4">
             <button
               onClick={onBack}
-              className="flex items-center gap-2 text-gray-600 hover:text-gray-800 transition-colors"
+              className="flex items-center gap-2 text-ink-3 hover:text-ink transition-colors"
             >
               <ArrowLeft size={20} />
               Volver
@@ -165,7 +165,7 @@ export default function MyGroups({ onBack, onGroupSelected, onLogout }: MyGroups
                   className="bg-emerald-500/10 border border-emerald-500/30 rounded-full p-2" 
                   title="Premium activo"
                 >
-                  <Crown size={18} className="text-emerald-500" />
+                  <Crown size={18} className="text-accent-ink" />
                 </div>
               )}
               
@@ -180,11 +180,11 @@ export default function MyGroups({ onBack, onGroupSelected, onLogout }: MyGroups
           </div>
 
           <div className="text-center mb-6">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-3">
-              <Users className="w-8 h-8 text-green-600" />
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-accent-soft rounded-full mb-3">
+              <Users className="w-8 h-8 text-accent-ink" />
             </div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-1">Mis Grupos</h1>
-            <p className="text-sm text-gray-600">{userEmail}</p>
+            <h1 className="text-2xl font-bold text-ink mb-1">Mis Grupos</h1>
+            <p className="text-sm text-ink-3">{userEmail}</p>
           </div>
 
           {error && (
@@ -195,10 +195,10 @@ export default function MyGroups({ onBack, onGroupSelected, onLogout }: MyGroups
 
           {groups.length === 0 ? (
             <div className="text-center py-8">
-              <p className="text-gray-500 mb-4">Aún no has creado ningún grupo</p>
+              <p className="text-ink-3 mb-4">Aún no has creado ningún grupo</p>
               <button
                 onClick={onBack}
-                className="text-green-600 hover:text-green-700 font-medium"
+                className="text-accent-ink hover:text-accent-ink font-medium"
               >
                 Crear tu primer grupo
               </button>
@@ -208,10 +208,10 @@ export default function MyGroups({ onBack, onGroupSelected, onLogout }: MyGroups
               {groups.map((group) => (
                 <div
                   key={group.id}
-                  className="bg-gray-50 rounded-xl p-4 hover:bg-gray-100 transition-colors border border-gray-200"
+                  className="bg-card-2 rounded-xl p-4 hover:bg-card-2 transition-colors border border-line"
                 >
                   <div className="flex items-center justify-between mb-2">
-                    <h3 className="font-semibold text-gray-900 text-lg">{group.name}</h3>
+                    <h3 className="font-semibold text-ink text-lg">{group.name}</h3>
                     <button
                       onClick={() => handleDeleteGroup(group.id)}
                       className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
@@ -222,15 +222,15 @@ export default function MyGroups({ onBack, onGroupSelected, onLogout }: MyGroups
                   </div>
 
                   <div className="flex items-center gap-3 mb-3">
-                    <div className="flex-1 bg-white rounded-lg px-4 py-3 border border-gray-300">
-                      <p className="text-xs text-gray-500 mb-1">Código de acceso</p>
-                      <p className="text-xl font-mono font-bold text-green-600 tracking-wider">
+                    <div className="flex-1 bg-card rounded-lg px-4 py-3 border border-line-2">
+                      <p className="text-xs text-ink-3 mb-1">Código de acceso</p>
+                      <p className="text-xl font-mono font-bold text-accent-ink tracking-wider">
                         {group.group_code}
                       </p>
                     </div>
                     <button
                       onClick={() => handleCopyCode(group.group_code)}
-                      className="px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2"
+                      className="px-4 py-3 bg-accent text-on-accent rounded-lg hover:bg-accent-hover transition-colors flex items-center gap-2"
                       title="Copiar código"
                     >
                       {copiedCode === group.group_code ? (
@@ -249,12 +249,12 @@ export default function MyGroups({ onBack, onGroupSelected, onLogout }: MyGroups
 
                   <button
                     onClick={() => handleSelectGroup(group)}
-                    className="w-full bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors font-medium"
+                    className="w-full bg-accent text-on-accent px-4 py-2 rounded-lg hover:bg-accent-hover transition-colors font-medium"
                   >
                     Seleccionar Grupo
                   </button>
 
-                  <p className="text-xs text-gray-500 mt-2">
+                  <p className="text-xs text-ink-3 mt-2">
                     Creado el {new Date(group.created_at).toLocaleDateString()}
                   </p>
                 </div>

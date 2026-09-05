@@ -81,12 +81,12 @@ useEffect(() => {
 
   if (!isCompleted) {
     return (
-      <div className="bg-white rounded-lg shadow-lg p-8 text-center">
-        <div className="inline-flex items-center justify-center w-16 h-16 bg-gray-100 rounded-full mb-4">
-          <BarChart3 className="w-8 h-8 text-gray-400" />
+      <div className="bg-card rounded-lg shadow-card p-8 text-center">
+        <div className="inline-flex items-center justify-center w-16 h-16 bg-card-2 rounded-full mb-4">
+          <BarChart3 className="w-8 h-8 text-ink-4" />
         </div>
-        <h3 className="text-xl font-bold text-gray-800 mb-2">Estadísticas de la partida</h3>
-        <p className="text-gray-600">
+        <h3 className="text-xl font-bold text-ink mb-2">Estadísticas de la partida</h3>
+        <p className="text-ink-3">
           Las estadísticas estarán disponibles cuando finalices la partida
         </p>
       </div>
@@ -95,9 +95,9 @@ useEffect(() => {
 
   if (loading || holes.length === 0) {
     return (
-      <div className="bg-white rounded-lg shadow-lg p-8 text-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto mb-4"></div>
-        <p className="text-gray-600">Cargando estadísticas...</p>
+      <div className="bg-card rounded-lg shadow-card p-8 text-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent mx-auto mb-4"></div>
+        <p className="text-ink-3">Cargando estadísticas...</p>
       </div>
     );
   }
@@ -173,31 +173,31 @@ useEffect(() => {
 //FBP.Fin
   return (
     <div className="space-y-4">
-      <div className="bg-white rounded-lg shadow-lg p-6">
+      <div className="bg-card rounded-lg shadow-card p-6">
         <div className="flex items-center gap-3 mb-6">
           <div className="bg-yellow-100 p-3 rounded-full">
             <Trophy className="w-6 h-6 text-yellow-600" />
           </div>
-          <h3 className="text-2xl font-bold text-gray-900">Estadísticas de la partida</h3>
+          <h3 className="text-2xl font-bold text-ink">Estadísticas de la partida</h3>
         </div>
-<div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 pb-4 border-b border-gray-100">
+<div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 pb-4 border-b border-line">
   <div className="flex items-center gap-3">
     <div className="bg-yellow-100 p-3 rounded-full">
       <Trophy className="w-6 h-6 text-yellow-600" />
     </div>
-    <h3 className="text-2xl font-bold text-gray-900">Estadísticas de la partida</h3>
+    <h3 className="text-2xl font-bold text-ink">Estadísticas de la partida</h3>
   </div>
 
   {/* Desplegable para cambiar de partida */}
   {availableRounds.length > 0 && (
     <div className="flex items-center gap-2">
-      <label className="text-sm font-medium text-gray-600 whitespace-nowrap">
+      <label className="text-sm font-medium text-ink-3 whitespace-nowrap">
         Partida:
       </label>
       <select
         value={selectedRoundId}
         onChange={(e) => setSelectedRoundId(e.target.value)}
-        className="w-full md:w-auto bg-gray-50 text-gray-800 font-semibold px-3 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 text-sm shadow-sm"
+        className="w-full md:w-auto bg-card-2 text-ink font-semibold px-3 py-2 rounded-lg border border-line-2 focus:outline-none focus:ring-2 focus:ring-accent text-sm shadow-soft"
       >
         {availableRounds.map((r, index) => {
           const dateStr = new Date(r.created_at).toLocaleDateString('es-ES', {
@@ -245,13 +245,13 @@ useEffect(() => {
           )}
 
           {mostPars.pars > 0 && (
-            <div className="bg-green-50 rounded-lg p-4 border border-green-200">
+            <div className="bg-accent-soft rounded-lg p-4 border border-accent-ring">
               <div className="flex items-center gap-2 mb-2">
-                <Award className="w-5 h-5 text-green-600" />
-                <p className="text-sm font-semibold text-green-900">Más Consistente</p>
+                <Award className="w-5 h-5 text-accent-ink" />
+                <p className="text-sm font-semibold text-title">Más Consistente</p>
               </div>
-              <p className="text-2xl font-bold text-green-700">{mostPars.player.name}</p>
-              <p className="text-sm text-green-600">{mostPars.pars} {mostPars.pars === 1 ? 'par' : 'pares'}</p>
+              <p className="text-2xl font-bold text-accent-ink">{mostPars.player.name}</p>
+              <p className="text-sm text-accent-ink">{mostPars.pars} {mostPars.pars === 1 ? 'par' : 'pares'}</p>
             </div>
           )}
 
@@ -270,7 +270,7 @@ useEffect(() => {
         </div>
 
         <div className="space-y-3">
-          <h4 className="font-bold text-gray-800 text-lg mb-3">Clasificación Final</h4>
+          <h4 className="font-bold text-ink text-lg mb-3">Clasificación Final</h4>
           {allPlayerStats.map((stats, index) => (
             <div
               key={stats.player.id}
@@ -278,10 +278,10 @@ useEffect(() => {
                 index === 0
                   ? 'bg-gradient-to-r from-yellow-100 to-yellow-50 border-2 border-yellow-400'
                   : index === 1
-                  ? 'bg-gradient-to-r from-gray-100 to-gray-50 border-2 border-gray-400'
+                  ? 'bg-card-2 border-2 border-line-2'
                   : index === 2
                   ? 'bg-gradient-to-r from-orange-100 to-orange-50 border-2 border-orange-400'
-                  : 'bg-gray-50 border border-gray-200'
+                  : 'bg-card-2 border border-line'
               }`}
             >
               <div className="flex items-start justify-between mb-3">
@@ -291,17 +291,17 @@ useEffect(() => {
                       index === 0
                         ? 'bg-yellow-400 text-yellow-900'
                         : index === 1
-                        ? 'bg-gray-400 text-gray-900'
+                        ? 'bg-ink-4 text-ink'
                         : index === 2
                         ? 'bg-orange-400 text-orange-900'
-                        : 'bg-gray-300 text-gray-700'
+                        : 'bg-neutral-hover text-ink-2'
                     }`}
                   >
                     {index + 1}
                   </div>
                   <div>
-                    <p className="font-bold text-lg text-gray-800">{stats.player.name}</p>
-                    <p className="text-sm text-gray-600">
+                    <p className="font-bold text-lg text-ink">{stats.player.name}</p>
+                    <p className="text-sm text-ink-3">
                       HCP {stats.player.playing_handicap} • {stats.holesPlayed} hoyos
                     </p>
                   </div>
@@ -311,10 +311,10 @@ useEffect(() => {
                     index === 0
                       ? 'text-yellow-600'
                       : index === 1
-                      ? 'text-gray-600'
+                      ? 'text-ink-3'
                       : index === 2
                       ? 'text-orange-600'
-                      : 'text-emerald-700'
+                      : 'text-accent-ink'
                   }`}
                 >
                   {stats.totalPoints}
@@ -323,38 +323,38 @@ useEffect(() => {
 
               <div className="grid grid-cols-3 gap-2 text-center">
                 {stats.eagles > 0 && (
-                  <div className="bg-white rounded p-2">
-                    <p className="text-xs text-gray-600 mb-1">Eagles</p>
+                  <div className="bg-card rounded p-2">
+                    <p className="text-xs text-ink-3 mb-1">Eagles</p>
                     <p className="font-bold text-lg text-purple-600">{stats.eagles}</p>
                   </div>
                 )}
                 {stats.birdies > 0 && (
-                  <div className="bg-white rounded p-2">
-                    <p className="text-xs text-gray-600 mb-1">Birdies</p>
+                  <div className="bg-card rounded p-2">
+                    <p className="text-xs text-ink-3 mb-1">Birdies</p>
                     <p className="font-bold text-lg text-blue-600">{stats.birdies}</p>
                   </div>
                 )}
                 {stats.pars > 0 && (
-                  <div className="bg-white rounded p-2">
-                    <p className="text-xs text-gray-600 mb-1">Pares</p>
-                    <p className="font-bold text-lg text-green-600">{stats.pars}</p>
+                  <div className="bg-card rounded p-2">
+                    <p className="text-xs text-ink-3 mb-1">Pares</p>
+                    <p className="font-bold text-lg text-accent-ink">{stats.pars}</p>
                   </div>
                 )}
                 {stats.bogeys > 0 && (
-                  <div className="bg-white rounded p-2">
-                    <p className="text-xs text-gray-600 mb-1">Bogeys</p>
+                  <div className="bg-card rounded p-2">
+                    <p className="text-xs text-ink-3 mb-1">Bogeys</p>
                     <p className="font-bold text-lg text-orange-600">{stats.bogeys}</p>
                   </div>
                 )}
                 {stats.doubleBogeys > 0 && (
-                  <div className="bg-white rounded p-2">
-                    <p className="text-xs text-gray-600 mb-1">Dobles</p>
+                  <div className="bg-card rounded p-2">
+                    <p className="text-xs text-ink-3 mb-1">Dobles</p>
                     <p className="font-bold text-lg text-red-600">{stats.doubleBogeys}</p>
                   </div>
                 )}
                 {stats.worse > 0 && (
-                  <div className="bg-white rounded p-2">
-                    <p className="text-xs text-gray-600 mb-1">+3 o más</p>
+                  <div className="bg-card rounded p-2">
+                    <p className="text-xs text-ink-3 mb-1">+3 o más</p>
                     <p className="font-bold text-lg text-red-800">{stats.worse}</p>
                   </div>
                 )}
@@ -362,8 +362,8 @@ useEffect(() => {
 
               {stats.bestHole && stats.worstHole && (
                 <div className="grid grid-cols-2 gap-2 mt-3">
-                  <div className="bg-green-100 rounded p-2 text-center">
-                    <p className="text-xs text-green-700 mb-1">Mejor hoyo</p>
+                  <div className="bg-accent-soft rounded p-2 text-center">
+                    <p className="text-xs text-accent-ink mb-1">Mejor hoyo</p>
                     <p className="font-bold text-green-800">
                       Hoyo {stats.bestHole.hole} ({stats.bestHole.points} pts)
                     </p>

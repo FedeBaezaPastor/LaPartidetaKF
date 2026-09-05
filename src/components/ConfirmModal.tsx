@@ -36,14 +36,14 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
       onClick={handleBackdropClick}
     >
       <div
-        className="bg-white rounded-lg shadow-2xl max-w-md w-full p-6"
+        className="bg-card rounded-lg shadow-card max-w-md w-full p-6"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center gap-3 mb-4">
           <div className="bg-blue-100 p-3 rounded-full">
             <AlertCircle className="text-blue-600" size={24} />
           </div>
-          <p className="text-lg text-gray-900 font-medium">
+          <p className="text-lg text-ink font-medium">
             {message}
           </p>
         </div>
@@ -52,7 +52,7 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
           <button
             type="button"
             onClick={handleCancel}
-            className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-3 rounded-lg transition-colors"
+            className="flex-1 bg-neutral hover:bg-neutral-hover text-ink font-semibold py-3 rounded-lg transition-colors"
           >
             Cancelar
           </button>

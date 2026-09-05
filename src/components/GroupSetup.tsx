@@ -190,8 +190,8 @@ export default function GroupSetup({ onGroupCreated, onGroupJoined, onQuickPlay,
 
   if (mode === 'choose') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 p-4 flex items-center justify-center">
-        <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8">
+      <div className="min-h-screen bg-app p-4 flex items-center justify-center">
+        <div className="max-w-md w-full bg-card rounded-2xl shadow-card p-8">
           {/* Header con login/logout button */}
           <div className="flex items-center justify-between mb-6 min-h-10">
             <div></div>
@@ -208,11 +208,11 @@ export default function GroupSetup({ onGroupCreated, onGroupJoined, onQuickPlay,
 
                 {/* Dropdown Menu */}
                 {showUserMenu && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl border border-gray-200 z-50">
+                  <div className="absolute right-0 mt-2 w-48 bg-card rounded-lg shadow-card border border-line z-50">
                     {/* Email Header */}
-                    <div className="px-4 py-3 border-b border-gray-100">
-                      <p className="text-xs text-gray-500 font-medium">CUENTA</p>
-                      <p className="text-sm text-gray-900 font-medium truncate">{authUser.email}</p>
+                    <div className="px-4 py-3 border-b border-line">
+                      <p className="text-xs text-ink-3 font-medium">CUENTA</p>
+                      <p className="text-sm text-ink font-medium truncate">{authUser.email}</p>
                     </div>
 
                     {/* Menu Items */}
@@ -224,24 +224,24 @@ export default function GroupSetup({ onGroupCreated, onGroupJoined, onQuickPlay,
                           window.dispatchEvent(event);
                         }
                       }}
-                      className="w-full px-4 py-3 text-left text-sm text-gray-700 hover:bg-gray-50 transition-colors flex items-center gap-2"
+                      className="w-full px-4 py-3 text-left text-sm text-ink-2 hover:bg-card-2 transition-colors flex items-center gap-2"
                     >
                       <UserCheck size={16} />
                       Mis Datos
                     </button>
 
                     {showProfileDetails && (
-                      <div className="border-t border-gray-100 bg-gray-50 px-4 py-3">
-                        <p className="text-[10px] font-semibold uppercase tracking-wide text-gray-500">Perfil</p>
-                        <p className="mt-1 text-sm text-gray-900 font-medium truncate">{authUser.email}</p>
-                        <div className="mt-2 inline-flex items-center rounded-full bg-green-100 px-2.5 py-1 text-xs font-semibold text-green-700">
+                      <div className="border-t border-line bg-card-2 px-4 py-3">
+                        <p className="text-[10px] font-semibold uppercase tracking-wide text-ink-3">Perfil</p>
+                        <p className="mt-1 text-sm text-ink font-medium truncate">{authUser.email}</p>
+                        <div className="mt-2 inline-flex items-center rounded-full bg-accent-soft px-2.5 py-1 text-xs font-semibold text-accent-ink">
                           Tier: {userTier}
                         </div>
                       </div>
                     )}
 
                     {/* Separator */}
-                    <div className="border-t border-gray-100"></div>
+                    <div className="border-t border-line"></div>
 
                     {/* Logout */}
                     <button
@@ -270,17 +270,17 @@ export default function GroupSetup({ onGroupCreated, onGroupJoined, onQuickPlay,
           </div>
 
           <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
-              <Flag className="w-8 h-8 text-green-600" />
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-accent-soft rounded-full mb-4">
+              <Flag className="w-8 h-8 text-accent-ink" />
             </div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">La Partideta Golf</h1>
-            <p className="text-gray-600">Tu compañero de golf</p>
+            <h1 className="text-3xl font-bold text-ink mb-2">La Partideta Golf</h1>
+            <p className="text-ink-3">Tu compañero de golf</p>
           </div>
 
           <div className="space-y-3">
             <button
               onClick={onQuickPlay}
-              className="w-full flex items-center justify-center gap-3 bg-green-600 text-white px-6 py-3 rounded-xl hover:bg-green-700 transition-colors font-semibold shadow-lg"
+              className="w-full flex items-center justify-center gap-3 bg-accent text-on-accent px-6 py-3 rounded-xl hover:bg-accent-hover transition-colors font-semibold shadow-card"
             >
               <Zap className="w-6 h-6" />
               Crear Partideta Rápida
@@ -288,7 +288,7 @@ export default function GroupSetup({ onGroupCreated, onGroupJoined, onQuickPlay,
 
             <button
               onClick={onJoinQuickPlay}
-              className="w-full flex items-center justify-center gap-3 bg-white text-green-600 border-2 border-green-600 px-6 py-3 rounded-xl hover:bg-green-50 transition-colors font-semibold"
+              className="w-full flex items-center justify-center gap-3 bg-card text-accent-ink border-2 border-accent px-6 py-3 rounded-xl hover:bg-accent-soft transition-colors font-semibold"
             >
               <LogIn className="w-6 h-6" />
               Unirse a Partideta Rápida
@@ -296,7 +296,7 @@ export default function GroupSetup({ onGroupCreated, onGroupJoined, onQuickPlay,
 
             <button
               onClick={() => setShowCreateGroupModal(true)}
-              className="w-full flex items-center justify-center gap-3 bg-green-600 text-white px-6 py-3 rounded-xl hover:bg-green-700 transition-colors font-semibold shadow-lg"
+              className="w-full flex items-center justify-center gap-3 bg-accent text-on-accent px-6 py-3 rounded-xl hover:bg-accent-hover transition-colors font-semibold shadow-card"
             >
               <Plus className="w-6 h-6" />
               Crear Multipartideta
@@ -304,7 +304,7 @@ export default function GroupSetup({ onGroupCreated, onGroupJoined, onQuickPlay,
 
             <button
               onClick={() => setMode('join')}
-              className="w-full flex items-center justify-center gap-3 bg-white text-green-600 border-2 border-green-600 px-6 py-3 rounded-xl hover:bg-green-50 transition-colors font-semibold"
+              className="w-full flex items-center justify-center gap-3 bg-card text-accent-ink border-2 border-accent px-6 py-3 rounded-xl hover:bg-accent-soft transition-colors font-semibold"
             >
               <LogIn className="w-6 h-6" />
               Unirse a Multipartideta
@@ -334,19 +334,19 @@ export default function GroupSetup({ onGroupCreated, onGroupJoined, onQuickPlay,
 
   if (mode === 'create') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 p-4 flex items-center justify-center">
-        <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8">
+      <div className="min-h-screen bg-app p-4 flex items-center justify-center">
+        <div className="max-w-md w-full bg-card rounded-2xl shadow-card p-8">
           <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
-              <Plus className="w-8 h-8 text-green-600" />
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-accent-soft rounded-full mb-4">
+              <Plus className="w-8 h-8 text-accent-ink" />
             </div>
-            <h2 className="text-3xl font-bold text-gray-900 mb-2">Crear Multipartideta</h2>
-            <p className="text-gray-600">Configura tu grupo</p>
+            <h2 className="text-3xl font-bold text-ink mb-2">Crear Multipartideta</h2>
+            <p className="text-ink-3">Configura tu grupo</p>
           </div>
 
           <div className="space-y-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-ink-2 mb-2">
                 Nombre del Grupo <span className="text-red-500">*</span>
               </label>
               <input
@@ -354,26 +354,26 @@ export default function GroupSetup({ onGroupCreated, onGroupJoined, onQuickPlay,
                 value={groupName}
                 onChange={(e) => setGroupName(e.target.value)}
                 placeholder="Ej: Amigos del Golf"
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                className="w-full px-4 py-3 border border-line-2 rounded-xl focus:ring-2 focus:ring-accent focus:border-transparent"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-ink-2 mb-2">
                 Código de Acceso
               </label>
 
               {!useCustomCode ? (
                 <div className="space-y-3">
-                  <div className="bg-gray-50 border-2 border-gray-300 rounded-xl py-4 px-6 text-center">
-                    <div className="text-3xl font-bold text-green-600 tracking-widest font-mono">
+                  <div className="bg-card-2 border-2 border-line-2 rounded-xl py-4 px-6 text-center">
+                    <div className="text-3xl font-bold text-accent-ink tracking-widest font-mono">
                       {autoCode}
                     </div>
                   </div>
                   <button
                     type="button"
                     onClick={handleGenerateNewCode}
-                    className="w-full flex items-center justify-center gap-2 px-4 py-2 text-sm text-green-600 hover:text-green-700 hover:bg-green-50 rounded-lg transition-colors"
+                    className="w-full flex items-center justify-center gap-2 px-4 py-2 text-sm text-accent-ink hover:text-accent-ink hover:bg-accent-soft rounded-lg transition-colors"
                   >
                     <RefreshCw className="w-4 h-4" />
                     Generar otro código
@@ -390,7 +390,7 @@ export default function GroupSetup({ onGroupCreated, onGroupJoined, onQuickPlay,
                     }
                   }}
                   placeholder="Mínimo 6 caracteres"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent text-center text-xl font-mono tracking-wider"
+                  className="w-full px-4 py-3 border border-line-2 rounded-xl focus:ring-2 focus:ring-accent focus:border-transparent text-center text-xl font-mono tracking-wider"
                 />
               )}
 
@@ -399,9 +399,9 @@ export default function GroupSetup({ onGroupCreated, onGroupJoined, onQuickPlay,
                   type="checkbox"
                   checked={useCustomCode}
                   onChange={(e) => setUseCustomCode(e.target.checked)}
-                  className="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500"
+                  className="w-4 h-4 text-accent-ink border-line-2 rounded focus:ring-accent"
                 />
-                <span className="text-sm text-gray-700">Personalizar código</span>
+                <span className="text-sm text-ink-2">Personalizar código</span>
               </label>
             </div>
 
@@ -411,16 +411,16 @@ export default function GroupSetup({ onGroupCreated, onGroupJoined, onQuickPlay,
                   type="checkbox"
                   checked={wantsAccount}
                   onChange={(e) => setWantsAccount(e.target.checked)}
-                  className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 mt-1"
+                  className="w-4 h-4 text-blue-600 border-line-2 rounded focus:ring-blue-500 mt-1"
                 />
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">
                     <UserCheck className="w-5 h-5 text-blue-600" />
-                    <h3 className="font-semibold text-gray-900">
+                    <h3 className="font-semibold text-ink">
                       Crear cuenta para guardar mis grupos
                     </h3>
                   </div>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-ink-3">
                     Accede desde cualquier dispositivo, gestiona todos tus grupos y revisa todas las estadisticas
                   </p>
                 </div>
@@ -429,38 +429,38 @@ export default function GroupSetup({ onGroupCreated, onGroupJoined, onQuickPlay,
               {wantsAccount && (
                 <div className="mt-4 space-y-4 pt-4 border-t border-blue-200">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-ink-2 mb-2">
                       Correo Electrónico
                     </label>
                     <div className="relative">
-                      <Mail className="absolute left-3 top-3.5 text-gray-400" size={20} />
+                      <Mail className="absolute left-3 top-3.5 text-ink-4" size={20} />
                       <input
                         type="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder="tu@email.com"
-                        className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full pl-10 pr-4 py-3 border border-line-2 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-ink-2 mb-2">
                       Contraseña
                     </label>
                     <div className="relative">
-                      <Lock className="absolute left-3 top-3.5 text-gray-400" size={20} />
+                      <Lock className="absolute left-3 top-3.5 text-ink-4" size={20} />
                       <input
                         type={showPassword ? "text" : "password"}
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         placeholder="Mínimo 6 caracteres"
-                        className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full pl-10 pr-12 py-3 border border-line-2 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       />
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-3.5 text-gray-400 hover:text-gray-600 transition-colors"
+                        className="absolute right-3 top-3.5 text-ink-4 hover:text-ink-3 transition-colors"
                       >
                         {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                       </button>
@@ -468,29 +468,29 @@ export default function GroupSetup({ onGroupCreated, onGroupJoined, onQuickPlay,
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-ink-2 mb-2">
                       Confirmar Contraseña
                     </label>
                     <div className="relative">
-                      <Lock className="absolute left-3 top-3.5 text-gray-400" size={20} />
+                      <Lock className="absolute left-3 top-3.5 text-ink-4" size={20} />
                       <input
                         type={showConfirmPassword ? "text" : "password"}
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
                         placeholder="Repite tu contraseña"
-                        className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full pl-10 pr-12 py-3 border border-line-2 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       />
                       <button
                         type="button"
                         onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                        className="absolute right-3 top-3.5 text-gray-400 hover:text-gray-600 transition-colors"
+                        className="absolute right-3 top-3.5 text-ink-4 hover:text-ink-3 transition-colors"
                       >
                         {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                       </button>
                     </div>
                   </div>
 
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-ink-3">
                     Si ya tienes cuenta,{' '}
                     <button
                       type="button"
@@ -514,14 +514,14 @@ export default function GroupSetup({ onGroupCreated, onGroupJoined, onQuickPlay,
               <button
                 onClick={() => setMode('choose')}
                 disabled={loading}
-                className="flex-1 px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-colors font-semibold disabled:opacity-50"
+                className="flex-1 px-6 py-3 border-2 border-line-2 text-ink-2 rounded-xl hover:bg-card-2 transition-colors font-semibold disabled:opacity-50"
               >
                 Atrás
               </button>
               <button
                 onClick={handleCreateGroup}
                 disabled={loading || !groupName.trim() || (useCustomCode && customCode.length < 6)}
-                className="flex-1 bg-green-600 text-white px-6 py-3 rounded-xl hover:bg-green-700 transition-colors font-semibold shadow-lg disabled:opacity-50"
+                className="flex-1 bg-accent text-on-accent px-6 py-3 rounded-xl hover:bg-accent-hover transition-colors font-semibold shadow-card disabled:opacity-50"
               >
                 {loading ? 'Creando...' : 'Crear Grupo'}
               </button>
@@ -533,19 +533,19 @@ export default function GroupSetup({ onGroupCreated, onGroupJoined, onQuickPlay,
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 p-4 flex items-center justify-center">
-      <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8">
+    <div className="min-h-screen bg-app p-4 flex items-center justify-center">
+      <div className="max-w-md w-full bg-card rounded-2xl shadow-card p-8">
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
-            <LogIn className="w-8 h-8 text-green-600" />
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-accent-soft rounded-full mb-4">
+            <LogIn className="w-8 h-8 text-accent-ink" />
           </div>
-          <h2 className="text-3xl font-bold text-gray-900 mb-2">Unirse a Multipartideta</h2>
-          <p className="text-gray-600">Ingresa el código del grupo o de una partida</p>
+          <h2 className="text-3xl font-bold text-ink mb-2">Unirse a Multipartideta</h2>
+          <p className="text-ink-3">Ingresa el código del grupo o de una partida</p>
         </div>
 
         <div className="space-y-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-ink-2 mb-2">
               Código de Grupo o Partida
             </label>
             <input
@@ -559,9 +559,9 @@ export default function GroupSetup({ onGroupCreated, onGroupJoined, onQuickPlay,
               }}
               placeholder="Código"
               maxLength={20}
-              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent text-center text-2xl font-mono tracking-wider"
+              className="w-full px-4 py-3 border border-line-2 rounded-xl focus:ring-2 focus:ring-accent focus:border-transparent text-center text-2xl font-mono tracking-wider"
             />
-            <p className="text-xs text-gray-500 mt-2 text-center">
+            <p className="text-xs text-ink-3 mt-2 text-center">
               Puedes ingresar el código de un grupo o el código de una partida activa
             </p>
           </div>
@@ -576,14 +576,14 @@ export default function GroupSetup({ onGroupCreated, onGroupJoined, onQuickPlay,
             <button
               onClick={() => setMode('choose')}
               disabled={loading}
-              className="flex-1 px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-colors font-semibold disabled:opacity-50"
+              className="flex-1 px-6 py-3 border-2 border-line-2 text-ink-2 rounded-xl hover:bg-card-2 transition-colors font-semibold disabled:opacity-50"
             >
               Atrás
             </button>
             <button
               onClick={handleJoinGroup}
               disabled={loading || joinCode.length < 4}
-              className="flex-1 bg-green-600 text-white px-6 py-3 rounded-xl hover:bg-green-700 transition-colors font-semibold shadow-lg disabled:opacity-50"
+              className="flex-1 bg-accent text-on-accent px-6 py-3 rounded-xl hover:bg-accent-hover transition-colors font-semibold shadow-card disabled:opacity-50"
             >
               {loading ? 'Uniéndose...' : 'Unirse'}
             </button>

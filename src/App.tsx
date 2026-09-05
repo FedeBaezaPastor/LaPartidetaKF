@@ -23,6 +23,7 @@ import MyGroups from './components/MyGroups';
 import AdminDashboard from './components/AdminDashboard';
 import ProfileScreen from './components/ProfileScreen';
 import { PremiumModal } from './components/PremiumModal';
+import { ThemeToggle } from './components/ThemeToggle';
 
 type ViewType = 'main' | 'setup' | 'players' | 'scorecard' | 'leaderboard' | 'active-rounds' | 'viewer' | 'game-points' | 'statistics' | 'quickplay-statistics' | 'auth' | 'my-groups' | 'admin-dashboard' | 'profile';
 
@@ -37,6 +38,12 @@ interface RoundState {
   courseName: string;
   course?: GolfCourse;
 }
+
+const GlobalThemeSwitch = () => (
+  <div className="fixed right-3 top-3 z-[100]">
+    <ThemeToggle />
+  </div>
+);
 
 function App() {
   const [isIncognito, setIsIncognito] = useState(false);
@@ -787,7 +794,7 @@ const handleFinishRound = async () => {
   
   const IncognitoWarning = () => (
     isIncognito ? (
-      <div className="fixed top-0 left-0 right-0 z-50 bg-amber-500 text-white px-4 py-2 text-center text-sm font-medium shadow-lg">
+      <div className="fixed top-0 left-0 right-0 z-50 bg-amber-500 text-white px-4 py-2 text-center text-sm font-medium shadow-card">
         <div className="flex items-center justify-center gap-2">
           <AlertTriangle size={16} />
           <span>Modo incógnito: No recargues la página o perderás todos los datos</span>
@@ -800,10 +807,11 @@ const handleFinishRound = async () => {
     return (
       <>
         <IncognitoWarning />
-        <div className={`min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 flex items-center justify-center ${isIncognito ? 'pt-10' : ''}`}>
+        <GlobalThemeSwitch />
+        <div className={`min-h-screen bg-app flex items-center justify-center ${isIncognito ? 'pt-10' : ''}`}>
           <div className="text-center">
-            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-green-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Cargando...</p>
+            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-accent mx-auto mb-4"></div>
+            <p className="text-ink-3">Cargando...</p>
           </div>
         </div>
       </>
@@ -814,6 +822,7 @@ const handleFinishRound = async () => {
     return (
       <>
         <IncognitoWarning />
+        <GlobalThemeSwitch />
         <div className={isIncognito ? 'pt-10' : ''}>
           <Auth
             onAuthSuccess={() => setCurrentView('my-groups')}
@@ -836,6 +845,7 @@ const handleFinishRound = async () => {
     return (
       <>
         <IncognitoWarning />
+        <GlobalThemeSwitch />
         <div className={isIncognito ? 'pt-10' : ''}>
           <MyGroups
             onBack={() => setCurrentView('main')}
@@ -851,6 +861,7 @@ const handleFinishRound = async () => {
     return (
       <>
         <IncognitoWarning />
+        <GlobalThemeSwitch />
         <div className={isIncognito ? 'pt-10' : ''}>
           <ProfileScreen
             authUser={authUser}
@@ -872,6 +883,7 @@ const handleFinishRound = async () => {
     return (
       <>
         <IncognitoWarning />
+        <GlobalThemeSwitch />
         <div className={isIncognito ? 'pt-10' : ''}>
           <GroupSetup
             onGroupCreated={handleGroupCreated}
@@ -905,8 +917,9 @@ const handleFinishRound = async () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-emerald-50 to-emerald-100">
+    <div className="min-h-screen bg-app">
       <IncognitoWarning />
+      <GlobalThemeSwitch />
       <div className={isIncognito ? 'pt-10' : ''}>
       {currentView === 'main' && currentGroup && (
         <RoundSetup
@@ -1078,11 +1091,11 @@ const handleFinishRound = async () => {
       )}
 
       {currentView === 'viewer' && roundState.round && !roundState.isCreator && (
-        <div className="min-h-screen bg-gradient-to-b from-emerald-900 to-emerald-800 p-4 md:p-8">
+        <div className="min-h-screen bg-app p-4 md:p-8">
           <div className="max-w-2xl mx-auto">
-            <div className="bg-white rounded-lg shadow-2xl p-6 md:p-8 text-center">
-              <h1 className="text-3xl font-bold text-emerald-900 mb-4">Observando Partida</h1>
-              <p className="text-gray-600 mb-6">
+            <div className="bg-card rounded-lg shadow-card p-6 md:p-8 text-center">
+              <h1 className="text-3xl font-bold text-title mb-4">Observando Partida</h1>
+              <p className="text-ink-3 mb-6">
                 Estás viendo esta partida como observador. Solo el creador puede editar puntuaciones.
               </p>
               <Leaderboard

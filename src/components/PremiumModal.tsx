@@ -87,10 +87,10 @@ export const PremiumModal: React.FC<PremiumModalProps> = ({ isOpen, onClose, use
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-2xl max-w-md w-full p-6 relative shadow-2xl">
+      <div className="bg-card rounded-2xl max-w-md w-full p-6 relative shadow-card">
         <button 
           onClick={onClose}
-          className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
+          className="absolute top-4 right-4 text-ink-4 hover:text-ink-3"
         >
           <X size={20} />
         </button>
@@ -99,10 +99,10 @@ export const PremiumModal: React.FC<PremiumModalProps> = ({ isOpen, onClose, use
           <div className="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-3">
             <Zap className="text-amber-500" size={24} />
           </div>
-          <h2 className="text-2xl font-bold text-gray-900">
+          <h2 className="text-2xl font-bold text-ink">
             {targetTier ? `Actualizar a ${targetTier}` : 'Suscripción Premium'}
           </h2>
-          <p className="text-sm text-gray-500 mt-1">Paga instantáneamente con Bitcoin Lightning</p>
+          <p className="text-sm text-ink-3 mt-1">Paga instantáneamente con Bitcoin Lightning</p>
         </div>
 
         {error && (
@@ -130,25 +130,25 @@ export const PremiumModal: React.FC<PremiumModalProps> = ({ isOpen, onClose, use
           <div className="flex flex-col items-center space-y-4">
             {paid ? (
               <div className="text-center py-6">
-                <CheckCircle2 className="text-emerald-500 w-16 h-16 mx-auto mb-2" />
-                <h3 className="text-xl font-bold text-gray-800">¡Pago Confirmado!</h3>
-                <p className="text-sm text-gray-500 mb-4">Ya eres usuario Premium.</p>
+                <CheckCircle2 className="text-accent-ink w-16 h-16 mx-auto mb-2" />
+                <h3 className="text-xl font-bold text-ink">¡Pago Confirmado!</h3>
+                <p className="text-sm text-ink-3 mb-4">Ya eres usuario Premium.</p>
                 <button
                   onClick={() => {
                     onClose();
                     window.location.reload();
                   }}
-                  className="bg-emerald-600 text-white font-semibold px-6 py-2 rounded-xl text-sm"
+                  className="bg-accent text-on-accent font-semibold px-6 py-2 rounded-xl text-sm"
                 >
                   Continuar
                 </button>
               </div>
             ) : (
               <>
-                <div className="bg-white p-4 border-2 border-amber-200 rounded-xl shadow-inner">
+                <div className="bg-card p-4 border-2 border-amber-200 rounded-xl shadow-inner">
                   <QRCodeSVG value={invoiceData.paymentRequest} size={200} level="M" />
                 </div>
-                <p className="text-xs text-gray-500 text-center">
+                <p className="text-xs text-ink-3 text-center">
                   Escanea este código QR con <strong>Wallet of Satoshi</strong> para pagar los 15 sats.
                 </p>
                 <button

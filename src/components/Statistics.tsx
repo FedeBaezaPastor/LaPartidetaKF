@@ -334,21 +334,21 @@ const openRankingModal = async (type: 'patrocinador' | 'barraLibre' | 'corto' | 
     const change = currentHandicap - initialHandicap;
 
     return (
-      <div className="bg-white rounded-lg p-6 border border-gray-200">
-        <h3 className="text-lg font-bold text-gray-800 mb-4">Evolución de Handicap</h3>
+      <div className="bg-card rounded-lg p-6 border border-line">
+        <h3 className="text-lg font-bold text-ink mb-4">Evolución de Handicap</h3>
 
         <div className="grid grid-cols-3 gap-4 mb-6">
           <div className="bg-blue-50 rounded-lg p-4 text-center">
-            <p className="text-sm text-gray-600 mb-1 h-8 flex items-center justify-center">Primera partida</p>
+            <p className="text-sm text-ink-3 mb-1 h-8 flex items-center justify-center">Primera partida</p>
             <p className="text-3xl font-bold text-blue-700">{initialHandicap.toFixed(1)}</p>
           </div>
           <div className="bg-blue-50 rounded-lg p-4 text-center">
-            <p className="text-sm text-gray-600 mb-1 h-8 flex items-center justify-center">Última partida</p>
+            <p className="text-sm text-ink-3 mb-1 h-8 flex items-center justify-center">Última partida</p>
             <p className="text-3xl font-bold text-blue-700">{currentHandicap.toFixed(1)}</p>
           </div>
           <div className="bg-blue-50 rounded-lg p-4 text-center">
-            <p className="text-sm text-gray-600 mb-1 h-8 flex items-center justify-center">Cambio</p>
-            <p className={`text-3xl font-bold ${change < 0 ? 'text-green-600' : 'text-red-600'}`}>
+            <p className="text-sm text-ink-3 mb-1 h-8 flex items-center justify-center">Cambio</p>
+            <p className={`text-3xl font-bold ${change < 0 ? 'text-accent-ink' : 'text-red-600'}`}>
               {change > 0 ? '+' : ''}{change.toFixed(1)}
             </p>
           </div>
@@ -356,12 +356,12 @@ const openRankingModal = async (type: 'patrocinador' | 'barraLibre' | 'corto' | 
 
         <div className="max-h-64 overflow-y-auto overflow-x-auto">
           <table className="w-full text-sm">
-            <thead className="bg-gray-50 sticky top-0">
+            <thead className="bg-card-2 sticky top-0">
               <tr>
-                <th className="sticky left-0 z-10 bg-gray-50 text-left py-2 px-3 font-semibold text-gray-700">Fecha</th>
-                <th className="text-left py-2 px-3 font-semibold text-gray-700">Campo</th>
-                <th className="text-right py-2 px-3 font-semibold text-gray-700">Handicap</th>
-                <th className="text-right py-2 px-3 font-semibold text-gray-700">Cambio</th>
+                <th className="sticky left-0 z-10 bg-card-2 text-left py-2 px-3 font-semibold text-ink-2">Fecha</th>
+                <th className="text-left py-2 px-3 font-semibold text-ink-2">Campo</th>
+                <th className="text-right py-2 px-3 font-semibold text-ink-2">Handicap</th>
+                <th className="text-right py-2 px-3 font-semibold text-ink-2">Cambio</th>
               </tr>
             </thead>
             <tbody>
@@ -369,17 +369,17 @@ const openRankingModal = async (type: 'patrocinador' | 'barraLibre' | 'corto' | 
                 const prevHandicap = index > 0 ? handicapData[index - 1].handicap : entry.handicap;
                 const diff = entry.handicap - prevHandicap;
                 return (
-                  <tr key={index} className="border-b border-gray-100 hover:bg-gray-50">
-                    <td className="sticky left-0 z-10 bg-white py-2 px-3 text-gray-600 border-r border-gray-200">{entry.date}</td>
-                    <td className="py-2 px-3 text-gray-600 truncate max-w-[150px]" title={entry.course}>
+                  <tr key={index} className="border-b border-line hover:bg-card-2">
+                    <td className="sticky left-0 z-10 bg-card py-2 px-3 text-ink-3 border-r border-line">{entry.date}</td>
+                    <td className="py-2 px-3 text-ink-3 truncate max-w-[150px]" title={entry.course}>
                       {entry.course}
                     </td>
-                    <td className="py-2 px-3 text-right font-semibold text-gray-800">
+                    <td className="py-2 px-3 text-right font-semibold text-ink">
                       {entry.handicap.toFixed(1)}
                     </td>
                     <td className="py-2 px-3 text-right">
                       {index > 0 && (
-                        <span className={`font-semibold ${diff < 0 ? 'text-green-600' : diff > 0 ? 'text-red-600' : 'text-gray-400'}`}>
+                        <span className={`font-semibold ${diff < 0 ? 'text-accent-ink' : diff > 0 ? 'text-red-600' : 'text-ink-4'}`}>
                           {diff !== 0 ? (diff > 0 ? '+' : '') + diff.toFixed(1) : '-'}
                         </span>
                       )}
@@ -406,12 +406,12 @@ const openRankingModal = async (type: 'patrocinador' | 'barraLibre' | 'corto' | 
 
     return (
       <div>
-        <h3 className="text-lg font-bold text-gray-800 mb-4">Análisis de Juego</h3>
+        <h3 className="text-lg font-bold text-ink mb-4">Análisis de Juego</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="bg-gradient-to-br from-teal-50 to-teal-100 rounded-lg p-5 border border-teal-200">
             <h4 className="text-sm font-semibold text-teal-900 mb-2">Ratio Birdies/Bogeys+</h4>
             <p className="text-4xl font-bold text-teal-700">{ratio.toFixed(2)}</p>
-            <p className="text-xs text-gray-600 mt-2">
+            <p className="text-xs text-ink-3 mt-2">
               {birdies || 0} birdies / {totalBogeyPlus} bogeys+
             </p>
           </div>
@@ -419,19 +419,19 @@ const openRankingModal = async (type: 'patrocinador' | 'barraLibre' | 'corto' | 
           <div className="bg-gradient-to-br from-sky-50 to-sky-100 rounded-lg p-5 border border-sky-200">
             <h4 className="text-sm font-semibold text-sky-900 mb-2">Birdies por Partida</h4>
             <p className="text-4xl font-bold text-sky-700">{birdiesPerRound.toFixed(1)}</p>
-            <p className="text-xs text-gray-600 mt-2">promedio</p>
+            <p className="text-xs text-ink-3 mt-2">promedio</p>
           </div>
 
-          <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-5 border border-green-200">
-            <h4 className="text-sm font-semibold text-green-900 mb-2">Pares por Partida</h4>
-            <p className="text-4xl font-bold text-green-700">{parsPerRound.toFixed(1)}</p>
-            <p className="text-xs text-gray-600 mt-2">promedio</p>
+          <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-5 border border-accent-ring">
+            <h4 className="text-sm font-semibold text-title mb-2">Pares por Partida</h4>
+            <p className="text-4xl font-bold text-accent-ink">{parsPerRound.toFixed(1)}</p>
+            <p className="text-xs text-ink-3 mt-2">promedio</p>
           </div>
 
           <div className="bg-gradient-to-br from-rose-50 to-rose-100 rounded-lg p-5 border border-rose-200">
             <h4 className="text-sm font-semibold text-rose-900 mb-2">Bogeys+ por Partida</h4>
             <p className="text-4xl font-bold text-rose-700">{bogeyPlusPerRound.toFixed(1)}</p>
-            <p className="text-xs text-gray-600 mt-2">promedio</p>
+            <p className="text-xs text-ink-3 mt-2">promedio</p>
           </div>
         </div>
       </div>
@@ -465,7 +465,7 @@ const openRankingModal = async (type: 'patrocinador' | 'barraLibre' | 'corto' | 
         <h3 className="text-xl font-bold text-orange-900 mb-4">No pasó de Rojas</h3>
         <div className="text-center">
           <p className="text-5xl font-bold text-orange-700">{percentage.toFixed(1)}%</p>
-          <p className="text-sm text-gray-600 mt-2">
+          <p className="text-sm text-ink-3 mt-2">
             {totalNoPasoRojas} de {totalHoles} hoyos
           </p>
         </div>
@@ -475,19 +475,19 @@ const openRankingModal = async (type: 'patrocinador' | 'barraLibre' | 'corto' | 
 
   if (archivedRounds.length === 0 && !loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-emerald-900 to-emerald-800 p-4 md:p-8">
+      <div className="min-h-screen bg-app p-4 md:p-8">
         <div className="max-w-4xl mx-auto">
           <button
             onClick={onBack}
-            className="bg-white hover:bg-gray-100 text-emerald-900 font-bold py-2 px-4 rounded-lg flex items-center justify-center transition-colors mb-6"
+            className="bg-card hover:bg-card-2 text-title font-bold py-2 px-4 rounded-lg flex items-center justify-center transition-colors mb-6"
           >
             <ArrowLeft size={20} />
           </button>
 
-          <div className="bg-white rounded-lg shadow-2xl p-8 text-center">
-            <TrendingUp size={64} className="mx-auto text-gray-400 mb-4" />
-            <h2 className="text-2xl font-bold text-gray-800 mb-2">No hay estadísticas disponibles</h2>
-            <p className="text-gray-600">
+          <div className="bg-card rounded-lg shadow-card p-8 text-center">
+            <TrendingUp size={64} className="mx-auto text-ink-4 mb-4" />
+            <h2 className="text-2xl font-bold text-ink mb-2">No hay estadísticas disponibles</h2>
+            <p className="text-ink-3">
               Archiva algunas partidas finalizadas para empezar a ver estadísticas.
             </p>
           </div>
@@ -497,17 +497,17 @@ const openRankingModal = async (type: 'patrocinador' | 'barraLibre' | 'corto' | 
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-emerald-900 to-emerald-800 p-4 md:p-8">
+    <div className="min-h-screen bg-app p-4 md:p-8">
       <div className="max-w-6xl mx-auto">
         <div className="flex items-center justify-between mb-6">
           <button
             onClick={onBack}
-            className="bg-white hover:bg-gray-100 text-emerald-900 font-bold py-2 px-4 rounded-lg flex items-center justify-center transition-colors"
+            className="bg-card hover:bg-card-2 text-title font-bold py-2 px-4 rounded-lg flex items-center justify-center transition-colors"
           >
             <ArrowLeft size={20} />
           </button>
 
-          <h1 className="text-3xl font-bold text-white">Estadísticas</h1>
+          <h1 className="text-3xl font-bold text-title">Estadísticas</h1>
           <div className="w-24"></div>
         </div>
 
@@ -517,14 +517,14 @@ const openRankingModal = async (type: 'patrocinador' | 'barraLibre' | 'corto' | 
           </div>
         )}
 
-        <div className="bg-white rounded-lg shadow-2xl overflow-hidden">
+        <div className="bg-card rounded-lg shadow-card overflow-hidden">
           <div className="flex border-b">
             <button
               onClick={() => setActiveTab('player')}
               className={`flex-1 py-4 px-6 font-semibold flex items-center justify-center gap-2 transition-colors ${
                 activeTab === 'player'
-                  ? 'bg-emerald-600 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  ? 'bg-accent text-on-accent'
+                  : 'bg-card-2 text-ink-2 hover:bg-gray-200'
               }`}
             >
               <User size={20} />
@@ -535,8 +535,8 @@ const openRankingModal = async (type: 'patrocinador' | 'barraLibre' | 'corto' | 
               onClick={() => setActiveTab('group')}
               className={`flex-1 py-4 px-6 font-semibold flex items-center justify-center gap-2 transition-colors ${
                 activeTab === 'group'
-                  ? 'bg-emerald-600 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  ? 'bg-accent text-on-accent'
+                  : 'bg-card-2 text-ink-2 hover:bg-gray-200'
               }`}
             >
               <Users size={20} />
@@ -547,8 +547,8 @@ const openRankingModal = async (type: 'patrocinador' | 'barraLibre' | 'corto' | 
               onClick={() => setActiveTab('course')}
               className={`flex-1 py-4 px-6 font-semibold flex items-center justify-center gap-2 transition-colors ${
                 activeTab === 'course'
-                  ? 'bg-emerald-600 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  ? 'bg-accent text-on-accent'
+                  : 'bg-card-2 text-ink-2 hover:bg-gray-200'
               }`}
             >
               <MapPin size={20} />
@@ -560,13 +560,13 @@ const openRankingModal = async (type: 'patrocinador' | 'barraLibre' | 'corto' | 
             {activeTab === 'player' && (
               <div>
                 <div className="mb-6">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-ink-2 mb-2">
                     Selecciona un jugador
                   </label>
                   <select
                     value={selectedPlayer}
                     onChange={(e) => handlePlayerChange(e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                    className="w-full px-4 py-2 border border-line-2 rounded-lg focus:ring-2 focus:ring-accent focus:border-accent"
                   >
                     {uniquePlayers.map((player) => (
                       <option key={player} value={player}>
@@ -585,7 +585,7 @@ const openRankingModal = async (type: 'patrocinador' | 'barraLibre' | 'corto' | 
                         value={playerStats.totalRounds}
                       />
                       <StatCard
-                        icon={<Award className="text-emerald-600" />}
+                        icon={<Award className="text-accent-ink" />}
                         label="Victorias"
                         value={playerStats.wins}
                       />
@@ -610,7 +610,7 @@ const openRankingModal = async (type: 'patrocinador' | 'barraLibre' | 'corto' | 
                             <p className="text-4xl font-bold text-blue-700">
                               {playerStats.detailed.current_handicap?.toFixed(1) || '0.0'}
                             </p>
-                            <p className="text-sm text-gray-600 mt-2">Handicap actual (9 hoyos)</p>
+                            <p className="text-sm text-ink-3 mt-2">Handicap actual (9 hoyos)</p>
                           </div>
                         </div>
 
@@ -624,10 +624,10 @@ const openRankingModal = async (type: 'patrocinador' | 'barraLibre' | 'corto' | 
                                 <p className="text-4xl font-bold text-yellow-700">
                                   {playerStats.detailed.best_round.points} puntos
                                 </p>
-                                <p className="text-sm text-gray-700 mt-2">
+                                <p className="text-sm text-ink-2 mt-2">
                                   {playerStats.detailed.best_round.course}
                                 </p>
-                                <p className="text-xs text-gray-600 mt-1">
+                                <p className="text-xs text-ink-3 mt-1">
                                   {new Date(playerStats.detailed.best_round.date).toLocaleDateString('es-ES')}
                                 </p>
                               </div>
@@ -639,9 +639,9 @@ const openRankingModal = async (type: 'patrocinador' | 'barraLibre' | 'corto' | 
                         {playerStats.detailed.hole_results && (
                           <>
                             <div>
-                              <h3 className="text-lg font-bold text-gray-800 mb-4">
+                              <h3 className="text-lg font-bold text-ink mb-4">
                                 Distribución de Resultados
-                                <span className="text-sm font-normal text-gray-600 ml-2">
+                                <span className="text-sm font-normal text-ink-3 ml-2">
                                   ({playerStats.detailed.total_holes_played || 0} hoyos jugados en {playerStats.totalRounds} partidas)
                                 </span>
                               </h3>
@@ -658,9 +658,9 @@ const openRankingModal = async (type: 'patrocinador' | 'barraLibre' | 'corto' | 
                                     {playerStats.detailed.hole_results.birdies || 0}
                                   </p>
                                 </div>
-                                <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-4 border border-green-200">
-                                  <p className="text-sm font-semibold text-green-900">Pares</p>
-                                  <p className="text-3xl font-bold text-green-700">
+                                <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-4 border border-accent-ring">
+                                  <p className="text-sm font-semibold text-title">Pares</p>
+                                  <p className="text-3xl font-bold text-accent-ink">
                                     {playerStats.detailed.hole_results.pars || 0}
                                   </p>
                                 </div>
@@ -700,25 +700,25 @@ const openRankingModal = async (type: 'patrocinador' | 'barraLibre' | 'corto' | 
                           </div>
                           <div className="grid grid-cols-3 gap-4">
                             <div className="text-center">
-                              <p className="text-3xl font-bold text-green-600">+{playerStats.beersWon}</p>
-                              <p className="text-sm text-gray-600">Cobradas</p>
+                              <p className="text-3xl font-bold text-accent-ink">+{playerStats.beersWon}</p>
+                              <p className="text-sm text-ink-3">Cobradas</p>
                             </div>
                             <div className="text-center">
                               <p className="text-3xl font-bold text-red-600">-{playerStats.beersPaid}</p>
-                              <p className="text-sm text-gray-600">Pagadas</p>
+                              <p className="text-sm text-ink-3">Pagadas</p>
                             </div>
                             <div className="text-center">
                               <p
                                 className={`text-3xl font-bold ${
                                   playerStats.beersWon - playerStats.beersPaid >= 0
-                                    ? 'text-green-600'
+                                    ? 'text-accent-ink'
                                     : 'text-red-600'
                                 }`}
                               >
                                 {playerStats.beersWon - playerStats.beersPaid >= 0 ? '+' : ''}
                                 {playerStats.beersWon - playerStats.beersPaid}
                               </p>
-                              <p className="text-sm text-gray-600">Balance</p>
+                              <p className="text-sm text-ink-3">Balance</p>
                             </div>
                           </div>
                         </div>
@@ -733,27 +733,27 @@ const openRankingModal = async (type: 'patrocinador' | 'barraLibre' | 'corto' | 
 
             {activeTab === 'group' && (
               <div>
-                <h2 className="text-2xl font-bold text-gray-800 mb-6">Estadísticas del Grupo</h2>
+                <h2 className="text-2xl font-bold text-ink mb-6">Estadísticas del Grupo</h2>
 
                 {groupStats && (
                   <div className="space-y-6">
                     <button
                       onClick={() => setShowArchivedRoundsModal(true)}
-                      className="w-full bg-emerald-50 hover:bg-emerald-100 rounded-lg p-4 border border-emerald-200 transition-colors text-left"
+                      className="w-full bg-accent-soft hover:bg-accent-soft rounded-lg p-4 border border-accent-ring transition-colors text-left"
                     >
-                      <p className="text-gray-700">
-                        <span className="font-bold text-2xl text-emerald-700">{groupStats.totalRounds}</span>{' '}
+                      <p className="text-ink-2">
+                        <span className="font-bold text-2xl text-accent-ink">{groupStats.totalRounds}</span>{' '}
                         partidas archivadas
                       </p>
-                      <p className="text-xs text-emerald-600 mt-1">Click para ver historial</p>
+                      <p className="text-xs text-accent-ink mt-1">Click para ver historial</p>
                     </button>
 
                     {isDivend && divendStats && (
                       <div>
-                        <h3 className="text-lg font-bold text-gray-800 mb-4">Premios Especiales Partideta dels divendres</h3>
+                        <h3 className="text-lg font-bold text-ink mb-4">Premios Especiales Partideta dels divendres</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           {divendStats.patrocinador && (
-                            <div className="bg-gradient-to-br from-red-50 to-red-100 rounded-lg p-5 border-2 border-red-300 shadow-md">
+                            <div className="bg-gradient-to-br from-red-50 to-red-100 rounded-lg p-5 border-2 border-red-300 shadow-soft">
                               <div className="flex items-center justify-between mb-2">
                                 <div className="flex items-center gap-3">
                                   <Euro size={28} className="text-red-700" />
@@ -767,14 +767,14 @@ const openRankingModal = async (type: 'patrocinador' | 'barraLibre' | 'corto' | 
                                   <ChevronRight size={20} />
                                 </button>
                               </div>
-                              <p className="text-sm text-gray-700 mb-3">Más cervezas pagadas</p>
+                              <p className="text-sm text-ink-2 mb-3">Más cervezas pagadas</p>
                               <p className="text-2xl font-bold text-red-800">{divendStats.patrocinador.name}</p>
                               <p className="text-lg text-red-600">{divendStats.patrocinador.value} cervezas</p>
                             </div>
                           )}
 
                           {divendStats.barraLibre && (
-                            <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-5 border-2 border-blue-300 shadow-md">
+                            <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-5 border-2 border-blue-300 shadow-soft">
                               <div className="flex items-center justify-between mb-2">
                                 <div className="flex items-center gap-3">
                                   <Beer size={28} className="text-blue-700" />
@@ -788,14 +788,14 @@ const openRankingModal = async (type: 'patrocinador' | 'barraLibre' | 'corto' | 
                                   <ChevronRight size={20} />
                                 </button>
                               </div>
-                              <p className="text-sm text-gray-700 mb-3">Más cervezas recibidas</p>
+                              <p className="text-sm text-ink-2 mb-3">Más cervezas recibidas</p>
                               <p className="text-2xl font-bold text-blue-800">{divendStats.barraLibre.name}</p>
                               <p className="text-lg text-blue-600">{divendStats.barraLibre.value} cervezas</p>
                             </div>
                           )}
 
                           {divendStats.corto && (
-                            <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-lg p-5 border-2 border-orange-300 shadow-md">
+                            <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-lg p-5 border-2 border-orange-300 shadow-soft">
                               <div className="flex items-center justify-between mb-2">
                                 <div className="flex items-center gap-3">
                                   <Trophy size={28} className="text-orange-700" />
@@ -809,17 +809,17 @@ const openRankingModal = async (type: 'patrocinador' | 'barraLibre' | 'corto' | 
                                   <ChevronRight size={20} />
                                 </button>
                               </div>
-                              <p className="text-sm text-gray-700 mb-3">"No pasó de Rojas" más veces</p>
+                              <p className="text-sm text-ink-2 mb-3">"No pasó de Rojas" más veces</p>
                               <p className="text-2xl font-bold text-orange-800">{divendStats.corto.name}</p>
                               <p className="text-lg text-orange-600">{divendStats.corto.value} veces</p>
                               {divendStats.corto.rounds_played !== undefined && (
-                                <p className="text-xs text-gray-600 mt-1">en {divendStats.corto.rounds_played} partidas</p>
+                                <p className="text-xs text-ink-3 mt-1">en {divendStats.corto.rounds_played} partidas</p>
                               )}
                             </div>
                           )}
 
                           {divendStats.driverOro && (
-                            <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-lg p-5 border-2 border-yellow-400 shadow-md">
+                            <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-lg p-5 border-2 border-yellow-400 shadow-soft">
                               <div className="flex items-center justify-between mb-2">
                                 <div className="flex items-center gap-3">
                                   <Award size={28} className="text-yellow-700" />
@@ -833,11 +833,11 @@ const openRankingModal = async (type: 'patrocinador' | 'barraLibre' | 'corto' | 
                                   <ChevronRight size={20} />
                                 </button>
                               </div>
-                              <p className="text-sm text-gray-700 mb-3">"No pasó de Rojas" menos veces</p>
+                              <p className="text-sm text-ink-2 mb-3">"No pasó de Rojas" menos veces</p>
                               <p className="text-2xl font-bold text-yellow-800">{divendStats.driverOro.name}</p>
                               <p className="text-lg text-yellow-600">{divendStats.driverOro.value} veces</p>
                               {divendStats.driverOro.rounds_played !== undefined && (
-                                <p className="text-xs text-gray-600 mt-1">en {divendStats.driverOro.rounds_played} partidas</p>
+                                <p className="text-xs text-ink-3 mt-1">en {divendStats.driverOro.rounds_played} partidas</p>
                               )}
                             </div>
                           )}
@@ -847,39 +847,39 @@ const openRankingModal = async (type: 'patrocinador' | 'barraLibre' | 'corto' | 
 
                     {phase2Stats && (
                       <div className="space-y-6">
-                        <h3 className="text-xl font-bold text-gray-800 mb-4">Títulos y Rankings Históricos</h3>
+                        <h3 className="text-xl font-bold text-ink mb-4">Títulos y Rankings Históricos</h3>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                           {phase2Stats.killer && (
-                            <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-lg p-5 border-2 border-yellow-400 shadow-md">
+                            <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-lg p-5 border-2 border-yellow-400 shadow-soft">
                               <div className="flex items-center gap-3 mb-2">
                                 <Zap size={28} className="text-yellow-700" />
                                 <h4 className="text-lg font-bold text-yellow-900">"Killer"</h4>
                               </div>
-                              <p className="text-sm text-gray-700 mb-3">Mejor vuelta histórica</p>
+                              <p className="text-sm text-ink-2 mb-3">Mejor vuelta histórica</p>
                               <p className="text-2xl font-bold text-yellow-800">{phase2Stats.killer.player_name}</p>
                               <p className="text-lg text-yellow-600">{phase2Stats.killer.best_score} puntos</p>
-                              <p className="text-xs text-gray-600 mt-1">{phase2Stats.killer.course_name}</p>
-                              <p className="text-xs text-gray-500">{new Date(phase2Stats.killer.played_at).toLocaleDateString('es-ES')}</p>
+                              <p className="text-xs text-ink-3 mt-1">{phase2Stats.killer.course_name}</p>
+                              <p className="text-xs text-ink-3">{new Date(phase2Stats.killer.played_at).toLocaleDateString('es-ES')}</p>
                             </div>
                           )}
 
                           {phase2Stats.paquete && (
-                            <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg p-5 border-2 border-gray-400 shadow-md">
+                            <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg p-5 border-2 border-line-2 shadow-soft">
                               <div className="flex items-center gap-3 mb-2">
-                                <ThumbsDown size={28} className="text-gray-700" />
-                                <h4 className="text-lg font-bold text-gray-900">"Paquete"</h4>
+                                <ThumbsDown size={28} className="text-ink-2" />
+                                <h4 className="text-lg font-bold text-ink">"Paquete"</h4>
                               </div>
-                              <p className="text-sm text-gray-700 mb-3">Peor vuelta histórica</p>
-                              <p className="text-2xl font-bold text-gray-800">{phase2Stats.paquete.player_name}</p>
-                              <p className="text-lg text-gray-600">{phase2Stats.paquete.worst_score} puntos</p>
-                              <p className="text-xs text-gray-600 mt-1">{phase2Stats.paquete.course_name}</p>
-                              <p className="text-xs text-gray-500">{new Date(phase2Stats.paquete.played_at).toLocaleDateString('es-ES')}</p>
+                              <p className="text-sm text-ink-2 mb-3">Peor vuelta histórica</p>
+                              <p className="text-2xl font-bold text-ink">{phase2Stats.paquete.player_name}</p>
+                              <p className="text-lg text-ink-3">{phase2Stats.paquete.worst_score} puntos</p>
+                              <p className="text-xs text-ink-3 mt-1">{phase2Stats.paquete.course_name}</p>
+                              <p className="text-xs text-ink-3">{new Date(phase2Stats.paquete.played_at).toLocaleDateString('es-ES')}</p>
                             </div>
                           )}
 
                           {phase2Stats.shark && (
-                            <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-5 border-2 border-blue-400 shadow-md">
+                            <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-5 border-2 border-blue-400 shadow-soft">
                               <div className="flex items-center justify-between mb-2">
                                 <div className="flex items-center gap-3">
                                   <Trophy size={28} className="text-blue-700" />
@@ -893,15 +893,15 @@ const openRankingModal = async (type: 'patrocinador' | 'barraLibre' | 'corto' | 
                                   <ChevronRight size={20} />
                                 </button>
                               </div>
-                              <p className="text-sm text-gray-700 mb-3">Más partidas ganadas</p>
+                              <p className="text-sm text-ink-2 mb-3">Más partidas ganadas</p>
                               <p className="text-2xl font-bold text-blue-800">{phase2Stats.shark.player_name}</p>
                               <p className="text-lg text-blue-600">{phase2Stats.shark.total_wins} victorias</p>
-                              <p className="text-xs text-gray-600 mt-1">{phase2Stats.shark.win_percentage}% de éxito en {phase2Stats.shark.total_rounds} partidas</p>
+                              <p className="text-xs text-ink-3 mt-1">{phase2Stats.shark.win_percentage}% de éxito en {phase2Stats.shark.total_rounds} partidas</p>
                             </div>
                           )}
 
                           {phase2Stats.viciado && (
-                            <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg p-5 border-2 border-purple-400 shadow-md">
+                            <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg p-5 border-2 border-purple-400 shadow-soft">
                               <div className="flex items-center justify-between mb-2">
                                 <div className="flex items-center gap-3">
                                   <Calendar size={28} className="text-purple-700" />
@@ -915,15 +915,15 @@ const openRankingModal = async (type: 'patrocinador' | 'barraLibre' | 'corto' | 
                                   <ChevronRight size={20} />
                                 </button>
                               </div>
-                              <p className="text-sm text-gray-700 mb-3">Más partidas jugadas</p>
+                              <p className="text-sm text-ink-2 mb-3">Más partidas jugadas</p>
                               <p className="text-2xl font-bold text-purple-800">{phase2Stats.viciado.player_name}</p>
                               <p className="text-lg text-purple-600">{phase2Stats.viciado.total_rounds} partidas</p>
-                              <p className="text-xs text-gray-600 mt-1">{phase2Stats.viciado.average_score} puntos promedio</p>
+                              <p className="text-xs text-ink-3 mt-1">{phase2Stats.viciado.average_score} puntos promedio</p>
                             </div>
                           )}
 
                           {phase2Stats.francotirador && (
-                            <div className="bg-gradient-to-br from-red-50 to-red-100 rounded-lg p-5 border-2 border-red-400 shadow-md">
+                            <div className="bg-gradient-to-br from-red-50 to-red-100 rounded-lg p-5 border-2 border-red-400 shadow-soft">
                               <div className="flex items-center justify-between mb-2">
                                 <div className="flex items-center gap-3">
                                   <Target size={28} className="text-red-700" />
@@ -937,15 +937,15 @@ const openRankingModal = async (type: 'patrocinador' | 'barraLibre' | 'corto' | 
                                   <ChevronRight size={20} />
                                 </button>
                               </div>
-                              <p className="text-sm text-gray-700 mb-3">Más eagles</p>
+                              <p className="text-sm text-ink-2 mb-3">Más eagles</p>
                               <p className="text-2xl font-bold text-red-800">{phase2Stats.francotirador.player_name}</p>
                               <p className="text-lg text-red-600">{phase2Stats.francotirador.total_eagles} eagles totales</p>
-                              <p className="text-xs text-gray-600 mt-1">Mejor día: {phase2Stats.francotirador.best_single_day} eagles</p>
+                              <p className="text-xs text-ink-3 mt-1">Mejor día: {phase2Stats.francotirador.best_single_day} eagles</p>
                             </div>
                           )}
 
                           {phase2Stats.maquina && (
-                            <div className="bg-gradient-to-br from-cyan-50 to-cyan-100 rounded-lg p-5 border-2 border-cyan-400 shadow-md">
+                            <div className="bg-gradient-to-br from-cyan-50 to-cyan-100 rounded-lg p-5 border-2 border-cyan-400 shadow-soft">
                               <div className="flex items-center justify-between mb-2">
                                 <div className="flex items-center gap-3">
                                   <Activity size={28} className="text-cyan-700" />
@@ -959,15 +959,15 @@ const openRankingModal = async (type: 'patrocinador' | 'barraLibre' | 'corto' | 
                                   <ChevronRight size={20} />
                                 </button>
                               </div>
-                              <p className="text-sm text-gray-700 mb-3">Más birdies</p>
+                              <p className="text-sm text-ink-2 mb-3">Más birdies</p>
                               <p className="text-2xl font-bold text-cyan-800">{phase2Stats.maquina.player_name}</p>
                               <p className="text-lg text-cyan-600">{phase2Stats.maquina.total_birdies} birdies totales</p>
-                              <p className="text-xs text-gray-600 mt-1">Mejor día: {phase2Stats.maquina.best_single_day} birdies</p>
+                              <p className="text-xs text-ink-3 mt-1">Mejor día: {phase2Stats.maquina.best_single_day} birdies</p>
                             </div>
                           )}
 
                           {phase2Stats.amigoDelMasUno && (
-                            <div className="bg-gradient-to-br from-amber-50 to-amber-100 rounded-lg p-5 border-2 border-amber-400 shadow-md">
+                            <div className="bg-gradient-to-br from-amber-50 to-amber-100 rounded-lg p-5 border-2 border-amber-400 shadow-soft">
                               <div className="flex items-center justify-between mb-2">
                                 <div className="flex items-center gap-3">
                                   <Award size={28} className="text-amber-700" />
@@ -981,15 +981,15 @@ const openRankingModal = async (type: 'patrocinador' | 'barraLibre' | 'corto' | 
                                   <ChevronRight size={20} />
                                 </button>
                               </div>
-                              <p className="text-sm text-gray-700 mb-3">Más bogeys</p>
+                              <p className="text-sm text-ink-2 mb-3">Más bogeys</p>
                               <p className="text-2xl font-bold text-amber-800">{phase2Stats.amigoDelMasUno.player_name}</p>
                               <p className="text-lg text-amber-600">{phase2Stats.amigoDelMasUno.total_bogeys} bogeys totales</p>
-                              <p className="text-xs text-gray-600 mt-1">Mejor día: {phase2Stats.amigoDelMasUno.best_single_day} bogeys</p>
+                              <p className="text-xs text-ink-3 mt-1">Mejor día: {phase2Stats.amigoDelMasUno.best_single_day} bogeys</p>
                             </div>
                           )}
 
                           {phase2Stats.reyDelBosque && (
-                            <div className="bg-gradient-to-br from-rose-50 to-rose-100 rounded-lg p-5 border-2 border-rose-400 shadow-md">
+                            <div className="bg-gradient-to-br from-rose-50 to-rose-100 rounded-lg p-5 border-2 border-rose-400 shadow-soft">
                               <div className="flex items-center justify-between mb-2">
                                 <div className="flex items-center gap-3">
                                   <TreePine size={28} className="text-rose-700" />
@@ -1003,24 +1003,24 @@ const openRankingModal = async (type: 'patrocinador' | 'barraLibre' | 'corto' | 
                                   <ChevronRight size={20} />
                                 </button>
                               </div>
-                              <p className="text-sm text-gray-700 mb-3">Más doble bogeys y peores</p>
+                              <p className="text-sm text-ink-2 mb-3">Más doble bogeys y peores</p>
                               <p className="text-2xl font-bold text-rose-800">{phase2Stats.reyDelBosque.player_name}</p>
                               <p className="text-lg text-rose-600">{phase2Stats.reyDelBosque.total_double_bogeys_plus} doble bogeys+</p>
-                              <p className="text-xs text-gray-600 mt-1">Mejor día: {phase2Stats.reyDelBosque.best_single_day} doble bogeys+</p>
+                              <p className="text-xs text-ink-3 mt-1">Mejor día: {phase2Stats.reyDelBosque.best_single_day} doble bogeys+</p>
                             </div>
                           )}
 
                           {phase2Stats.laPaliza && (
-                            <div className="bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-lg p-5 border-2 border-indigo-400 shadow-md">
+                            <div className="bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-lg p-5 border-2 border-indigo-400 shadow-soft">
                               <div className="flex items-center gap-3 mb-2">
                                 <Trophy size={28} className="text-indigo-700" />
                                 <h4 className="text-lg font-bold text-indigo-900">Paliza</h4>
                               </div>
-                              <p className="text-sm text-gray-700 mb-3">Mayor victoria</p>
+                              <p className="text-sm text-ink-2 mb-3">Mayor victoria</p>
                               <p className="text-xl font-bold text-indigo-800">{phase2Stats.laPaliza.winner_name}</p>
                               <p className="text-lg text-indigo-600">{phase2Stats.laPaliza.point_difference} puntos de diferencia</p>
-                              <p className="text-xs text-gray-600 mt-1">{phase2Stats.laPaliza.winner_points} vs {phase2Stats.laPaliza.second_place_points} ({phase2Stats.laPaliza.second_place_name})</p>
-                              <p className="text-xs text-gray-500">{phase2Stats.laPaliza.course_name}</p>
+                              <p className="text-xs text-ink-3 mt-1">{phase2Stats.laPaliza.winner_points} vs {phase2Stats.laPaliza.second_place_points} ({phase2Stats.laPaliza.second_place_name})</p>
+                              <p className="text-xs text-ink-3">{phase2Stats.laPaliza.course_name}</p>
                             </div>
                           )}
                         </div>
@@ -1028,7 +1028,7 @@ const openRankingModal = async (type: 'patrocinador' | 'barraLibre' | 'corto' | 
                     )}
 
                     <div>
-                      <h3 className="text-lg font-bold text-gray-800 mb-4">Clasificación General</h3>
+                      <h3 className="text-lg font-bold text-ink mb-4">Clasificación General</h3>
                       <div className="space-y-3">
                         {groupStats.playerStats.map((player: any, index: number) => (
                           <div
@@ -1037,10 +1037,10 @@ const openRankingModal = async (type: 'patrocinador' | 'barraLibre' | 'corto' | 
                               index === 0
                                 ? 'bg-gradient-to-r from-yellow-100 to-yellow-50 border-yellow-400'
                                 : index === 1
-                                ? 'bg-gradient-to-r from-gray-100 to-gray-50 border-gray-400'
+                                ? 'bg-card-2 border-line-2'
                                 : index === 2
                                 ? 'bg-gradient-to-r from-orange-100 to-orange-50 border-orange-400'
-                                : 'bg-white border-gray-200'
+                                : 'bg-card border-line'
                             }`}
                           >
                             <div className="flex items-center justify-between">
@@ -1050,25 +1050,25 @@ const openRankingModal = async (type: 'patrocinador' | 'barraLibre' | 'corto' | 
                                     index === 0
                                       ? 'bg-yellow-400 text-yellow-900'
                                       : index === 1
-                                      ? 'bg-gray-400 text-gray-900'
+                                      ? 'bg-ink-4 text-ink'
                                       : index === 2
                                       ? 'bg-orange-400 text-orange-900'
-                                      : 'bg-gray-300 text-gray-700'
+                                      : 'bg-neutral-hover text-ink-2'
                                   }`}
                                 >
                                   {index + 1}
                                 </div>
                                 <div>
-                                  <p className="font-bold text-lg text-gray-800">{player.name}</p>
-                                  <div className="flex gap-4 text-sm text-gray-600">
+                                  <p className="font-bold text-lg text-ink">{player.name}</p>
+                                  <div className="flex gap-4 text-sm text-ink-3">
                                     <span>{player.totalRounds} partidas</span>
                                     <span>{player.wins} victorias</span>
                                   </div>
                                 </div>
                               </div>
                               <div className="text-right">
-                                <p className="text-3xl font-bold text-emerald-700">{player.totalPoints}</p>
-                                <p className="text-xs text-gray-500">
+                                <p className="text-3xl font-bold text-accent-ink">{player.totalPoints}</p>
+                                <p className="text-xs text-ink-3">
                                   {player.averagePoints.toFixed(1)} promedio
                                 </p>
                                 {isDivend && (
@@ -1076,7 +1076,7 @@ const openRankingModal = async (type: 'patrocinador' | 'barraLibre' | 'corto' | 
                                     <Beer size={16} className="text-amber-600" />
                                     <p
                                       className={`text-sm font-semibold ${
-                                        player.beerBalance >= 0 ? 'text-green-600' : 'text-red-600'
+                                        player.beerBalance >= 0 ? 'text-accent-ink' : 'text-red-600'
                                       }`}
                                     >
                                       {player.beerBalance >= 0 ? '+' : ''}
@@ -1098,13 +1098,13 @@ const openRankingModal = async (type: 'patrocinador' | 'barraLibre' | 'corto' | 
             {activeTab === 'course' && (
               <div>
                 <div className="mb-6">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-ink-2 mb-2">
                     Selecciona un campo
                   </label>
                   <select
                     value={selectedCourse}
                     onChange={(e) => handleCourseChange(e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                    className="w-full px-4 py-2 border border-line-2 rounded-lg focus:ring-2 focus:ring-accent focus:border-accent"
                   >
                     {uniqueCourses.map((course) => (
                       <option key={course} value={course}>
@@ -1118,7 +1118,7 @@ const openRankingModal = async (type: 'patrocinador' | 'barraLibre' | 'corto' | 
                   <div className="space-y-6">
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                       <StatCard
-                        icon={<MapPin className="text-emerald-600" />}
+                        icon={<MapPin className="text-accent-ink" />}
                         label="Partidas"
                         value={courseStats.totalRounds}
                       />
@@ -1128,7 +1128,7 @@ const openRankingModal = async (type: 'patrocinador' | 'barraLibre' | 'corto' | 
                         value={courseStats.averageWinningScore.toFixed(1)}
                       />
                       <StatCard
-                        icon={<Award className="text-green-600" />}
+                        icon={<Award className="text-accent-ink" />}
                         label="Puntaje Más Alto"
                         value={courseStats.highestScore}
                       />
@@ -1140,21 +1140,21 @@ const openRankingModal = async (type: 'patrocinador' | 'barraLibre' | 'corto' | 
                     </div>
 
                     <div>
-                      <h3 className="text-lg font-bold text-gray-800 mb-4">Top 5 Jugadores</h3>
+                      <h3 className="text-lg font-bold text-ink mb-4">Top 5 Jugadores</h3>
                       <div className="space-y-2">
                         {courseStats.topPlayers.map((player: any, index: number) => (
                           <div
                             key={player.name}
-                            className="p-4 rounded-lg bg-white border border-gray-200 flex items-center justify-between"
+                            className="p-4 rounded-lg bg-card border border-line flex items-center justify-between"
                           >
                             <div className="flex items-center gap-3">
-                              <span className="text-lg font-bold text-gray-600">{index + 1}.</span>
+                              <span className="text-lg font-bold text-ink-3">{index + 1}.</span>
                               <div>
-                                <p className="font-semibold text-gray-800">{player.name}</p>
-                                <p className="text-sm text-gray-600">{player.totalRounds} partidas</p>
+                                <p className="font-semibold text-ink">{player.name}</p>
+                                <p className="text-sm text-ink-3">{player.totalRounds} partidas</p>
                               </div>
                             </div>
-                            <p className="text-2xl font-bold text-emerald-700">
+                            <p className="text-2xl font-bold text-accent-ink">
                               {player.averageScore.toFixed(1)}
                             </p>
                           </div>
@@ -1164,16 +1164,16 @@ const openRankingModal = async (type: 'patrocinador' | 'barraLibre' | 'corto' | 
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
                       {courseStats.hoyoMuerte && (
-                        <div className="bg-gradient-to-br from-red-50 to-red-100 rounded-lg p-5 border-2 border-red-300 shadow-md">
+                        <div className="bg-gradient-to-br from-red-50 to-red-100 rounded-lg p-5 border-2 border-red-300 shadow-soft">
                           <h4 className="text-lg font-bold text-red-900 mb-2">Hoyo de la Muerte</h4>
-                          <p className="text-sm text-gray-700 mb-3">Más bogeys y dobles</p>
+                          <p className="text-sm text-ink-2 mb-3">Más bogeys y dobles</p>
                           <p className="text-3xl font-bold text-red-800">Hoyo #{courseStats.hoyoMuerte.hole_number}</p>
-                          <p className="text-sm text-gray-600 mt-2">Par {courseStats.hoyoMuerte.par}</p>
+                          <p className="text-sm text-ink-3 mt-2">Par {courseStats.hoyoMuerte.par}</p>
                           <div className="mt-3 space-y-1">
-                            <p className="text-xs text-gray-700">
+                            <p className="text-xs text-ink-2">
                               <span className="font-semibold">{courseStats.hoyoMuerte.total_bad_scores}</span> malos golpes de <span className="font-semibold">{courseStats.hoyoMuerte.total_plays}</span> jugadas
                             </p>
-                            <p className="text-xs text-gray-600">
+                            <p className="text-xs text-ink-3">
                               {courseStats.hoyoMuerte.bogeys} bogeys, {courseStats.hoyoMuerte.double_bogeys} dobles, {courseStats.hoyoMuerte.triple_or_worse} triples+
                             </p>
                           </div>
@@ -1181,16 +1181,16 @@ const openRankingModal = async (type: 'patrocinador' | 'barraLibre' | 'corto' | 
                       )}
 
                       {courseStats.hoyoGloria && (
-                        <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-lg p-5 border-2 border-yellow-300 shadow-md">
+                        <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-lg p-5 border-2 border-yellow-300 shadow-soft">
                           <h4 className="text-lg font-bold text-yellow-900 mb-2">Hoyo de la Gloria</h4>
-                          <p className="text-sm text-gray-700 mb-3">Más birdies y eagles</p>
+                          <p className="text-sm text-ink-2 mb-3">Más birdies y eagles</p>
                           <p className="text-3xl font-bold text-yellow-800">Hoyo #{courseStats.hoyoGloria.hole_number}</p>
-                          <p className="text-sm text-gray-600 mt-2">Par {courseStats.hoyoGloria.par}</p>
+                          <p className="text-sm text-ink-3 mt-2">Par {courseStats.hoyoGloria.par}</p>
                           <div className="mt-3 space-y-1">
-                            <p className="text-xs text-gray-700">
+                            <p className="text-xs text-ink-2">
                               <span className="font-semibold">{courseStats.hoyoGloria.total_good_scores}</span> buenos golpes de <span className="font-semibold">{courseStats.hoyoGloria.total_plays}</span> jugadas
                             </p>
-                            <p className="text-xs text-gray-600">
+                            <p className="text-xs text-ink-3">
                               {courseStats.hoyoGloria.eagles} eagles, {courseStats.hoyoGloria.birdies} birdies
                             </p>
                           </div>
@@ -1198,12 +1198,12 @@ const openRankingModal = async (type: 'patrocinador' | 'barraLibre' | 'corto' | 
                       )}
 
                       {courseStats.mejorRonda && (
-                        <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-lg p-5 border-2 border-emerald-300 shadow-md">
-                          <h4 className="text-lg font-bold text-emerald-900 mb-2">Mejor Ronda</h4>
-                          <p className="text-sm text-gray-700 mb-3">Record del campo</p>
-                          <p className="text-2xl font-bold text-emerald-800">{courseStats.mejorRonda.player_name}</p>
-                          <p className="text-3xl font-bold text-emerald-700 mt-2">{courseStats.mejorRonda.best_score} pts</p>
-                          <p className="text-xs text-gray-500 mt-1">
+                        <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-lg p-5 border-2 border-accent-ring shadow-soft">
+                          <h4 className="text-lg font-bold text-title mb-2">Mejor Ronda</h4>
+                          <p className="text-sm text-ink-2 mb-3">Record del campo</p>
+                          <p className="text-2xl font-bold text-accent-ink">{courseStats.mejorRonda.player_name}</p>
+                          <p className="text-3xl font-bold text-accent-ink mt-2">{courseStats.mejorRonda.best_score} pts</p>
+                          <p className="text-xs text-ink-3 mt-1">
                             {new Date(courseStats.mejorRonda.played_at).toLocaleDateString('es-ES')}
                           </p>
                         </div>
@@ -1352,11 +1352,11 @@ interface StatCardProps {
 
 const StatCard: React.FC<StatCardProps> = ({ icon, label, value, subtitle }) => {
   return (
-    <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+    <div className="bg-card border border-line rounded-lg p-4 shadow-soft">
       <div className="flex items-center gap-2 mb-2">{icon}</div>
-      <p className="text-sm text-gray-600 mb-1">{label}</p>
-      <p className="text-2xl font-bold text-gray-800">{value}</p>
-      {subtitle && <p className="text-xs text-gray-500 mt-1">{subtitle}</p>}
+      <p className="text-sm text-ink-3 mb-1">{label}</p>
+      <p className="text-2xl font-bold text-ink">{value}</p>
+      {subtitle && <p className="text-xs text-ink-3 mt-1">{subtitle}</p>}
     </div>
   );
 };

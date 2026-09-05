@@ -72,32 +72,32 @@ export default function ProfileScreen({ authUser, onBack, onUserUpdated, onLogou
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 p-4 flex items-center justify-center">
-      <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8">
+    <div className="min-h-screen bg-app p-4 flex items-center justify-center">
+      <div className="max-w-md w-full bg-card rounded-2xl shadow-card p-8">
         <button
           onClick={onBack}
-          className="flex items-center gap-2 text-gray-600 hover:text-gray-800 mb-6 transition-colors"
+          className="flex items-center gap-2 text-ink-3 hover:text-ink mb-6 transition-colors"
         >
           <ArrowLeft size={20} />
           Volver
         </button>
 
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
-            <User className="w-8 h-8 text-green-600" />
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-accent-soft rounded-full mb-4">
+            <User className="w-8 h-8 text-accent-ink" />
           </div>
-          <h2 className="text-3xl font-bold text-gray-900 mb-2">Mis Datos</h2>
-          <p className="text-gray-600">Gestiona tu perfil y tu tier</p>
+          <h2 className="text-3xl font-bold text-ink mb-2">Mis Datos</h2>
+          <p className="text-ink-3">Gestiona tu perfil y tu tier</p>
         </div>
 
         <div className="space-y-6">
-          <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-            <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">Correo</p>
-            <p className="mt-2 text-sm text-gray-900 font-medium break-all">{authUser?.email || 'Sin email'}</p>
+          <div className="bg-card-2 rounded-xl p-4 border border-line">
+            <p className="text-xs font-semibold uppercase tracking-wide text-ink-3">Correo</p>
+            <p className="mt-2 text-sm text-ink font-medium break-all">{authUser?.email || 'Sin email'}</p>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-3">
+            <label className="block text-sm font-medium text-ink-2 mb-3">
               Tipo de usuario
             </label>
             <div className="grid grid-cols-3 gap-2">
@@ -111,8 +111,8 @@ export default function ProfileScreen({ authUser, onBack, onUserUpdated, onLogou
                     onClick={() => setSelectedTier(tier)}
                     className={`px-3 py-2 rounded-xl border text-sm font-medium transition-colors ${
                       isSelected
-                        ? 'border-green-600 bg-green-50 text-green-700'
-                        : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300'
+                        ? 'border-accent bg-accent-soft text-accent-ink'
+                        : 'border-line bg-card text-ink-3 hover:border-line-2'
                     }`}
                   >
                     {tier}
@@ -123,7 +123,7 @@ export default function ProfileScreen({ authUser, onBack, onUserUpdated, onLogou
           </div>
 
           {message && (
-            <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-xl text-sm">
+            <div className="bg-accent-soft border border-accent-ring text-accent-ink px-4 py-3 rounded-xl text-sm">
               {message}
             </div>
           )}
@@ -139,7 +139,7 @@ export default function ProfileScreen({ authUser, onBack, onUserUpdated, onLogou
               type="button"
               onClick={handleSave}
               disabled={loading}
-              className="flex-1 flex items-center justify-center gap-2 bg-green-600 text-white px-4 py-3 rounded-xl hover:bg-green-700 transition-colors font-semibold disabled:opacity-60"
+              className="flex-1 flex items-center justify-center gap-2 bg-accent text-on-accent px-4 py-3 rounded-xl hover:bg-accent-hover transition-colors font-semibold disabled:opacity-60"
             >
               <Save size={18} />
               {loading ? 'Guardando...' : 'Guardar'}

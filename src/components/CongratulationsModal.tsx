@@ -12,7 +12,7 @@ export const CongratulationsModal: React.FC<CongratulationsModalProps> = ({
 }) => {
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-lg shadow-2xl max-w-md w-full p-8 animate-fadeIn border-4 border-yellow-400">
+      <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-lg shadow-card max-w-md w-full p-8 animate-fadeIn border-4 border-yellow-400">
         <div className="text-center">
           <div className="flex justify-center gap-2 mb-4">
             <Star className="text-yellow-500 animate-bounce" size={40} style={{ animationDelay: '0ms' }} />
@@ -24,7 +24,7 @@ export const CongratulationsModal: React.FC<CongratulationsModalProps> = ({
             ¡ENHORABUENA!
           </h2>
 
-          <p className="text-xl text-gray-800 mb-2">
+          <p className="text-xl text-ink mb-2">
             <strong className="text-yellow-700">{playerName}</strong>
           </p>
 
@@ -33,7 +33,7 @@ export const CongratulationsModal: React.FC<CongratulationsModalProps> = ({
           </p>
 
           <div className="bg-white/50 rounded-lg p-4 mb-6">
-            <p className="text-gray-700 text-sm italic">
+            <p className="text-ink-2 text-sm italic">
               "Un momento extraordinario en el campo de golf.
               ¡Esta hazaña quedará en la historia!"
             </p>
@@ -41,7 +41,7 @@ export const CongratulationsModal: React.FC<CongratulationsModalProps> = ({
 
           <button
             onClick={onClose}
-            className="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3 px-8 rounded-lg transition-colors shadow-lg text-lg"
+            className="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3 px-8 rounded-lg transition-colors shadow-card text-lg"
           >
             ¡Gracias!
           </button>

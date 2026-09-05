@@ -32,31 +32,31 @@ export const AccessCodeModal: React.FC<AccessCodeModalProps> = ({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-lg shadow-2xl max-w-md w-full p-6">
+      <div className="bg-card rounded-lg shadow-card max-w-md w-full p-6">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
-            <div className="bg-emerald-100 p-3 rounded-full">
-              <Lock className="text-emerald-600" size={24} />
+            <div className="bg-accent-soft p-3 rounded-full">
+              <Lock className="text-accent-ink" size={24} />
             </div>
-            <h2 className="text-xl font-bold text-gray-900">
+            <h2 className="text-xl font-bold text-ink">
               Código de Acceso
             </h2>
           </div>
           <button
             onClick={onCancel}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
+            className="text-ink-4 hover:text-ink-3 transition-colors"
           >
             <X size={24} />
           </button>
         </div>
 
-        <p className="text-gray-700 mb-6">
+        <p className="text-ink-2 mb-6">
           Ingresa el código de acceso para unirte o editar esta partida.
         </p>
 
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-ink-2 mb-2">
               Código de Acceso
             </label>
             <input
@@ -64,12 +64,12 @@ export const AccessCodeModal: React.FC<AccessCodeModalProps> = ({
               value={code}
               onChange={handleInputChange}
               placeholder="Código"
-              className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-emerald-500 focus:outline-none text-center text-2xl font-bold tracking-wider font-mono"
+              className="w-full px-4 py-3 border-2 border-line-2 rounded-lg focus:border-accent focus:outline-none text-center text-2xl font-bold tracking-wider font-mono"
               autoFocus
               maxLength={20}
               disabled={loading}
             />
-            <p className="text-xs text-gray-500 mt-2 text-center">
+            <p className="text-xs text-ink-3 mt-2 text-center">
               Codigo de 4 caracteres
             </p>
           </div>
@@ -85,22 +85,22 @@ export const AccessCodeModal: React.FC<AccessCodeModalProps> = ({
               type="button"
               onClick={onCancel}
               disabled={loading}
-              className="flex-1 bg-gray-200 hover:bg-gray-300 disabled:opacity-50 text-gray-800 font-semibold py-3 rounded-lg transition-colors"
+              className="flex-1 bg-neutral hover:bg-neutral-hover disabled:opacity-50 text-ink font-semibold py-3 rounded-lg transition-colors"
             >
               Cancelar
             </button>
             <button
               type="submit"
               disabled={loading || code.length < 4}
-              className="flex-1 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-lg transition-colors"
+              className="flex-1 bg-accent hover:bg-accent-hover disabled:opacity-50 disabled:cursor-not-allowed text-on-accent font-semibold py-3 rounded-lg transition-colors"
             >
               {loading ? 'Verificando...' : 'Acceder'}
             </button>
           </div>
         </form>
 
-        <div className="mt-6 pt-4 border-t border-gray-200">
-          <p className="text-xs text-gray-600 text-center">
+        <div className="mt-6 pt-4 border-t border-line">
+          <p className="text-xs text-ink-3 text-center">
             El código de acceso es proporcionado por el creador de la partida.
             Todas las clasificaciones son públicas.
           </p>

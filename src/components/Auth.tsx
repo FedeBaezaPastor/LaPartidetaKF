@@ -188,60 +188,60 @@ export default function Auth({ onAuthSuccess, onAdminLoginAttempt, onBack }: Aut
 
   if (mode === 'login') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 p-4 flex items-center justify-center">
-        <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8">
+      <div className="min-h-screen bg-app p-4 flex items-center justify-center">
+        <div className="max-w-md w-full bg-card rounded-2xl shadow-card p-8">
           <button
             onClick={onBack}
-            className="flex items-center gap-2 text-gray-600 hover:text-gray-800 mb-6 transition-colors"
+            className="flex items-center gap-2 text-ink-3 hover:text-ink mb-6 transition-colors"
           >
             <ArrowLeft size={20} />
             Volver
           </button>
 
           <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
-              <User className="w-8 h-8 text-green-600" />
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-accent-soft rounded-full mb-4">
+              <User className="w-8 h-8 text-accent-ink" />
             </div>
-            <h2 className="text-3xl font-bold text-gray-900 mb-2">Iniciar Sesión</h2>
-            <p className="text-gray-600">Accede a tus grupos guardados</p>
+            <h2 className="text-3xl font-bold text-ink mb-2">Iniciar Sesión</h2>
+            <p className="text-ink-3">Accede a tus grupos guardados</p>
           </div>
 
           <form onSubmit={handleLogin} className="space-y-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-ink-2 mb-2">
                 Correo Electrónico
               </label>
               <div className="relative">
-                <Mail className="absolute left-3 top-3.5 text-gray-400" size={20} />
+                <Mail className="absolute left-3 top-3.5 text-ink-4" size={20} />
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="tu@email.com"
                   required
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  className="w-full pl-10 pr-4 py-3 border border-line-2 rounded-xl focus:ring-2 focus:ring-accent focus:border-transparent"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-ink-2 mb-2">
                 Contraseña
               </label>
               <div className="relative">
-                <Lock className="absolute left-3 top-3.5 text-gray-400" size={20} />
+                <Lock className="absolute left-3 top-3.5 text-ink-4" size={20} />
                 <input
                   type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
                   required
-                  className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  className="w-full pl-10 pr-12 py-3 border border-line-2 rounded-xl focus:ring-2 focus:ring-accent focus:border-transparent"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-3.5 text-gray-400 hover:text-gray-600 transition-colors"
+                  className="absolute right-3 top-3.5 text-ink-4 hover:text-ink-3 transition-colors"
                 >
                   {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                 </button>
@@ -258,7 +258,7 @@ export default function Auth({ onAuthSuccess, onAdminLoginAttempt, onBack }: Aut
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-green-600 text-white px-6 py-3 rounded-xl hover:bg-green-700 transition-colors font-semibold shadow-lg disabled:opacity-50"
+              className="w-full bg-accent text-on-accent px-6 py-3 rounded-xl hover:bg-accent-hover transition-colors font-semibold shadow-card disabled:opacity-50"
             >
               {loading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
             </button>
@@ -267,16 +267,16 @@ export default function Auth({ onAuthSuccess, onAdminLoginAttempt, onBack }: Aut
               <button
                 type="button"
                 onClick={() => setMode('forgot-password')}
-                className="text-sm text-green-600 hover:text-green-700 font-medium"
+                className="text-sm text-accent-ink hover:text-accent-ink font-medium"
               >
                 ¿Olvidaste tu contraseña?
               </button>
-              <div className="text-sm text-gray-600">
+              <div className="text-sm text-ink-3">
                 ¿No tienes cuenta?{' '}
                 <button
                   type="button"
                   onClick={() => setMode('register')}
-                  className="text-green-600 hover:text-green-700 font-medium"
+                  className="text-accent-ink hover:text-accent-ink font-medium"
                 >
                   Regístrate
                 </button>
@@ -290,60 +290,60 @@ export default function Auth({ onAuthSuccess, onAdminLoginAttempt, onBack }: Aut
 
   if (mode === 'register') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 p-4 flex items-center justify-center">
-        <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8">
+      <div className="min-h-screen bg-app p-4 flex items-center justify-center">
+        <div className="max-w-md w-full bg-card rounded-2xl shadow-card p-8">
           <button
             onClick={() => setMode('login')}
-            className="flex items-center gap-2 text-gray-600 hover:text-gray-800 mb-6 transition-colors"
+            className="flex items-center gap-2 text-ink-3 hover:text-ink mb-6 transition-colors"
           >
             <ArrowLeft size={20} />
             Volver al inicio de sesión
           </button>
 
           <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
-              <User className="w-8 h-8 text-green-600" />
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-accent-soft rounded-full mb-4">
+              <User className="w-8 h-8 text-accent-ink" />
             </div>
-            <h2 className="text-3xl font-bold text-gray-900 mb-2">Crear Cuenta</h2>
-            <p className="text-gray-600">Guarda tus grupos y accede desde cualquier dispositivo</p>
+            <h2 className="text-3xl font-bold text-ink mb-2">Crear Cuenta</h2>
+            <p className="text-ink-3">Guarda tus grupos y accede desde cualquier dispositivo</p>
           </div>
 
           <form onSubmit={handleRegister} className="space-y-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-ink-2 mb-2">
                 Correo Electrónico
               </label>
               <div className="relative">
-                <Mail className="absolute left-3 top-3.5 text-gray-400" size={20} />
+                <Mail className="absolute left-3 top-3.5 text-ink-4" size={20} />
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="tu@email.com"
                   required
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  className="w-full pl-10 pr-4 py-3 border border-line-2 rounded-xl focus:ring-2 focus:ring-accent focus:border-transparent"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-ink-2 mb-2">
                 Contraseña
               </label>
               <div className="relative">
-                <Lock className="absolute left-3 top-3.5 text-gray-400" size={20} />
+                <Lock className="absolute left-3 top-3.5 text-ink-4" size={20} />
                 <input
                   type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Mínimo 6 caracteres"
                   required
-                  className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  className="w-full pl-10 pr-12 py-3 border border-line-2 rounded-xl focus:ring-2 focus:ring-accent focus:border-transparent"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-3.5 text-gray-400 hover:text-gray-600 transition-colors"
+                  className="absolute right-3 top-3.5 text-ink-4 hover:text-ink-3 transition-colors"
                 >
                   {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                 </button>
@@ -351,23 +351,23 @@ export default function Auth({ onAuthSuccess, onAdminLoginAttempt, onBack }: Aut
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-ink-2 mb-2">
                 Confirmar Contraseña
               </label>
               <div className="relative">
-                <Lock className="absolute left-3 top-3.5 text-gray-400" size={20} />
+                <Lock className="absolute left-3 top-3.5 text-ink-4" size={20} />
                 <input
                   type={showConfirmPassword ? "text" : "password"}
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   placeholder="Repite tu contraseña"
                   required
-                  className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  className="w-full pl-10 pr-12 py-3 border border-line-2 rounded-xl focus:ring-2 focus:ring-accent focus:border-transparent"
                 />
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-3 top-3.5 text-gray-400 hover:text-gray-600 transition-colors"
+                  className="absolute right-3 top-3.5 text-ink-4 hover:text-ink-3 transition-colors"
                 >
                   {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                 </button>
@@ -375,7 +375,7 @@ export default function Auth({ onAuthSuccess, onAdminLoginAttempt, onBack }: Aut
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-3">
+              <label className="block text-sm font-medium text-ink-2 mb-3">
                 Tipo de usuario
               </label>
               <div className="grid grid-cols-3 gap-2">
@@ -389,8 +389,8 @@ export default function Auth({ onAuthSuccess, onAdminLoginAttempt, onBack }: Aut
                       onClick={() => setSelectedTier(tier)}
                       className={`px-3 py-2 rounded-xl border text-sm font-medium transition-colors ${
                         isSelected
-                          ? 'border-green-600 bg-green-50 text-green-700'
-                          : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300'
+                          ? 'border-accent bg-accent-soft text-accent-ink'
+                          : 'border-line bg-card text-ink-3 hover:border-line-2'
                       }`}
                     >
                       {tier}
@@ -408,7 +408,7 @@ export default function Auth({ onAuthSuccess, onAdminLoginAttempt, onBack }: Aut
             )}
 
             {message && (
-              <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-xl">
+              <div className="bg-accent-soft border border-accent-ring text-accent-ink px-4 py-3 rounded-xl">
                 {message}
               </div>
             )}
@@ -416,17 +416,17 @@ export default function Auth({ onAuthSuccess, onAdminLoginAttempt, onBack }: Aut
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-green-600 text-white px-6 py-3 rounded-xl hover:bg-green-700 transition-colors font-semibold shadow-lg disabled:opacity-50"
+              className="w-full bg-accent text-on-accent px-6 py-3 rounded-xl hover:bg-accent-hover transition-colors font-semibold shadow-card disabled:opacity-50"
             >
               {loading ? 'Creando cuenta...' : 'Crear Cuenta'}
             </button>
 
-            <div className="text-center text-sm text-gray-600">
+            <div className="text-center text-sm text-ink-3">
               ¿Ya tienes cuenta?{' '}
               <button
                 type="button"
                 onClick={() => setMode('login')}
-                className="text-green-600 hover:text-green-700 font-medium"
+                className="text-accent-ink hover:text-accent-ink font-medium"
               >
                 Inicia sesión
               </button>
@@ -439,35 +439,35 @@ export default function Auth({ onAuthSuccess, onAdminLoginAttempt, onBack }: Aut
 
   if (mode === 'reset-password') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 p-4 flex items-center justify-center">
-        <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8">
+      <div className="min-h-screen bg-app p-4 flex items-center justify-center">
+        <div className="max-w-md w-full bg-card rounded-2xl shadow-card p-8">
           <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
-              <Lock className="w-8 h-8 text-green-600" />
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-accent-soft rounded-full mb-4">
+              <Lock className="w-8 h-8 text-accent-ink" />
             </div>
-            <h2 className="text-3xl font-bold text-gray-900 mb-2">Nueva Contraseña</h2>
-            <p className="text-gray-600">Ingresa tu nueva contraseña</p>
+            <h2 className="text-3xl font-bold text-ink mb-2">Nueva Contraseña</h2>
+            <p className="text-ink-3">Ingresa tu nueva contraseña</p>
           </div>
 
           <form onSubmit={handleResetPassword} className="space-y-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-ink-2 mb-2">
                 Nueva Contraseña
               </label>
               <div className="relative">
-                <Lock className="absolute left-3 top-3.5 text-gray-400" size={20} />
+                <Lock className="absolute left-3 top-3.5 text-ink-4" size={20} />
                 <input
                   type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Mínimo 6 caracteres"
                   required
-                  className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  className="w-full pl-10 pr-12 py-3 border border-line-2 rounded-xl focus:ring-2 focus:ring-accent focus:border-transparent"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-3.5 text-gray-400 hover:text-gray-600 transition-colors"
+                  className="absolute right-3 top-3.5 text-ink-4 hover:text-ink-3 transition-colors"
                 >
                   {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                 </button>
@@ -475,23 +475,23 @@ export default function Auth({ onAuthSuccess, onAdminLoginAttempt, onBack }: Aut
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-ink-2 mb-2">
                 Confirmar Nueva Contraseña
               </label>
               <div className="relative">
-                <Lock className="absolute left-3 top-3.5 text-gray-400" size={20} />
+                <Lock className="absolute left-3 top-3.5 text-ink-4" size={20} />
                 <input
                   type={showConfirmPassword ? "text" : "password"}
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   placeholder="Repite tu contraseña"
                   required
-                  className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  className="w-full pl-10 pr-12 py-3 border border-line-2 rounded-xl focus:ring-2 focus:ring-accent focus:border-transparent"
                 />
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-3 top-3.5 text-gray-400 hover:text-gray-600 transition-colors"
+                  className="absolute right-3 top-3.5 text-ink-4 hover:text-ink-3 transition-colors"
                 >
                   {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                 </button>
@@ -506,7 +506,7 @@ export default function Auth({ onAuthSuccess, onAdminLoginAttempt, onBack }: Aut
             )}
 
             {message && (
-              <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-xl">
+              <div className="bg-accent-soft border border-accent-ring text-accent-ink px-4 py-3 rounded-xl">
                 {message}
               </div>
             )}
@@ -514,7 +514,7 @@ export default function Auth({ onAuthSuccess, onAdminLoginAttempt, onBack }: Aut
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-green-600 text-white px-6 py-3 rounded-xl hover:bg-green-700 transition-colors font-semibold shadow-lg disabled:opacity-50"
+              className="w-full bg-accent text-on-accent px-6 py-3 rounded-xl hover:bg-accent-hover transition-colors font-semibold shadow-card disabled:opacity-50"
             >
               {loading ? 'Actualizando...' : 'Actualizar Contraseña'}
             </button>
@@ -525,38 +525,38 @@ export default function Auth({ onAuthSuccess, onAdminLoginAttempt, onBack }: Aut
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 p-4 flex items-center justify-center">
-      <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8">
+    <div className="min-h-screen bg-app p-4 flex items-center justify-center">
+      <div className="max-w-md w-full bg-card rounded-2xl shadow-card p-8">
         <button
           onClick={() => setMode('login')}
-          className="flex items-center gap-2 text-gray-600 hover:text-gray-800 mb-6 transition-colors"
+          className="flex items-center gap-2 text-ink-3 hover:text-ink mb-6 transition-colors"
         >
           <ArrowLeft size={20} />
           Volver al inicio de sesión
         </button>
 
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
-            <Mail className="w-8 h-8 text-green-600" />
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-accent-soft rounded-full mb-4">
+            <Mail className="w-8 h-8 text-accent-ink" />
           </div>
-          <h2 className="text-3xl font-bold text-gray-900 mb-2">Recuperar Contraseña</h2>
-          <p className="text-gray-600">Te enviaremos un enlace para restablecer tu contraseña</p>
+          <h2 className="text-3xl font-bold text-ink mb-2">Recuperar Contraseña</h2>
+          <p className="text-ink-3">Te enviaremos un enlace para restablecer tu contraseña</p>
         </div>
 
         <form onSubmit={handleForgotPassword} className="space-y-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-ink-2 mb-2">
               Correo Electrónico
             </label>
             <div className="relative">
-              <Mail className="absolute left-3 top-3.5 text-gray-400" size={20} />
+              <Mail className="absolute left-3 top-3.5 text-ink-4" size={20} />
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="tu@email.com"
                 required
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                className="w-full pl-10 pr-4 py-3 border border-line-2 rounded-xl focus:ring-2 focus:ring-accent focus:border-transparent"
               />
             </div>
           </div>
@@ -569,7 +569,7 @@ export default function Auth({ onAuthSuccess, onAdminLoginAttempt, onBack }: Aut
           )}
 
           {message && (
-            <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-xl">
+            <div className="bg-accent-soft border border-accent-ring text-accent-ink px-4 py-3 rounded-xl">
               {message}
             </div>
           )}
@@ -577,7 +577,7 @@ export default function Auth({ onAuthSuccess, onAdminLoginAttempt, onBack }: Aut
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-green-600 text-white px-6 py-3 rounded-xl hover:bg-green-700 transition-colors font-semibold shadow-lg disabled:opacity-50"
+            className="w-full bg-accent text-on-accent px-6 py-3 rounded-xl hover:bg-accent-hover transition-colors font-semibold shadow-card disabled:opacity-50"
           >
             {loading ? 'Enviando...' : 'Enviar Enlace de Recuperación'}
           </button>

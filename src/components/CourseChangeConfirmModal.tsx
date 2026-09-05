@@ -20,23 +20,23 @@ export const CourseChangeConfirmModal: React.FC<CourseChangeConfirmModalProps> =
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-lg shadow-2xl max-w-md w-full p-6">
+      <div className="bg-card rounded-lg shadow-card max-w-md w-full p-6">
         <div className="flex items-center gap-3 mb-4">
           <div className="bg-amber-100 p-2 rounded-full">
             <AlertTriangle className="text-amber-600" size={24} />
           </div>
-          <h2 className="text-xl font-bold text-gray-900">¿Confirmar cambio de campo?</h2>
+          <h2 className="text-xl font-bold text-ink">¿Confirmar cambio de campo?</h2>
         </div>
 
         <div className="space-y-3 mb-6">
           <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
-            <p className="text-sm text-gray-700">
+            <p className="text-sm text-ink-2">
               <span className="font-semibold">Campo actual:</span>{' '}
               <span className="text-amber-700">{currentCourseName} ({currentNumHoles} hoyos)</span>
             </p>
-            <p className="text-sm text-gray-700 mt-1">
+            <p className="text-sm text-ink-2 mt-1">
               <span className="font-semibold">Nuevo campo:</span>{' '}
-              <span className="text-emerald-700">{newCourseName}</span>
+              <span className="text-accent-ink">{newCourseName}</span>
             </p>
           </div>
 
@@ -49,7 +49,7 @@ export const CourseChangeConfirmModal: React.FC<CourseChangeConfirmModalProps> =
         </div>
 
         <div className="mb-6">
-          <label className="block text-sm font-semibold text-gray-700 mb-2">
+          <label className="block text-sm font-semibold text-ink-2 mb-2">
             Número de Hoyos
           </label>
           <div className="flex gap-3">
@@ -57,8 +57,8 @@ export const CourseChangeConfirmModal: React.FC<CourseChangeConfirmModalProps> =
               onClick={() => setSelectedHoles(9)}
               className={`flex-1 py-3 rounded-lg font-bold transition-all ${
                 selectedHoles === 9
-                  ? 'bg-emerald-600 text-white shadow-md'
-                  : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
+                  ? 'bg-accent text-on-accent shadow-soft'
+                  : 'bg-neutral text-ink hover:bg-neutral-hover'
               }`}
             >
               9 Hoyos
@@ -67,8 +67,8 @@ export const CourseChangeConfirmModal: React.FC<CourseChangeConfirmModalProps> =
               onClick={() => setSelectedHoles(18)}
               className={`flex-1 py-3 rounded-lg font-bold transition-all ${
                 selectedHoles === 18
-                  ? 'bg-emerald-600 text-white shadow-md'
-                  : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
+                  ? 'bg-accent text-on-accent shadow-soft'
+                  : 'bg-neutral text-ink hover:bg-neutral-hover'
               }`}
             >
               18 Hoyos
@@ -79,13 +79,13 @@ export const CourseChangeConfirmModal: React.FC<CourseChangeConfirmModalProps> =
         <div className="flex gap-3">
           <button
             onClick={onCancel}
-            className="flex-1 px-4 py-3 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg font-semibold transition-colors"
+            className="flex-1 px-4 py-3 bg-neutral hover:bg-neutral-hover text-ink rounded-lg font-semibold transition-colors"
           >
             Cancelar
           </button>
           <button
             onClick={() => onConfirm(selectedHoles)}
-            className="flex-1 px-4 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-semibold transition-colors"
+            className="flex-1 px-4 py-3 bg-accent hover:bg-accent-hover text-on-accent rounded-lg font-semibold transition-colors"
           >
             Confirmar Cambio
           </button>

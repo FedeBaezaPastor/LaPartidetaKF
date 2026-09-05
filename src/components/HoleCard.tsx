@@ -236,22 +236,21 @@ export const HoleCard: React.FC<HoleCardProps> = ({
   };
 
   /*const getScoreColor = (points: number): string => {
-    if (points >= 3) return 'bg-green-100 border-green-500';
+    if (points >= 3) return 'bg-accent-soft border-accent';
     if (points === 2) return 'bg-red-100 border-red-500';
     if (points === 1) return 'bg-yellow-100 border-yellow-500';
-    if (points === 0) return 'bg-gray-100 border-black text-black'; // Borde negro y fondo neutro
+    if (points === 0) return 'bg-card-2 border-black text-black'; // Borde negro y fondo neutro
     if (points === '-') return 'bg-black-100 border-yellow-500';
     return 'bg-blue-100 border-blue-500';
   };*/
 const getScoreColor = (points: number, isAbandoned?: boolean): string => {
-  if (isAbandoned) return 'bg-black border-black text-white';                  // Raya / Abandonado (Fondo Negro)
-  if (points === 0) return 'bg-black border-black text-white';                 // Doble bogey+ / 0 pts (Fondo Negro, Texto Blanco)
-  if (points === 1) return 'bg-blue-100 border-blue-500 text-blue-900';        // Bogey
-  if (points === 2) return 'bg-white border-gray-400 text-gray-800';          // Par
-  if (points === 3) return 'bg-red-100 border-red-500 text-red-900';          // Birdie
-  if (points >= 4) return 'bg-yellow-100 border-yellow-500 text-yellow-900'; // Eagle o mejor
-  
-  return 'bg-gray-100 border-gray-300';
+  if (isAbandoned) return 'bg-black border-line-2 text-white';
+  if (points === 0) return 'bg-black border-line-2 text-white';
+  if (points === 1) return 'bg-blue-100 dark:bg-blue-950 border-blue-500 text-blue-900 dark:text-blue-200';
+  if (points === 2) return 'bg-card border-line-2 text-ink';
+  if (points === 3) return 'bg-red-100 dark:bg-red-950 border-red-500 text-red-900 dark:text-red-200';
+  if (points >= 4) return 'bg-yellow-100 dark:bg-yellow-950 border-yellow-500 text-yellow-900 dark:text-yellow-200';
+  return 'bg-card-2 border-line';
 };
 
   /*const getPointsText = (points: number): string => {
@@ -266,12 +265,12 @@ const getScoreColor = (points: number, isAbandoned?: boolean): string => {
 };
 
   return (
-    <div className="bg-white rounded-lg shadow-md border-2 border-gray-200 overflow-hidden">
-      <div className="bg-gradient-to-r from-emerald-700 to-emerald-600 p-4">
+    <div className="bg-card rounded-lg shadow-soft border-2 border-line overflow-hidden">
+      <div className="bg-accent-deep p-4">
         <div className="flex items-center justify-between">
           <div>
             <h3 className="text-2xl font-bold text-white">Hoyo {hole.hole_number}</h3>
-            <div className="flex gap-4 mt-1 text-emerald-100">
+            <div className="flex gap-4 mt-1 text-on-deep">
               <span className="font-semibold">Par {hole.par}</span>
               <span>HCP {hole.stroke_index}</span>
             </div>
@@ -291,11 +290,11 @@ const getScoreColor = (points: number, isAbandoned?: boolean): string => {
             : 'border-orange-400 ring-1 ring-orange-100';
 
           return (
-            <div key={player.id} className={`border-2 rounded-lg overflow-hidden ${isParejas ? teamClasses : 'border-gray-200'}`}>
+            <div key={player.id} className={`border-2 rounded-lg overflow-hidden ${isParejas ? teamClasses : 'border-line'}`}>
               <button
                 onClick={() => handleToggleExpanded(player.id, isExpanded)}
                 disabled={readonly}
-                className="w-full bg-gray-50 hover:bg-gray-100 disabled:cursor-not-allowed p-3 flex items-center justify-between transition-colors"
+                className="w-full bg-card-2 hover:bg-card-2 disabled:cursor-not-allowed p-3 flex items-center justify-between transition-colors"
               >
                 <div className="flex-1 text-left">
                   <div className="flex items-center gap-2">
@@ -304,21 +303,21 @@ const getScoreColor = (points: number, isAbandoned?: boolean): string => {
                         {teamLabel}
                       </span>
                     )}
-                    <p className="font-semibold text-gray-800">{player.name}</p>
+                    <p className="font-semibold text-ink">{player.name}</p>
                   </div>
-                  <p className="text-xs text-gray-600">HCP {player.playing_handicap}</p>
+                  <p className="text-xs text-ink-3">HCP {player.playing_handicap}</p>
                 </div>
                 {/* FBP-Ini}
                 {score ? (
                   score.abandoned ? (
-                    <div className="text-gray-400 font-semibold text-2xl">-</div>
+                    <div className="text-ink-4 font-semibold text-2xl">-</div>
                   ) : (
                     <div className={`px-4 py-2 rounded-lg border-2 font-bold text-lg ${getScoreColor(score.stableford_points)}`}>
                       {getPointsText(score.stableford_points)} pts
                     </div>
                   )
                 ) : (
-                  <div className="text-gray-400 font-semibold">-</div>
+                  <div className="text-ink-4 font-semibold">-</div>
                 )}
                 {FBP-Fin*/}
                 {score ? (
@@ -354,13 +353,13 @@ const getScoreColor = (points: number, isAbandoned?: boolean): string => {
                   })()
                 ) : (
                   // Hoyo pendiente / No asignado aún (gris tenue sin marco)
-                  <div className="text-gray-300 font-light text-xl px-4 flex items-center justify-center min-w-[75px]">
+                  <div className="text-ink-4 font-light text-xl px-4 flex items-center justify-center min-w-[75px]">
                     -
                   </div>
                 )}
                 <ChevronDown
                   size={20}
-                  className={`ml-2 text-gray-600 transition-transform ${
+                  className={`ml-2 text-ink-3 transition-transform ${
                     isExpanded ? 'rotate-180' : ''
                   }`}
                 />
@@ -376,11 +375,11 @@ const getScoreColor = (points: number, isAbandoned?: boolean): string => {
                 );
 
                 return (
-                  <div className="bg-gray-50 border-t border-gray-200 p-3 space-y-3">
+                  <div className="bg-card-2 border-t border-line p-3 space-y-3">
                     <div>
-                      <label className="block text-xs font-semibold text-gray-700 mb-2">
+                      <label className="block text-xs font-semibold text-ink-2 mb-2">
                         {firstDigit === 1 && pendingPlayerId === player.id ? (
-                          <span className="text-emerald-600">Segundo dígito (1 + ?)</span>
+                          <span className="text-accent-ink">Segundo dígito (1 + ?)</span>
                         ) : (
                           'Número de Golpes'
                         )}
@@ -392,10 +391,10 @@ const getScoreColor = (points: number, isAbandoned?: boolean): string => {
                             key={num}
                             type="button"
                             onClick={() => handleNumberClick(player.id, num, player)}
-                            className={`h-11 rounded-lg font-bold text-lg transition-colors shadow-sm active:scale-95 ${
+                            className={`h-11 rounded-lg font-bold text-lg transition-colors shadow-soft active:scale-95 ${
                               firstDigit === 1 && pendingPlayerId === player.id
                                 ? 'bg-yellow-500 hover:bg-yellow-600 text-white'
-                                : 'bg-emerald-600 hover:bg-emerald-700 text-white'
+                                : 'bg-accent hover:bg-accent-hover text-on-accent'
                             }`}
                           >
                             {firstDigit === 1 && pendingPlayerId === player.id ? `1${num}` : num}
@@ -425,7 +424,7 @@ const getScoreColor = (points: number, isAbandoned?: boolean): string => {
                               return newState;
                             });
                           }}
-                          className="h-11 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold text-lg transition-colors shadow-sm active:scale-95"
+                          className="h-11 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold text-lg transition-colors shadow-soft active:scale-95"
                         >
                           10
                         </button>
@@ -455,7 +454,7 @@ const getScoreColor = (points: number, isAbandoned?: boolean): string => {
                               return newState;
                             });
                           }}
-                          className="h-11 bg-black hover:bg-gray-800 text-white rounded-lg font-bold transition-colors shadow-sm active:scale-95 flex items-center justify-center"
+                          className="h-11 bg-black hover:bg-gray-800 text-white rounded-lg font-bold transition-colors shadow-soft active:scale-95 flex items-center justify-center"
                         >
                           <Minus size={20} />
                         </button>
@@ -482,32 +481,32 @@ const getScoreColor = (points: number, isAbandoned?: boolean): string => {
                               return newState;
                             });
                           }}
-                          className="h-11 bg-red-600 hover:bg-red-700 text-white rounded-lg font-bold transition-colors shadow-sm active:scale-95 flex items-center justify-center"
+                          className="h-11 bg-red-600 hover:bg-red-700 text-white rounded-lg font-bold transition-colors shadow-soft active:scale-95 flex items-center justify-center"
                         >
                           <Trash2 size={20} />
                         </button>
                       </div>
                     </div>
 
-                    <div className="bg-white p-2 rounded-lg border border-gray-300">
+                    <div className="bg-card p-2 rounded-lg border border-line-2">
                       <div className="flex justify-around text-center text-xs">
                         <div>
-                          <p className="text-gray-500">Recib.</p>
+                          <p className="text-ink-3">Recib.</p>
                           <p className="font-bold text-blue-700">{strokesReceived}</p>
                         </div>
                         <div>
-                          <p className="text-gray-500">Brutos</p>
-                          <p className="font-bold text-gray-800">{score?.gross_strokes || 0}</p>
+                          <p className="text-ink-3">Brutos</p>
+                          <p className="font-bold text-ink">{score?.gross_strokes || 0}</p>
                         </div>
                         <div>
-                          <p className="text-gray-500">Netos</p>
-                          <p className="font-bold text-emerald-700">
+                          <p className="text-ink-3">Netos</p>
+                          <p className="font-bold text-accent-ink">
                             {score?.gross_strokes ? (score.gross_strokes - strokesReceived) : 0}
                           </p>
                         </div>
                         <div>
-                          <p className="text-gray-500">{isModeScoring ? 'Modal' : 'Puntos'}</p>
-                          <p className="font-bold text-emerald-700">{isModeScoring ? (score?.mode_points ?? 0) : (score?.stableford_points || 0)}</p>
+                          <p className="text-ink-3">{isModeScoring ? 'Modal' : 'Puntos'}</p>
+                          <p className="font-bold text-accent-ink">{isModeScoring ? (score?.mode_points ?? 0) : (score?.stableford_points || 0)}</p>
                         </div>
                       </div>
                     </div>
@@ -537,7 +536,7 @@ const getScoreColor = (points: number, isAbandoned?: boolean): string => {
                         className={`w-full py-3 rounded-lg font-semibold transition-colors ${
                           (score?.no_paso_rojas || pendingNoPasoRojas[player.id])
                             ? 'bg-red-600 hover:bg-red-700 text-white'
-                            : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
+                            : 'bg-neutral hover:bg-neutral-hover text-ink-2'
                         }`}
                       >
                         {(score?.no_paso_rojas || pendingNoPasoRojas[player.id]) ? '✓ No pasó de rojas' : 'Marcar: No pasó de rojas'}
@@ -566,8 +565,8 @@ const getScoreColor = (points: number, isAbandoned?: boolean): string => {
                         }}
                         className={`w-full py-3 rounded-lg font-semibold transition-colors ${
                           (score?.spanish_hands || pendingSpanishHands[player.id])
-                            ? 'bg-emerald-600 hover:bg-emerald-700 text-white'
-                            : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
+                            ? 'bg-accent hover:bg-accent-hover text-on-accent'
+                            : 'bg-neutral hover:bg-neutral-hover text-ink-2'
                         }`}
                       >
                         {(score?.spanish_hands || pendingSpanishHands[player.id])
@@ -584,10 +583,10 @@ const getScoreColor = (points: number, isAbandoned?: boolean): string => {
       </div>
 
       {isModeScoring && matchStatus.label && (
-        <div className="border-t-2 border-emerald-200 bg-emerald-50 p-3">
+        <div className="border-t-2 border-accent-ring bg-accent-soft p-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <span className="text-xs font-semibold text-emerald-700 uppercase tracking-wide">Marcador</span>
+              <span className="text-xs font-semibold text-accent-ink uppercase tracking-wide">Marcador</span>
             </div>
             <div className="flex items-center gap-3">
               {gameMode === 'match' && players.map((p) => {
@@ -598,10 +597,10 @@ const getScoreColor = (points: number, isAbandoned?: boolean): string => {
                 const isLeader = matchStatus.leader === p.name;
                 return (
                   <div key={p.id} className="flex items-center gap-1.5">
-                    <span className={`text-sm font-bold ${isLeader ? 'text-emerald-900' : 'text-gray-600'}`}>
+                    <span className={`text-sm font-bold ${isLeader ? 'text-title' : 'text-ink-3'}`}>
                       {p.name}
                     </span>
-                    <span className={`text-sm font-bold ${isLeader ? 'text-emerald-700' : 'text-gray-500'}`}>
+                    <span className={`text-sm font-bold ${isLeader ? 'text-accent-ink' : 'text-ink-3'}`}>
                       {total}
                     </span>
                   </div>
@@ -625,10 +624,10 @@ const getScoreColor = (points: number, isAbandoned?: boolean): string => {
                 const isLeader = matchStatus.leader === p.name;
                 return (
                   <div key={p.id} className="flex items-center gap-1.5">
-                    <span className={`text-sm font-bold ${isLeader ? 'text-emerald-900' : 'text-gray-600'}`}>
+                    <span className={`text-sm font-bold ${isLeader ? 'text-title' : 'text-ink-3'}`}>
                       {p.name}
                     </span>
-                    <span className={`text-sm font-bold ${isLeader ? 'text-emerald-700' : 'text-gray-500'}`}>
+                    <span className={`text-sm font-bold ${isLeader ? 'text-accent-ink' : 'text-ink-3'}`}>
                       {total} pts
                     </span>
                   </div>
@@ -650,11 +649,11 @@ const getScoreColor = (points: number, isAbandoned?: boolean): string => {
                 return (
                   <div className="flex items-center gap-2 text-sm font-bold">
                     <span className="text-xs font-bold px-1.5 py-0.5 rounded bg-blue-200 text-blue-900">P1</span>
-                    <span className="text-gray-700">{team0.map(p => p.name).join('/')}</span>
-                    <span className={`px-2 py-0.5 rounded-lg ${team0Pts > team1Pts ? 'bg-emerald-600 text-white' : team0Pts < team1Pts ? 'bg-gray-300 text-gray-600' : 'bg-gray-200 text-gray-700'}`}>
+                    <span className="text-ink-2">{team0.map(p => p.name).join('/')}</span>
+                    <span className={`px-2 py-0.5 rounded-lg ${team0Pts > team1Pts ? 'bg-accent text-on-accent' : team0Pts < team1Pts ? 'bg-neutral-hover text-ink-3' : 'bg-neutral text-ink-2'}`}>
                       {team0Pts}-{team1Pts}
                     </span>
-                    <span className="text-gray-700">{team1.map(p => p.name).join('/')}</span>
+                    <span className="text-ink-2">{team1.map(p => p.name).join('/')}</span>
                     <span className="text-xs font-bold px-1.5 py-0.5 rounded bg-orange-200 text-orange-900">P2</span>
                   </div>
                 );
@@ -662,10 +661,10 @@ const getScoreColor = (points: number, isAbandoned?: boolean): string => {
               {gameMode !== 'sindicato' && gameMode !== 'parejas' && (
                 <div className={`px-3 py-1 rounded-lg font-bold text-sm ${
                   matchStatus.diff > 0
-                    ? 'bg-emerald-600 text-white'
+                    ? 'bg-accent text-on-accent'
                     : matchStatus.diff < 0
-                    ? 'bg-gray-400 text-white'
-                    : 'bg-gray-200 text-gray-700'
+                    ? 'bg-ink-4 text-white'
+                    : 'bg-neutral text-ink-2'
                 }`}>
                   {matchStatus.label}
                 </div>

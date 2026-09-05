@@ -15,18 +15,18 @@ export const HolesRangeModal: React.FC<HolesRangeModalProps> = ({ onConfirm, onC
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+      <div className="bg-card rounded-lg shadow-card max-w-md w-full p-6">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold text-gray-800">Selecciona Hoyos</h2>
+          <h2 className="text-xl font-bold text-ink">Selecciona Hoyos</h2>
           <button
             onClick={onCancel}
-            className="text-gray-500 hover:text-gray-700 transition-colors"
+            className="text-ink-3 hover:text-gray-700 transition-colors"
           >
             <X size={24} />
           </button>
         </div>
 
-        <p className="text-gray-600 mb-6">
+        <p className="text-ink-3 mb-6">
           ¿Qué 9 hoyos quieres jugar?
         </p>
 
@@ -35,8 +35,8 @@ export const HolesRangeModal: React.FC<HolesRangeModalProps> = ({ onConfirm, onC
             onClick={() => setSelectedRange('1-9')}
             className={`w-full py-4 rounded-lg font-bold transition-all ${
               selectedRange === '1-9'
-                ? 'bg-emerald-600 text-white shadow-lg'
-                : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
+                ? 'bg-accent text-on-accent shadow-card'
+                : 'bg-neutral text-ink hover:bg-neutral-hover'
             }`}
           >
             Hoyos 1-9 (Front Nine)
@@ -45,8 +45,8 @@ export const HolesRangeModal: React.FC<HolesRangeModalProps> = ({ onConfirm, onC
             onClick={() => setSelectedRange('10-18')}
             className={`w-full py-4 rounded-lg font-bold transition-all ${
               selectedRange === '10-18'
-                ? 'bg-emerald-600 text-white shadow-lg'
-                : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
+                ? 'bg-accent text-on-accent shadow-card'
+                : 'bg-neutral text-ink hover:bg-neutral-hover'
             }`}
           >
             Hoyos 10-18 (Back Nine)
@@ -56,13 +56,13 @@ export const HolesRangeModal: React.FC<HolesRangeModalProps> = ({ onConfirm, onC
         <div className="flex gap-3">
           <button
             onClick={onCancel}
-            className="flex-1 px-4 py-3 bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold rounded-lg transition-colors"
+            className="flex-1 px-4 py-3 bg-neutral hover:bg-neutral-hover text-ink font-bold rounded-lg transition-colors"
           >
             Cancelar
           </button>
           <button
             onClick={handleConfirm}
-            className="flex-1 px-4 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg transition-colors"
+            className="flex-1 px-4 py-3 bg-accent hover:bg-accent-hover text-on-accent font-bold rounded-lg transition-colors"
           >
             Confirmar
           </button>

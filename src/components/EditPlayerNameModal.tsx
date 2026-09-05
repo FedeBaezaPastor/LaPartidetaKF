@@ -33,12 +33,12 @@ export const EditPlayerNameModal: React.FC<EditPlayerNameModalProps> = ({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg shadow-2xl max-w-md w-full p-6">
+      <div className="bg-card rounded-lg shadow-card max-w-md w-full p-6">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-bold text-gray-900">Editar Nombre</h2>
+          <h2 className="text-xl font-bold text-ink">Editar Nombre</h2>
           <button
             onClick={onCancel}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
+            className="text-ink-4 hover:text-ink-3 transition-colors"
           >
             <X size={24} />
           </button>
@@ -46,7 +46,7 @@ export const EditPlayerNameModal: React.FC<EditPlayerNameModalProps> = ({
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
+            <label className="block text-sm font-semibold text-ink-2 mb-2">
               Nombre del Jugador
             </label>
             <input
@@ -56,7 +56,7 @@ export const EditPlayerNameModal: React.FC<EditPlayerNameModalProps> = ({
                 setNewName(e.target.value);
                 setError('');
               }}
-              className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-emerald-600 transition-colors"
+              className="w-full px-4 py-3 border-2 border-line-2 rounded-lg focus:outline-none focus:border-accent transition-colors"
               autoFocus
             />
           </div>
@@ -71,13 +71,13 @@ export const EditPlayerNameModal: React.FC<EditPlayerNameModalProps> = ({
             <button
               type="button"
               onClick={onCancel}
-              className="flex-1 px-4 py-3 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold rounded-lg transition-colors"
+              className="flex-1 px-4 py-3 bg-neutral hover:bg-neutral-hover text-ink font-semibold rounded-lg transition-colors"
             >
               Cancelar
             </button>
             <button
               type="submit"
-              className="flex-1 px-4 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-lg transition-colors"
+              className="flex-1 px-4 py-3 bg-accent hover:bg-accent-hover text-on-accent font-semibold rounded-lg transition-colors"
             >
               Guardar
             </button>
