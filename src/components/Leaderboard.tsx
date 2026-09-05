@@ -65,13 +65,20 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
   const playerStats = players.map((player) => {
     const round = roundsMap.get(player.id);
     const totalPoints = isModeScoring
-      ? round ? Object.values(round.scores).reduce((sum, s) => sum + (s.mode_points ?? 0), 0) : 0
+      ? round ? Object.values(round.scores).reduce((sum, s) => {
+          const allRaya = gameMode === 'parejas'
+            && players.length === 4
+            && players.every(p => roundsMap.get(p.id)?.scores[s.hole_number]?.abandoned);
+          return sum + (allRaya ? 0.5 : (s.mode_points ?? 0));
+        }, 0) : 0
       : round?.totalStablefordPoints ?? 0;
 
     return {
       player,
       totalPoints,
       holesCompleted: round ? Object.keys(round.scores).length : 0,
+      noPasoRojasHoles: round ? Object.values(round.scores).filter(s => s.no_paso_rojas).map(s => s.hole_number) : [],
+      spanishHandsHoles: round ? Object.values(round.scores).filter(s => s.spanish_hands).map(s => s.hole_number) : [],
     };
   });
 
@@ -203,6 +210,20 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
                           <span>HCP: {stat.player.playing_handicap}</span>
                           <span>Hoyos: {stat.holesCompleted}</span>
                         </div>
+                        {hasGroup && (stat.noPasoRojasHoles.length > 0 || stat.spanishHandsHoles.length > 0) && (
+                          <div className="flex flex-wrap gap-1 mt-2">
+                            {stat.noPasoRojasHoles.map(holeNumber => (
+                              <span key={`red-${holeNumber}`} className="bg-red-600 text-white text-[10px] font-bold rounded-full px-2 py-0.5">
+                                Rojas H{holeNumber}
+                              </span>
+                            ))}
+                            {stat.spanishHandsHoles.map(holeNumber => (
+                              <span key={`sh-${holeNumber}`} className="bg-emerald-600 text-white text-[10px] font-bold rounded-full px-2 py-0.5">
+                                Spanish Hands H{holeNumber}
+                              </span>
+                            ))}
+                          </div>
+                        )}
                       </div>
 
                       <div className="text-right">

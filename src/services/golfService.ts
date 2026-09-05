@@ -1132,6 +1132,7 @@ async getAvailableRoundsForStats(limit?: number): Promise<Array<{ id: string; cr
     netStrokes: number,
     stablefordPoints: number,
     noPasoRojas: boolean = false,
+    spanishHands: boolean = false,
     abandoned: boolean = false,
     modePoints: number = 0
   ): Promise<RoundScore> {
@@ -1148,6 +1149,7 @@ async getAvailableRoundsForStats(limit?: number): Promise<Array<{ id: string; cr
             net_strokes: netStrokes,
             stableford_points: stablefordPoints,
             no_paso_rojas: noPasoRojas,
+            spanish_hands: spanishHands,
             abandoned: abandoned,
             mode_points: modePoints,
             updated_at: new Date().toISOString(),
@@ -1479,6 +1481,7 @@ async getAvailableRoundsForStats(limit?: number): Promise<Array<{ id: string; cr
         exactHandicap: player.exact_handicap,
         exactHandicap18: player.exact_handicap_18,
         totalPoints,
+        spanishHandsCount: playerScores.filter(score => score.spanish_hands).length,
       };
     });
 
@@ -1495,25 +1498,30 @@ async getAvailableRoundsForStats(limit?: number): Promise<Array<{ id: string; cr
     for (let index = 0; index < sortedPlayers.length; index++) {
       const player = sortedPlayers[index];
       const currentHandicap = player.exactHandicap;
-      let newHandicap = currentHandicap;
+      let baseAdjustment = 0;
 
       if (isOdd) {
         const middleIndex = Math.floor(totalPlayers / 2);
         if (index < middleIndex) {
-          newHandicap = Math.max(0, currentHandicap - 1);
+          baseAdjustment = -1;
         } else if (index === middleIndex) {
-          newHandicap = currentHandicap;
+          baseAdjustment = 0;
         } else {
-          newHandicap = currentHandicap < 12 ? currentHandicap + 1 : currentHandicap;
+          baseAdjustment = 1;
         }
       } else {
         const middleIndex = totalPlayers / 2;
         if (index < middleIndex) {
-          newHandicap = Math.max(0, currentHandicap - 1);
+          baseAdjustment = -1;
         } else {
-          newHandicap = currentHandicap < 12 ? currentHandicap + 1 : currentHandicap;
+          baseAdjustment = 1;
         }
       }
+
+      const newHandicap = Math.min(
+        12,
+        Math.max(0, currentHandicap + baseAdjustment + player.spanishHandsCount)
+      );
 
       if (newHandicap !== currentHandicap) {
         const { error } = await supabase
@@ -1638,6 +1646,7 @@ async getAvailableRoundsForStats(limit?: number): Promise<Array<{ id: string; cr
         ? playerScores.reduce((sum, s) => sum + s.stableford_points, 0)
         : playerScores.reduce((sum, s) => sum + (s.mode_points ?? 0), 0);
       const noPasoRojasCount = playerScores.filter((s) => s.no_paso_rojas === true).length;
+      const spanishHandsCount = playerScores.filter((s) => s.spanish_hands === true).length;
 
       const eagles = playerScores.filter((s) => {
         const hole = holes.find((h) => h.hole_number === s.hole_number);
@@ -1676,6 +1685,7 @@ async getAvailableRoundsForStats(limit?: number): Promise<Array<{ id: string; cr
         exactHandicap: player.exact_handicap,
         totalPoints,
         noPasoRojasCount,
+        spanishHandsCount,
         totalHolesPlayed: playerScores.length,
         holeResults: {
           eagles,
@@ -1731,6 +1741,7 @@ async getAvailableRoundsForStats(limit?: number): Promise<Array<{ id: string; cr
         playingHandicap: player.playingHandicap,
         handicap: player.exactHandicap,
         no_paso_rojas_count: player.noPasoRojasCount,
+        spanish_hands_count: player.spanishHandsCount,
         total_holes_played: player.totalHolesPlayed,
         beers_won: beersWon,
         beers_paid: beersPaid,
@@ -1763,6 +1774,7 @@ async getAvailableRoundsForStats(limit?: number): Promise<Array<{ id: string; cr
         stableford_points: score.stableford_points,
         result: result,
         no_paso_rojas: score.no_paso_rojas || false,
+        spanish_hands: score.spanish_hands || false,
       };
     }).filter(Boolean);
 

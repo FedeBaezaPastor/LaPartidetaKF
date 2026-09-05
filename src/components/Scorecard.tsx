@@ -413,13 +413,27 @@ export const Scorecard: React.FC<ScorecardProps> = ({
                             >
                               <div className="flex flex-col items-center justify-center gap-1">
                                 {score ? (
-                                  <div className="w-7 h-7 flex items-center justify-center">
+                                  <div className="relative w-7 h-7 flex items-center justify-center">
                                     <ScoreSymbol
                                       grossStrokes={score.gross_strokes}
                                       par={h.par}
                                       strokesReceived={strokesReceived}
                                       abandoned={score.abandoned}
                                     />
+                                    {score.no_paso_rojas && (
+                                      <span
+                                        className="absolute -left-1 -top-1 h-2.5 w-2.5 rounded-full border border-white bg-red-600 shadow-sm"
+                                        title={`No pasó de rojas · Hoyo ${h.hole_number}`}
+                                        aria-label={`No pasó de rojas en el hoyo ${h.hole_number}`}
+                                      />
+                                    )}
+                                    {score.spanish_hands && (
+                                      <span
+                                        className="absolute -right-1 -top-1 h-2.5 w-2.5 rounded-full border border-white bg-emerald-500 shadow-sm"
+                                        title={`Spanish Hands · Hoyo ${h.hole_number}`}
+                                        aria-label={`Spanish Hands en el hoyo ${h.hole_number}`}
+                                      />
+                                    )}
                                   </div>
                                 ) : (
                                   <div className="w-7 h-7 flex items-center justify-center">
@@ -494,14 +508,20 @@ export const Scorecard: React.FC<ScorecardProps> = ({
                         }
                         if (gameMode === 'parejas' && players.length === 4) {
                           let t0Accum = 0, t1Accum = 0;
-                          playableHoles.forEach((ph) => {
-                            const ps = players.map((p) => {
-                              const s = roundsMap.get(p.id)?.scores[ph.hole_number];
+                          const currentHoleIndex = playableHoles.findIndex(
+                            ph => ph.hole_number === h.hole_number
+                          );
+                          playableHoles.slice(0, currentHoleIndex + 1).forEach((ph) => {
+                            const scoresForHole = players.map((p) =>
+                              roundsMap.get(p.id)?.scores[ph.hole_number]
+                            );
+                            const ps = scoresForHole.map((s) => {
                               return s ? s.mode_points ?? 0 : null;
                             });
                             if (ps.every((v) => v !== null)) {
-                              t0Accum += ps[0] ?? 0;
-                              t1Accum += ps[2] ?? 0;
+                              const allRaya = scoresForHole.every(s => s?.abandoned);
+                              t0Accum += allRaya ? 0.5 : (ps[0] ?? 0);
+                              t1Accum += allRaya ? 0.5 : (ps[2] ?? 0);
                             }
                           });
                           const label = `${t0Accum}-${t1Accum}`;
@@ -538,11 +558,13 @@ export const Scorecard: React.FC<ScorecardProps> = ({
                           if (gameMode === 'parejas' && players.length === 4) {
                             let t0 = 0, t1 = 0;
                             playableHoles.forEach((h) => {
-                              const s0 = roundsMap.get(players[0].id)?.scores[h.hole_number];
-                              const s2 = roundsMap.get(players[2].id)?.scores[h.hole_number];
-                              if (s0 && s2) {
-                                t0 += s0.mode_points ?? 0;
-                                t1 += s2.mode_points ?? 0;
+                              const scoresForHole = players.map(p =>
+                                roundsMap.get(p.id)?.scores[h.hole_number]
+                              );
+                              if (scoresForHole.every(Boolean)) {
+                                const allRaya = scoresForHole.every(s => s?.abandoned);
+                                t0 += allRaya ? 0.5 : (scoresForHole[0]?.mode_points ?? 0);
+                                t1 += allRaya ? 0.5 : (scoresForHole[2]?.mode_points ?? 0);
                               }
                             });
                             const label = `${t0}-${t1}`;
@@ -682,6 +704,39 @@ export const Scorecard: React.FC<ScorecardProps> = ({
                         </div>
                         <div className="bg-red-100 border-2 border-red-300 rounded-lg px-4 py-2 min-w-[60px] text-center">
                           <p className="text-2xl font-bold text-red-600">{noPasoRojasCount}</p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </>
+            )}
+
+            {groupCode !== null && (
+              <>
+                <h3 className="font-semibold text-gray-700 mb-3 mt-6">Spanish Hands</h3>
+                <div className="space-y-3">
+                  {players.map((player) => {
+                    const playerRound = roundsMap.get(player.id);
+                    const spanishHandsHoles = playableHoles
+                      .filter(h => playerRound?.scores[h.hole_number]?.spanish_hands)
+                      .map(h => h.hole_number);
+                    return (
+                      <div key={player.id} className="bg-emerald-50 border-2 border-emerald-200 rounded-lg p-3 flex items-center justify-between">
+                        <div>
+                          <p className="font-semibold text-gray-800">{player.name}</p>
+                          <div className="flex flex-wrap gap-1 mt-1">
+                            {spanishHandsHoles.length > 0
+                              ? spanishHandsHoles.map(holeNumber => (
+                                  <span key={holeNumber} className="bg-emerald-600 text-white text-xs font-bold rounded-full px-2 py-0.5">
+                                    Hoyo {holeNumber}
+                                  </span>
+                                ))
+                              : <span className="text-xs text-gray-500">Ninguno</span>}
+                          </div>
+                        </div>
+                        <div className="bg-emerald-100 border-2 border-emerald-300 rounded-lg px-4 py-2 min-w-[60px] text-center">
+                          <p className="text-2xl font-bold text-emerald-700">{spanishHandsHoles.length}</p>
                         </div>
                       </div>
                     );

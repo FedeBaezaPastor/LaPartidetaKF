@@ -60,6 +60,7 @@ export interface CalculatedScore {
   netStrokes: number;
   stablefordPoints: number;
   no_paso_rojas?: boolean;
+  spanish_hands?: boolean;
   abandoned?: boolean;
   mode_points?: number;
 }
@@ -155,6 +156,10 @@ export const calculateParejasPoints = (
   const oppScores = processedScores.filter(s => teamAssignments[s.playerId] !== myTeam);
 
   if (teamScores.length < 2 || oppScores.length < 2) return 0;
+
+  // Si los cuatro jugadores marcan raya, el hoyo se empata como una sola
+  // unidad: cada pareja recibe medio punto (no se comparan las dos bolas).
+  if (processedScores.every(s => s.abandoned)) return 0.5;
 
   const teamBest = Math.min(...teamScores.map(s => s.netStrokes));
   const teamWorst = Math.max(...teamScores.map(s => s.netStrokes));
@@ -301,8 +306,9 @@ export const checkParejasStatus = (
 
     if (isHoleComplete) {
       playedHolesCount++;
-      t0Points += s0?.mode_points ?? 0;
-      t1Points += s2?.mode_points ?? 0;
+      const allRaya = [s0, s1, s2, s3].every(s => s?.abandoned);
+      t0Points += allRaya ? 0.5 : (s0?.mode_points ?? 0);
+      t1Points += allRaya ? 0.5 : (s2?.mode_points ?? 0);
     }
   }
 

@@ -41,6 +41,7 @@ export const HoleCard: React.FC<HoleCardProps> = ({
   const [showCongratulationsModal, setShowCongratulationsModal] = useState(false);
   const [congratsPlayerName, setCongratsPlayerName] = useState('');
   const [pendingNoPasoRojas, setPendingNoPasoRojas] = useState<Record<string, boolean>>({});
+  const [pendingSpanishHands, setPendingSpanishHands] = useState<Record<string, boolean>>({});
 
   const computeModePointsForPlayer = (playerId: string, grossStrokesVal: number, strokesRecv: number, abandonedVal: boolean): number => {
     if (!isModeScoring) return 0;
@@ -158,6 +159,7 @@ export const HoleCard: React.FC<HoleCardProps> = ({
       if (pendingNoPasoRojas[playerId]) {
         newScore.no_paso_rojas = true;
       }
+      newScore.spanish_hands = pendingSpanishHands[playerId] || false;
       newScore.abandoned = false;
       newScore.mode_points = computeModePointsForPlayer(playerId, twoDigitNumber, newScore.strokesReceived, false);
       onScoreChange(playerId, newScore);
@@ -182,6 +184,7 @@ export const HoleCard: React.FC<HoleCardProps> = ({
       if (pendingNoPasoRojas[playerId]) {
         newScore.no_paso_rojas = true;
       }
+      newScore.spanish_hands = pendingSpanishHands[playerId] || false;
       newScore.abandoned = false;
       newScore.mode_points = computeModePointsForPlayer(playerId, num, newScore.strokesReceived, false);
       onScoreChange(playerId, newScore);
@@ -207,6 +210,7 @@ export const HoleCard: React.FC<HoleCardProps> = ({
         if (pendingNoPasoRojas[pendingPlayerId]) {
           newScore.no_paso_rojas = true;
         }
+        newScore.spanish_hands = pendingSpanishHands[pendingPlayerId] || false;
         newScore.abandoned = false;
         newScore.mode_points = computeModePointsForPlayer(pendingPlayerId, 1, newScore.strokesReceived, false);
         onScoreChange(pendingPlayerId, newScore);
@@ -408,6 +412,7 @@ const getScoreColor = (points: number, isAbandoned?: boolean): string => {
                             if (pendingNoPasoRojas[player.id]) {
                               newScore.no_paso_rojas = true;
                             }
+                            newScore.spanish_hands = pendingSpanishHands[player.id] || false;
                             newScore.abandoned = false;
                             newScore.mode_points = computeModePointsForPlayer(player.id, 10, newScore.strokesReceived, false);
                             onScoreChange(player.id, newScore);
@@ -436,6 +441,7 @@ const getScoreColor = (points: number, isAbandoned?: boolean): string => {
                               if (pendingNoPasoRojas[player.id]) {
                                 newScore.no_paso_rojas = true;
                               }
+                              newScore.spanish_hands = pendingSpanishHands[player.id] || false;
                               newScore.abandoned = true;
                               newScore.stablefordPoints = 0;
                               newScore.mode_points = computeModePointsForPlayer(player.id, rayaScore, newScore.strokesReceived, true);
@@ -535,6 +541,38 @@ const getScoreColor = (points: number, isAbandoned?: boolean): string => {
                         }`}
                       >
                         {(score?.no_paso_rojas || pendingNoPasoRojas[player.id]) ? '✓ No pasó de rojas' : 'Marcar: No pasó de rojas'}
+                      </button>
+                    )}
+
+                    {groupCode !== null && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (score && score.gross_strokes > 0) {
+                            onScoreChange(player.id, {
+                              ...score,
+                              grossStrokes: score.gross_strokes,
+                              strokesReceived,
+                              netStrokes: score.net_strokes,
+                              stablefordPoints: score.stableford_points,
+                              spanish_hands: !score.spanish_hands,
+                            });
+                          } else {
+                            setPendingSpanishHands(prev => ({
+                              ...prev,
+                              [player.id]: !prev[player.id],
+                            }));
+                          }
+                        }}
+                        className={`w-full py-3 rounded-lg font-semibold transition-colors ${
+                          (score?.spanish_hands || pendingSpanishHands[player.id])
+                            ? 'bg-emerald-600 hover:bg-emerald-700 text-white'
+                            : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
+                        }`}
+                      >
+                        {(score?.spanish_hands || pendingSpanishHands[player.id])
+                          ? '✓ Spanish Hands'
+                          : 'Marcar: Spanish Hands'}
                       </button>
                     )}
                   </div>

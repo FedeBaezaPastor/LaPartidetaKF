@@ -462,6 +462,7 @@ function App() {
       const netStrokes = score.netStrokes ?? score.net_strokes;
       const stablefordPoints = score.stablefordPoints ?? score.stableford_points;
       const noPasoRojas = score.no_paso_rojas ?? false;
+      const spanishHands = score.spanish_hands ?? false;
       const abandoned = score.abandoned ?? false;
       const modePoints = score.mode_points ?? 0;
 
@@ -486,6 +487,7 @@ function App() {
         netStrokes,
         stablefordPoints,
         noPasoRojas,
+        spanishHands,
         abandoned,
         modePoints
       );
@@ -531,6 +533,7 @@ function App() {
               existing.net_strokes,
               existing.stableford_points,
               existing.no_paso_rojas,
+              existing.spanish_hands ?? false,
               existing.abandoned,
               newModePoints
             );
@@ -558,6 +561,7 @@ function App() {
             net_strokes: netStrokes,
             stableford_points: stablefordPoints,
             no_paso_rojas: noPasoRojas,
+            spanish_hands: spanishHands,
             abandoned: abandoned,
             mode_points: modePoints,
             created_at: new Date().toISOString(),

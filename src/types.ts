@@ -75,6 +75,7 @@ export interface RoundScore {
   net_strokes: number;
   stableford_points: number;
   no_paso_rojas: boolean;
+  spanish_hands?: boolean;
   abandoned: boolean;
   mode_points: number;
   created_at: string;
