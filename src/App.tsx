@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { AlertTriangle } from 'lucide-react';
+import { AlertTriangle, CheckCircle2, X } from 'lucide-react';
 import { GolfRound, GolfHole, GolfCourse, RoundPlayer, RoundScore, Group, GameMode, PlanType } from './types';
 import { golfService } from './services/golfService';
 import { calculateModePoints, ModeScoreInput } from './utils/calculations';
@@ -66,6 +66,9 @@ function App() {
   const [groupLoading, setGroupLoading] = useState(true);
   const [currentView, setCurrentView] = useState<ViewType>('main');
   const [authReturnView, setAuthReturnView] = useState<ViewType>('main');
+  const [emailConfirmed, setEmailConfirmed] = useState(
+    () => new URLSearchParams(window.location.search).get('email-confirmed') === '1'
+  );
   const [roundState, setRoundState] = useState<RoundState>({
     round: null,
     holes: [],
@@ -150,6 +153,13 @@ function App() {
       setSimulatorUpdating(false);
     }
   };
+
+  useEffect(() => {
+    if (!emailConfirmed) return;
+    const url = new URL(window.location.href);
+    url.searchParams.delete('email-confirmed');
+    window.history.replaceState({}, document.title, `${url.pathname}${url.search}${url.hash}`);
+  }, [emailConfirmed]);
 
   useEffect(() => {
     if (user) {
@@ -792,14 +802,35 @@ function App() {
   };
 
   const IncognitoWarning = () => (
-    isIncognito ? (
-      <div className="fixed top-0 left-0 right-0 z-50 bg-amber-500 text-white px-4 py-2 text-center text-sm font-medium shadow-card">
-        <div className="flex items-center justify-center gap-2">
-          <AlertTriangle size={16} />
-          <span>Modo incógnito: No recargues la página o perderás todos los datos</span>
+    <>
+      {emailConfirmed && (
+        <div className="fixed left-3 right-3 top-16 z-[110] mx-auto max-w-lg bg-card border-2 border-accent-ring text-ink px-4 py-3 rounded-xl shadow-card">
+          <div className="flex items-center gap-3">
+            <CheckCircle2 size={20} className="text-accent-ink shrink-0" />
+            <div className="flex-1">
+              <p className="font-semibold">Correo confirmado correctamente</p>
+              <p className="text-sm text-ink-3">Tu cuenta de Omiki Golf ya está lista.</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setEmailConfirmed(false)}
+              className="p-1 text-ink-4 hover:text-ink"
+              aria-label="Cerrar aviso"
+            >
+              <X size={18} />
+            </button>
+          </div>
         </div>
-      </div>
-    ) : null
+      )}
+      {isIncognito && (
+        <div className="fixed top-0 left-0 right-0 z-50 bg-amber-500 text-white px-4 py-2 text-center text-sm font-medium shadow-card">
+          <div className="flex items-center justify-center gap-2">
+            <AlertTriangle size={16} />
+            <span>Modo incógnito: No recargues la página o perderás todos los datos</span>
+          </div>
+        </div>
+      )}
+    </>
   );
 
   if (currentView === 'plans') {

@@ -12,6 +12,32 @@ export const userService = {
     return data as UserProfile | null;
   },
 
+  async ensureProfileFromMetadata(userId: string, metadata: Record<string, unknown>): Promise<UserProfile | null> {
+    const existing = await this.getProfile(userId);
+    if (existing || metadata.registration_pending !== true || typeof metadata.nick !== 'string') {
+      return existing;
+    }
+
+    try {
+      return await this.createProfile({
+        user_id: userId,
+        nick: metadata.nick,
+        display_name: typeof metadata.display_name === 'string' ? metadata.display_name : undefined,
+        avatar_url: typeof metadata.avatar_url === 'string' ? metadata.avatar_url : undefined,
+        exact_handicap: typeof metadata.exact_handicap === 'number' ? metadata.exact_handicap : 0,
+        default_tee: typeof metadata.default_tee === 'string' ? metadata.default_tee : 'amarillo',
+        country: typeof metadata.country === 'string' ? metadata.country : undefined,
+        postal_code: typeof metadata.postal_code === 'string' ? metadata.postal_code : undefined,
+        age: typeof metadata.age === 'number' ? metadata.age : undefined,
+        accepted_terms: metadata.accepted_terms === true,
+      });
+    } catch (error) {
+      const profile = await this.getProfile(userId);
+      if (profile) return profile;
+      throw error;
+    }
+  },
+
   async checkNickAvailable(nick: string): Promise<boolean> {
     const { data, error } = await supabase.rpc('is_nick_available', {
       candidate: nick,

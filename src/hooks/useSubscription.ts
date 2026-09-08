@@ -28,6 +28,7 @@ export const useSubscription = (): SubscriptionState => {
     }
 
     try {
+      await userService.ensureProfileFromMetadata(user.id, user.user_metadata || {});
       const [p, plan] = await Promise.all([
         userService.getProfile(user.id),
         userService.getPlanType(user.id),

@@ -103,7 +103,7 @@ export default function Auth({ onAuthSuccess, onAdminLoginAttempt, onBack }: Aut
         email,
         password,
         options: {
-          emailRedirectTo: window.location.origin,
+          emailRedirectTo: `${window.location.origin}/?email-confirmed=1`,
           data: {
             user_tier: selectedTier,
             tier: selectedTier,
@@ -113,13 +113,15 @@ export default function Auth({ onAuthSuccess, onAdminLoginAttempt, onBack }: Aut
 
       if (error) throw error;
 
-      if (data.user) {
+      if (data.user && data.session) {
         const { golfService } = await import('../services/golfService');
         await golfService.linkGroupsToAuthUser();
         setMessage('Cuenta creada exitosamente. Iniciando sesión...');
         setTimeout(() => {
           onAuthSuccess();
         }, 1500);
+      } else if (data.user) {
+        setMessage('Revisa tu correo. Te hemos enviado un enlace de Omiki Golf para confirmar tu cuenta.');
       }
     } catch (err: any) {
       setError(err.message || 'Error al registrarse');

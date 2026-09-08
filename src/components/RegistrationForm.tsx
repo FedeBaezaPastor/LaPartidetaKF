@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ArrowLeft, Eye, EyeOff, Check, X, AlertCircle, Camera, Info } from 'lucide-react';
+import { ArrowLeft, Eye, EyeOff, Check, X, AlertCircle, Camera, Info, MailCheck } from 'lucide-react';
 import { supabase } from '../services/supabaseClient';
 import { userService } from '../services/userService';
 import { PlanType } from '../types';
@@ -38,6 +38,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({ planType, on
   const [over14, setOver14] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [confirmationEmail, setConfirmationEmail] = useState('');
   const nickTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
@@ -94,9 +95,33 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({ planType, on
       let userId: string;
 
       if (email && password) {
-        const { data: authData, error: authError } = await supabase.auth.signUp({ email, password });
+        const { data: authData, error: authError } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            emailRedirectTo: `${window.location.origin}/?email-confirmed=1`,
+            data: {
+              registration_pending: true,
+              requested_plan: planType,
+              nick,
+              display_name: displayName || null,
+              avatar_url: avatarUrl,
+              exact_handicap: handicap ? parseFloat(handicap) : 0,
+              default_tee: defaultTee,
+              country,
+              postal_code: postalCode || null,
+              age: age ? parseInt(age) : null,
+              accepted_terms: true,
+            },
+          },
+        });
         if (authError) throw authError;
         if (!authData.user) throw new Error('Error al crear la cuenta');
+
+        if (!authData.session) {
+          setConfirmationEmail(email);
+          return;
+        }
         userId = authData.user.id;
       } else {
         const { data: authData, error: authError } = await supabase.auth.signInAnonymously();
@@ -129,6 +154,31 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({ planType, on
       setLoading(false);
     }
   };
+
+  if (confirmationEmail) {
+    return (
+      <div className="min-h-screen bg-app flex items-center justify-center p-4 transition-colors">
+        <div className="max-w-md w-full bg-card border border-line rounded-2xl shadow-card p-8 text-center">
+          <div className="w-16 h-16 bg-accent-soft rounded-full flex items-center justify-center mx-auto mb-5">
+            <MailCheck className="w-8 h-8 text-accent-ink" />
+          </div>
+          <h1 className="text-2xl font-bold text-ink mb-3">Confirma tu correo</h1>
+          <p className="text-ink-3 mb-2">Te hemos enviado un mensaje de Omiki Golf a:</p>
+          <p className="font-semibold text-ink break-all mb-5">{confirmationEmail}</p>
+          <p className="text-sm text-ink-3 mb-6">
+            Abre el correo y pulsa “Confirmar mi cuenta”. Después volverás a Omiki Golf con tu sesión iniciada.
+          </p>
+          <button
+            type="button"
+            onClick={onBack}
+            className="w-full bg-card-2 hover:bg-neutral-hover text-ink-2 border border-line font-semibold py-3 rounded-xl transition-colors"
+          >
+            Volver
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-app transition-colors">
