@@ -78,7 +78,7 @@ export const userService = {
         current_period_start: new Date().toISOString(),
         current_period_end: expiresAt.toISOString(),
         updated_at: new Date().toISOString(),
-      });
+      }, { onConflict: 'user_id' });
     if (error) throw error;
   },
 

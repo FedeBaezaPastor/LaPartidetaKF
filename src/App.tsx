@@ -125,7 +125,6 @@ function App() {
       await refreshSubscription();
     } catch (error) {
       console.error('Error actualizando el plan del simulador:', error);
-      setSimulatedPlan(currentPlan);
     } finally {
       setSimulatorUpdating(false);
     }
