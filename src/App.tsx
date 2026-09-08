@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { AlertTriangle } from 'lucide-react';
-import { GolfRound, GolfHole, RoundPlayer, RoundScore, Group, GameMode } from './types';
+import { GolfRound, GolfHole, RoundPlayer, RoundScore, Group, GameMode, PlanType } from './types';
 import { golfService } from './services/golfService';
 import { calculateModePoints, ModeScoreInput } from './utils/calculations';
 import { accessCodeStorage } from './utils/accessCode';
 import { storageUtils } from './utils/storage';
+import { useAuth } from './context/AuthContext'; // 👈 Importación del AuthContext
 import { RoundSetup } from './components/RoundSetup';
 import { PlayerSetup } from './components/PlayerSetup';
 import { Scorecard } from './components/Scorecard';
@@ -22,8 +23,19 @@ import Auth from './components/Auth';
 import MyGroups from './components/MyGroups';
 import AdminDashboard from './components/AdminDashboard';
 import { PremiumModal } from './components/PremiumModal';
+import { PlansComparison } from './components/PlansComparison';
+import { RegistrationForm } from './components/RegistrationForm';
+import { HomeScreen } from './components/HomeScreen';
+import { ProfileScreen } from './components/ProfileScreen';
+import { TeamCreation } from './components/TeamCreation';
+import { NotificationsBell } from './components/NotificationsBell';
+import { ProShop } from './components/ProShop';
+import { PaymentSelector } from './components/PaymentSelector';
+import { useSubscription } from './hooks/useSubscription';
+import { userService } from './services/userService';
+import ShareModal from './components/ShareModal';
 
-type ViewType = 'main' | 'setup' | 'players' | 'scorecard' | 'leaderboard' | 'active-rounds' | 'viewer' | 'game-points' | 'statistics' | 'quickplay-statistics' | 'auth' | 'my-groups' | 'admin-dashboard';
+type ViewType = 'main' | 'setup' | 'players' | 'scorecard' | 'leaderboard' | 'active-rounds' | 'viewer' | 'game-points' | 'statistics' | 'quickplay-statistics' | 'auth' | 'my-groups' | 'admin-dashboard' | 'plans' | 'registration' | 'profile' | 'team-creation' | 'notifications' | 'pro-shop';
 
 interface RoundState {
   round: GolfRound | null;
@@ -37,6 +49,7 @@ interface RoundState {
 }
 
 function App() {
+  const { user, subscription, logout } = useAuth(); // 👈 Usar el contexto global
   const [isIncognito, setIsIncognito] = useState(false);
   const [currentGroup, setCurrentGroup] = useState<Group | null>(null);
   const [isGroupCreator, setIsGroupCreator] = useState(false);
@@ -63,6 +76,18 @@ function App() {
   const [showAdminPinModal, setShowAdminPinModal] = useState(false);
   const [adminPinError, setAdminPinError] = useState('');
   const [adminPinAttempts, setAdminPinAttempts] = useState(0);
+  const { planType, profile, refresh: refreshSubscription } = useSubscription();
+  const [pendingInvitations, setPendingInvitations] = useState(0);
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [showPayment, setShowPayment] = useState(false);
+  const [paymentAmount, setPaymentAmount] = useState(0);
+  const [paymentDescription, setPaymentDescription] = useState('');
+
+  useEffect(() => {
+    if (user) {
+      userService.getInvitationCount(user.id).then(setPendingInvitations).catch(() => {});
+    }
+  }, [user, currentView]);
 
   useEffect(() => {
     const checkIncognito = () => {
@@ -83,19 +108,8 @@ function App() {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        console.log('🔐 Checking auth...');
+        console.log('🔐 Listening auth changes...');
         const { supabase } = await import('./services/supabaseClient');
-        console.log('✅ Supabase client imported');
-
-        const {
-          data: { user },
-        } = await supabase.auth.getUser();
-
-        if (!user) {
-          console.log('No user authenticated');
-        } else {
-          console.log('✅ User authenticated:', user.email);
-        }
 
         const { data: authListener } = supabase.auth.onAuthStateChange((event) => {
           console.log('🔄 Auth state change:', event);
@@ -410,9 +424,6 @@ function App() {
 
   const handleScoreChange = async (playerId: string, holeNumber: number, score: any) => {
     console.log('=== handleScoreChange llamado ===');
-    console.log('playerId:', playerId);
-    console.log('holeNumber:', holeNumber);
-    console.log('score recibido:', score);
 
     if (!roundState.round) {
       console.log('No hay round activo');
@@ -421,16 +432,11 @@ function App() {
 
     try {
       if (score === null) {
-        console.log('Eliminando score de la BD');
         await golfService.deleteScore(roundState.round.id, playerId, holeNumber);
-
-        console.log('Score eliminado, actualizando estado local');
         setRoundState((prev) => ({
           ...prev,
           scores: prev.scores.filter((s) => !(s.player_id === playerId && s.hole_number === holeNumber)),
         }));
-
-        console.log('Estado actualizado');
         return;
       }
 
@@ -441,18 +447,6 @@ function App() {
       const noPasoRojas = score.no_paso_rojas ?? false;
       const abandoned = score.abandoned ?? false;
       const modePoints = score.mode_points ?? 0;
-
-      console.log('Grabando en BD:', {
-        roundId: roundState.round.id,
-        playerId,
-        holeNumber,
-        grossStrokes,
-        strokesReceived,
-        netStrokes,
-        stablefordPoints,
-        noPasoRojas,
-        abandoned
-      });
 
       await golfService.recordScore(
         roundState.round.id,
@@ -552,44 +546,20 @@ function App() {
   };
 
   const handleHolesChanged = async (numHoles: 9 | 18, holes: GolfHole[]) => {
-    console.log('🟢 APP: handleHolesChanged iniciado con numHoles:', numHoles);
-    console.log('🟢 APP: Tiene round?', !!roundState.round);
-
-    if (!roundState.round) {
-      console.log('🔴 APP: No hay round, abortando');
-      return;
-    }
-
-    const oldHandicaps = roundState.players.map(p => ({ name: p.name, handicap: p.playing_handicap }));
-    console.log('🟢 APP: Handicaps ANTES:', oldHandicaps);
+    if (!roundState.round) return;
 
     try {
       await new Promise(resolve => setTimeout(resolve, 100));
-
-      console.log('🟢 APP: Llamando getRoundPlayers...');
       const updatedPlayers = await golfService.getRoundPlayers(roundState.round.id);
-      console.log('🟢 APP: updatedPlayers recibidos:', updatedPlayers.length);
 
-      const newHandicaps = updatedPlayers.map(p => ({ name: p.name, handicap: p.playing_handicap }));
-      console.log('🟢 APP: Handicaps DESPUÉS:', newHandicaps);
-
-      console.log('🟢 APP: Actualizando roundState...');
-      setRoundState((prev) => {
-        const newState = {
-          ...prev,
-          holes,
-          players: updatedPlayers,
-          round: prev.round ? { ...prev.round, num_holes: numHoles } : null,
-        };
-        console.log('🟢 APP: Nuevo estado:', {
-          numHoles: newState.round?.num_holes,
-          holesLength: newState.holes.length
-        });
-        return newState;
-      });
-      console.log('✅ APP: roundState actualizado');
+      setRoundState((prev) => ({
+        ...prev,
+        holes,
+        players: updatedPlayers,
+        round: prev.round ? { ...prev.round, num_holes: numHoles } : null,
+      }));
     } catch (error) {
-      console.error('🔴 APP: Error reloading players:', error);
+      console.error('Error reloading players:', error);
       setRoundState((prev) => ({
         ...prev,
         holes,
@@ -602,17 +572,10 @@ function App() {
     if (!roundState.round) return;
 
     try {
-      console.log('🔄 APP: handleCourseChanged - Using players:', !!updatedPlayers ? 'from changeCourse' : 'fetching from DB');
-
-      // Use the players passed from changeCourse if available, otherwise fetch from DB
       const players = updatedPlayers || await golfService.getRoundPlayers(roundState.round.id);
       const updatedScores = await golfService.getRoundScores(roundState.round.id);
       const course = await golfService.getCourse(courseId);
 
-      console.log('🔄 APP: Course changed - Updated players:', players.map(p => ({ name: p.name, exact18: p.exact_handicap_18, playing: p.playing_handicap })));
-      console.log('🔄 APP: Course changed - New course:', course?.name, 'Holes:', numHoles);
-
-      // Force React to recognize the change by creating new player objects
       const newPlayers = players.map(p => ({ ...p }));
 
       setRoundState((prev) => ({
@@ -625,7 +588,6 @@ function App() {
           course_id: courseId,
           num_holes: numHoles,
         } : null,
-        course: course || prev.course,
         courseName: course?.name || prev.courseName,
       }));
     } catch (error) {
@@ -640,12 +602,6 @@ function App() {
         } : null,
       }));
     }
-  };
-
-  const handleRequestAccess = (roundId: string) => {
-    setPendingRoundId(roundId);
-    setShowAccessCodeModal(true);
-    setAccessCodeError('');
   };
 
   const handleAccessCodeSubmit = async (code: string) => {
@@ -708,41 +664,16 @@ function App() {
     }
   };
 
-  /*const handleFinishRound = async () => {
-    if (!roundState.round) {
-      return;
-    }
+  const handleFinishRound = async () => {
+    if (!roundState.round) return;
 
-    try {
-      await golfService.updateRoundStatus(roundState.round.id, 'completed');
-
-      const isQuickPlay = !roundState.round.group_id;
-
-      handleBackToMain();
-      if (!isQuickPlay) {
-        setCurrentView('active-rounds');
-      }
-    } catch (err) {
-      console.error('Error finishing round:', err);
-      setError('Error al finalizar la partida');
-    }
-  };*/
-const handleFinishRound = async () => {
-    if (!roundState.round) {
-      return;
-    }
-  
     try {
       setLoading(true);
-      // 1. Guardamos como 'completed' o 'finished' en Supabase
       await golfService.updateRoundStatus(roundState.round.id, 'completed');
-  
-      // 2. Limpiamos la ronda activa en localStorage para romper el bucle al volver
       storageUtils.clearActiveRound();
 
       const isQuickPlay = !roundState.round.group_id;
 
-      // 3. Redirigimos directamente a las estadísticas según el modo
       if (isQuickPlay) {
         setCurrentView('quickplay-statistics');
       } else if (currentGroup) {
@@ -757,7 +688,7 @@ const handleFinishRound = async () => {
       setLoading(false);
     }
   };
-  
+
   const IncognitoWarning = () => (
     isIncognito ? (
       <div className="fixed top-0 left-0 right-0 z-50 bg-amber-500 text-white px-4 py-2 text-center text-sm font-medium shadow-lg">
@@ -769,6 +700,50 @@ const handleFinishRound = async () => {
     ) : null
   );
 
+  if (currentView === 'plans') {
+    return (
+      <>
+        <IncognitoWarning />
+        <div className={isIncognito ? 'pt-10' : ''}>
+          <PlansComparison
+            onBack={() => setCurrentView('main')}
+            onSelectPlan={(plan) => {
+              if (plan === 'express') {
+                setCurrentView('main');
+              } else {
+                setCurrentView('registration');
+              }
+            }}
+            onShowAuth={() => setCurrentView('auth')}
+          />
+        </div>
+      </>
+    );
+  }
+
+  if (currentView === 'registration') {
+    return (
+      <>
+        <IncognitoWarning />
+        <div className={isIncognito ? 'pt-10' : ''}>
+          <RegistrationForm
+            planType={planType === 'express' ? 'player' : planType}
+            onBack={() => setCurrentView('plans')}
+            onRegistered={() => {
+              refreshSubscription();
+              if (user?.id) {
+                setPaymentAmount(299);
+                setPaymentDescription('Suscripcion Player');
+                setShowPayment(true);
+              }
+              setCurrentView('main');
+            }}
+          />
+        </div>
+      </>
+    );
+  }
+
   if (groupLoading) {
     return (
       <>
@@ -778,6 +753,84 @@ const handleFinishRound = async () => {
             <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-green-600 mx-auto mb-4"></div>
             <p className="text-gray-600">Cargando...</p>
           </div>
+        </div>
+      </>
+    );
+  }
+
+  if (currentView === 'profile') {
+    return (
+      <>
+        <IncognitoWarning />
+        <div className={isIncognito ? 'pt-10' : ''}>
+          <ProfileScreen
+            profile={profile}
+            planType={planType}
+            onBack={() => setCurrentView('main')}
+            onLogout={async () => {
+              await logout();
+              setCurrentView('main');
+            }}
+            onShowStats={() => setCurrentView(currentGroup ? 'statistics' : 'quickplay-statistics')}
+            onShowHistory={() => setCurrentView(currentGroup ? 'statistics' : 'quickplay-statistics')}
+            onShowUpgrade={() => setCurrentView('plans')}
+            onShowProShop={() => setCurrentView('pro-shop')}
+            onShowGroups={() => setCurrentView('my-groups')}
+            onShowSettings={() => setCurrentView('my-groups')}
+          />
+        </div>
+      </>
+    );
+  }
+
+  const mockUserId = user?.id || 'demo-kike';
+
+  if (currentView === 'team-creation') {
+    return (
+      <>
+        <IncognitoWarning />
+        <div className={isIncognito ? 'pt-10' : ''}>
+          <TeamCreation
+            userId={mockUserId}
+            onBack={() => setCurrentView('main')}
+            onTeamCreated={(groupId) => {
+              refreshSubscription();
+              setCurrentView('my-groups');
+            }}
+          />
+        </div>
+      </>
+    );
+  }
+
+  if (currentView === 'notifications') {
+    return (
+      <>
+        <IncognitoWarning />
+        <div className={isIncognito ? 'pt-10' : ''}>
+          <NotificationsBell
+            userId={mockUserId}
+            onBack={() => setCurrentView('main')}
+            onInvitationResolved={() => {
+              setPendingInvitations(Math.max(0, pendingInvitations - 1));
+            }}
+          />
+        </div>
+      </>
+    );
+  }
+
+  if (currentView === 'pro-shop' && currentGroup) {
+    return (
+      <>
+        <IncognitoWarning />
+        <div className={isIncognito ? 'pt-10' : ''}>
+          <ProShop
+            groupId={currentGroup.id}
+            userId={mockUserId}
+            onBack={() => setCurrentView('profile')}
+            onPurchaseComplete={() => setCurrentView('profile')}
+          />
         </div>
       </>
     );
@@ -813,7 +866,10 @@ const handleFinishRound = async () => {
           <MyGroups
             onBack={() => setCurrentView('main')}
             onGroupSelected={handleGroupJoined}
-            onLogout={() => setCurrentView('main')}
+            onLogout={async () => {
+              await logout(); // 👈 Uso de logout global
+              setCurrentView('main');
+            }}
           />
         </div>
       </>
@@ -825,17 +881,22 @@ const handleFinishRound = async () => {
       <>
         <IncognitoWarning />
         <div className={isIncognito ? 'pt-10' : ''}>
-          <GroupSetup
-            onGroupCreated={handleGroupCreated}
-            onGroupJoined={handleGroupJoined}
+          <HomeScreen
+            planType={planType}
+            profile={profile}
+            pendingInvitations={pendingInvitations}
             onQuickPlay={() => setCurrentView('setup')}
             onJoinQuickPlay={() => {
               setPendingRoundId(null);
               setShowAccessCodeModal(true);
               setAccessCodeError('');
             }}
+            onCreateTeam={() => setCurrentView('team-creation')}
+            onShowPlans={() => setCurrentView('plans')}
+            onShowProfile={() => setCurrentView('profile')}
+            onShowNotifications={() => setCurrentView('notifications')}
             onShowAuth={() => setCurrentView('auth')}
-            onJoinRound={handleJoinRound}
+            onShowShare={() => setShowShareModal(true)}
           />
           {showAccessCodeModal && (
             <AccessCodeModal
@@ -843,6 +904,23 @@ const handleFinishRound = async () => {
               onCancel={handleAccessCodeCancel}
               error={accessCodeError}
               loading={loading}
+            />
+          )}
+          {showShareModal && (
+            <ShareModal onClose={() => setShowShareModal(false)} />
+          )}
+          {showPayment && user && (
+            <PaymentSelector
+              isOpen={showPayment}
+              onClose={() => setShowPayment(false)}
+              planType={planType}
+              userId={user.id}
+              amount={paymentAmount}
+              description={paymentDescription}
+              onSuccess={() => {
+                refreshSubscription();
+                setShowPayment(false);
+              }}
             />
           )}
         </div>
@@ -869,6 +947,8 @@ const handleFinishRound = async () => {
           currentGroup={currentGroup}
           isGroupCreator={isGroupCreator}
           hasLimitedAccess={hasLimitedAccess}
+          planType={planType}
+          onShowPlans={() => setCurrentView('plans')}
         />
       )}
 
@@ -886,6 +966,8 @@ const handleFinishRound = async () => {
           onLeaveGroup={() => {}}
           onBack={() => setCurrentView('main')}
           currentGroup={null}
+          planType={planType}
+          onShowPlans={() => setCurrentView('plans')}
         />
       )}
 
@@ -996,7 +1078,6 @@ const handleFinishRound = async () => {
         <QuickPlayStatistics
           roundId={roundState.round?.id}
           onBack={() => setCurrentView('setup')}
-          //onBack={handleBackToMain}
         />
       )}
 
