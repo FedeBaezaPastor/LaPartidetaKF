@@ -1,0 +1,400 @@
+import React, { useState, useEffect, useRef } from 'react';
+import { ArrowLeft, Info, Search, UserPlus, Check, X, Users, Crown } from 'lucide-react';
+import { supabase } from '../services/supabaseClient';
+import { userService } from '../services/userService';
+import { UserProfile } from '../types';
+
+interface TeamCreationProps {
+  userId: string;
+  onBack: () => void;
+  onTeamCreated: (groupId: string) => void;
+}
+
+interface TooltipProps {
+  text: string;
+}
+
+const Tooltip: React.FC<TooltipProps> = ({ text }) => {
+  const [show, setShow] = useState(false);
+  return (
+    <div className="relative inline-block">
+      <button
+        onMouseEnter={() => setShow(true)}
+        onMouseLeave={() => setShow(false)}
+        onClick={() => setShow(!show)}
+        className="text-ink-4 hover:text-ink-3"
+      >
+        <Info size={14} />
+      </button>
+      {show && (
+        <div className="absolute z-50 left-1/2 -translate-x-1/2 top-6 w-56 bg-slate-800 text-white text-xs p-2.5 rounded-lg shadow-card">
+          {text}
+        </div>
+      )}
+    </div>
+  );
+};
+
+export const TeamCreation: React.FC<TeamCreationProps> = ({ userId, onBack, onTeamCreated }) => {
+  const [step, setStep] = useState(1);
+  const [groupName, setGroupName] = useState('');
+  const [groupCode, setGroupCode] = useState('');
+  const [addPlayersNow, setAddPlayersNow] = useState(true);
+  const [assignAdmin, setAssignAdmin] = useState(false);
+  const [hoyo19, setHoyo19] = useState(true);
+  const [searchNick, setSearchNick] = useState('');
+  const [searchResults, setSearchResults] = useState<UserProfile[]>([]);
+  const [selectedPlayers, setSelectedPlayers] = useState<UserProfile[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [createdGroupId, setCreatedGroupId] = useState<string | null>(null);
+  const searchTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    if (searchNick.length < 2) {
+      setSearchResults([]);
+      return;
+    }
+    if (searchTimer.current) clearTimeout(searchTimer.current);
+    searchTimer.current = setTimeout(async () => {
+      try {
+        const results = await userService.searchByNick(searchNick);
+        setSearchResults(results.filter(r => r.user_id !== userId));
+      } catch {
+        setSearchResults([]);
+      }
+    }, 400);
+    return () => { if (searchTimer.current) clearTimeout(searchTimer.current); };
+  }, [searchNick]);
+
+  const generateCode = () => {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let code = '';
+    for (let i = 0; i < 6; i++) code += chars.charAt(Math.floor(Math.random() * chars.length));
+    return code;
+  };
+
+  const handleCreate = async () => {
+    if (!groupName.trim()) { setError('El nombre del grupo es obligatorio'); return; }
+    if (!groupCode) { setGroupCode(generateCode()); }
+
+    setLoading(true);
+    setError('');
+    try {
+      const { data: groupData, error: groupError } = await supabase
+        .from('groups')
+        .insert({
+          name: groupName.trim(),
+          group_code: groupCode || generateCode(),
+          user_auth_id: userId,
+          hoyo_19_enabled: hoyo19,
+          max_players: 20,
+          group_type: 'team',
+        })
+        .select()
+        .single();
+
+      if (groupError) throw groupError;
+      setCreatedGroupId(groupData.id);
+
+      await userService.addGroupMember(groupData.id, userId, 'admin');
+
+      if (addPlayersNow && selectedPlayers.length > 0) {
+        for (const player of selectedPlayers) {
+          await userService.sendInvitation(groupData.id, player.user_id, userId, `Te han invitado al grupo ${groupName}`);
+        }
+      }
+
+      setStep(4);
+    } catch (err: any) {
+      setError(err.message || 'Error al crear el grupo');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const addPlayer = (player: UserProfile) => {
+    if (!selectedPlayers.find(p => p.user_id === player.user_id)) {
+      setSelectedPlayers([...selectedPlayers, player]);
+    }
+    setSearchNick('');
+    setSearchResults([]);
+  };
+
+  const removePlayer = (playerId: string) => {
+    setSelectedPlayers(selectedPlayers.filter(p => p.user_id !== playerId));
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-emerald-50">
+      <div className="max-w-lg mx-auto px-4 py-6">
+        <button onClick={onBack} className="flex items-center gap-2 text-ink-3 hover:text-ink mb-6">
+          <ArrowLeft size={20} />
+          Volver
+        </button>
+
+        {/* Step indicator */}
+        <div className="flex items-center gap-2 mb-6">
+          {[1, 2, 3].map(s => (
+            <div key={s} className={`h-2 flex-1 rounded-full transition-all ${s <= step ? 'bg-accent' : 'bg-neutral'}`} />
+          ))}
+        </div>
+
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-700 text-sm p-3 rounded-xl mb-4">
+            {error}
+          </div>
+        )}
+
+        {/* Step 1: Group name + code */}
+        {step === 1 && (
+          <div className="bg-card rounded-2xl shadow-card p-6">
+            <h2 className="text-xl font-bold text-ink mb-1">Crear Team</h2>
+            <p className="text-sm text-ink-3 mb-5">Configura tu grupo de juego</p>
+
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-ink-2 mb-1">Nombre del grupo <span className="text-red-500">*</span></label>
+              <input
+                type="text"
+                value={groupName}
+                onChange={(e) => setGroupName(e.target.value)}
+                placeholder="Ej: Amigos del Golf"
+                className="w-full px-4 py-2.5 border border-line-2 rounded-xl focus:ring-2 focus:ring-accent focus:border-transparent"
+              />
+            </div>
+
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-ink-2 mb-1">Codigo de acceso</label>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={groupCode}
+                  onChange={(e) => setGroupCode(e.target.value)}
+                  placeholder="Auto-generado"
+                  className="flex-1 px-4 py-2.5 border border-line-2 rounded-xl focus:ring-2 focus:ring-accent focus:border-transparent"
+                />
+                <button
+                  onClick={() => setGroupCode(generateCode())}
+                  className="px-4 py-2.5 bg-card-2 hover:bg-gray-200 rounded-xl text-sm font-medium text-ink-2"
+                >
+                  Generar
+                </button>
+              </div>
+            </div>
+
+            <button
+              onClick={() => setStep(2)}
+              disabled={!groupName.trim()}
+              className="w-full bg-accent hover:bg-accent-hover text-on-accent font-semibold py-3 rounded-xl transition-colors disabled:opacity-50"
+            >
+              Continuar
+            </button>
+          </div>
+        )}
+
+        {/* Step 2: 3 questions */}
+        {step === 2 && (
+          <div className="bg-card rounded-2xl shadow-card p-6">
+            <h2 className="text-xl font-bold text-ink mb-5">Configuracion del Team</h2>
+
+            <div className="space-y-4 mb-6">
+              {/* Q1: Add players now */}
+              <div className="border border-line rounded-xl p-4">
+                <div className="flex items-start gap-2 mb-3">
+                  <p className="text-sm font-medium text-ink flex-1">
+                    Quieres anadir ahora algunos jugadores al grupo o prefieres hacerlo mas tarde?
+                  </p>
+                  <Tooltip text="Puedes invitar jugadores a tu grupo ahora o en cualquier momento despues desde la gestion del grupo." />
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setAddPlayersNow(true)}
+                    className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all ${addPlayersNow ? 'bg-accent text-on-accent' : 'bg-card-2 text-ink-3'}`}
+                  >
+                    Ahora
+                  </button>
+                  <button
+                    onClick={() => setAddPlayersNow(false)}
+                    className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all ${!addPlayersNow ? 'bg-accent text-on-accent' : 'bg-card-2 text-ink-3'}`}
+                  >
+                    Mas tarde
+                  </button>
+                </div>
+              </div>
+
+              {/* Q2: Assign admin */}
+              <div className="border border-line rounded-xl p-4">
+                <div className="flex items-start gap-2 mb-3">
+                  <p className="text-sm font-medium text-ink flex-1">
+                    Quieres asignar un administrador que te ayude a crear las partidas del grupo?
+                  </p>
+                  <Tooltip text="Un administrador puede crear partidas y gestionar jugadores del grupo. Puedes anadirlo ahora o despues." />
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setAssignAdmin(true)}
+                    className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all ${assignAdmin ? 'bg-accent text-on-accent' : 'bg-card-2 text-ink-3'}`}
+                  >
+                    Si
+                  </button>
+                  <button
+                    onClick={() => setAssignAdmin(false)}
+                    className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all ${!assignAdmin ? 'bg-accent text-on-accent' : 'bg-card-2 text-ink-3'}`}
+                  >
+                    No
+                  </button>
+                </div>
+              </div>
+
+              {/* Q3: Hoyo 19 */}
+              <div className="border border-line rounded-xl p-4">
+                <div className="flex items-start gap-2 mb-3">
+                  <p className="text-sm font-medium text-ink flex-1">
+                    Quieres incluir en las partidas la Gamificacion Hoyo 19?
+                  </p>
+                  <Tooltip text="El Hoyo 19 incluye gamificacion DIVEND (no paso de rojas, cervezas, etc.). Se activa por defecto pero puedes desactivarlo para grupos que no beben alcohol." />
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setHoyo19(true)}
+                    className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all ${hoyo19 ? 'bg-accent text-on-accent' : 'bg-card-2 text-ink-3'}`}
+                  >
+                    Si, incluir
+                  </button>
+                  <button
+                    onClick={() => setHoyo19(false)}
+                    className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all ${!hoyo19 ? 'bg-accent text-on-accent' : 'bg-card-2 text-ink-3'}`}
+                  >
+                    No, sin alcohol
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => setStep(1)}
+                className="flex-1 bg-card-2 hover:bg-gray-200 text-ink-2 font-semibold py-3 rounded-xl transition-colors"
+              >
+                Atras
+              </button>
+              <button
+                onClick={() => setStep(addPlayersNow ? 3 : 4)}
+                className="flex-1 bg-accent hover:bg-accent-hover text-on-accent font-semibold py-3 rounded-xl transition-colors"
+              >
+                {addPlayersNow ? 'Buscar jugadores' : 'Crear grupo'}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Step 3: Search and invite players */}
+        {step === 3 && (
+          <div className="bg-card rounded-2xl shadow-card p-6">
+            <h2 className="text-xl font-bold text-ink mb-1">Invitar jugadores</h2>
+            <p className="text-sm text-ink-3 mb-5">Busca por Nick y envia invitaciones</p>
+
+            <div className="relative mb-4">
+              <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-4" />
+              <input
+                type="text"
+                value={searchNick}
+                onChange={(e) => setSearchNick(e.target.value)}
+                placeholder="Buscar por Nick..."
+                className="w-full pl-10 pr-4 py-2.5 border border-line-2 rounded-xl focus:ring-2 focus:ring-accent focus:border-transparent"
+              />
+            </div>
+
+            {searchResults.length > 0 && (
+              <div className="border border-line rounded-xl mb-4 max-h-48 overflow-y-auto">
+                {searchResults.map(p => (
+                  <button
+                    key={p.user_id}
+                    onClick={() => addPlayer(p)}
+                    className="w-full flex items-center gap-3 px-4 py-3 hover:bg-card-2 transition-colors border-b border-line last:border-b-0"
+                  >
+                    {p.avatar_url ? (
+                      <img src={p.avatar_url} alt="" className="w-8 h-8 rounded-full" />
+                    ) : (
+                      <div className="w-8 h-8 bg-card-2 rounded-full flex items-center justify-center">
+                        <Users size={14} className="text-ink-4" />
+                      </div>
+                    )}
+                    <div className="flex-1 text-left">
+                      <p className="font-medium text-ink text-sm">{p.nick}</p>
+                      {p.display_name && <p className="text-xs text-ink-3">{p.display_name}</p>}
+                    </div>
+                    <UserPlus size={16} className="text-accent-ink" />
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {selectedPlayers.length > 0 && (
+              <div className="mb-4">
+                <p className="text-sm font-medium text-ink-2 mb-2">Jugadores seleccionados:</p>
+                <div className="space-y-2">
+                  {selectedPlayers.map(p => (
+                    <div key={p.user_id} className="flex items-center gap-3 bg-accent-soft rounded-lg px-3 py-2">
+                      {p.avatar_url ? (
+                        <img src={p.avatar_url} alt="" className="w-7 h-7 rounded-full" />
+                      ) : (
+                        <div className="w-7 h-7 bg-emerald-200 rounded-full" />
+                      )}
+                      <span className="flex-1 text-sm font-medium text-ink">{p.nick}</span>
+                      <button onClick={() => removePlayer(p.user_id)} className="text-red-500 hover:text-red-700">
+                        <X size={16} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => setStep(2)}
+                className="flex-1 bg-card-2 hover:bg-gray-200 text-ink-2 font-semibold py-3 rounded-xl transition-colors"
+              >
+                Atras
+              </button>
+              <button
+                onClick={handleCreate}
+                disabled={loading}
+                className="flex-1 bg-accent hover:bg-accent-hover text-on-accent font-semibold py-3 rounded-xl transition-colors disabled:opacity-50"
+              >
+                {loading ? 'Creando...' : `Crear grupo${selectedPlayers.length > 0 ? ` (${selectedPlayers.length} invitaciones)` : ''}`}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Step 4: Success */}
+        {step === 4 && (
+          <div className="bg-card rounded-2xl shadow-card p-8 text-center">
+            <div className="w-20 h-20 bg-accent-soft rounded-full flex items-center justify-center mx-auto mb-4">
+              <Check className="text-accent-ink" size={40} />
+            </div>
+            <h2 className="text-2xl font-bold text-ink mb-2">Grupo creado</h2>
+            <p className="text-ink-3 mb-2">{groupName}</p>
+            <p className="text-sm text-ink-4 mb-6">
+              {selectedPlayers.length > 0
+                ? `Se han enviado ${selectedPlayers.length} invitaciones`
+                : 'Podras invitar jugadores mas tarde'}
+            </p>
+            <div className="bg-card-2 rounded-xl px-4 py-3 mb-6">
+              <p className="text-xs text-ink-3 mb-1">Codigo de acceso</p>
+              <p className="text-2xl font-mono font-bold text-accent-ink tracking-wider">{groupCode}</p>
+            </div>
+            <button
+              onClick={() => createdGroupId && onTeamCreated(createdGroupId)}
+              className="w-full bg-accent hover:bg-accent-hover text-on-accent font-semibold py-3 rounded-xl transition-colors"
+            >
+              Ir al grupo
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};

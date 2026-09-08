@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { GolfCourse, GolfHole, Group, Tee, GameMode } from '../types';
 import { golfService } from '../services/golfService';
-import { ChevronRight, Flag, Copy, Check, LogOut, ArrowLeft, Info } from 'lucide-react';
+import { ChevronRight, Flag, Copy, Check, LogOut, ArrowLeft, Info, Lock } from 'lucide-react';
 import { HolesRangeModal } from './HolesRangeModal';
 import { AdminPinModal } from './AdminPinModal';
 import { adminPinUtils } from '../utils/adminPin';
@@ -23,6 +23,8 @@ interface RoundSetupProps {
   currentGroup?: Group | null;
   isGroupCreator?: boolean;
   hasLimitedAccess?: boolean;
+  planType?: 'express' | 'player' | 'team';
+  onShowPlans?: () => void;
 }
 
 export const RoundSetup: React.FC<RoundSetupProps> = ({
@@ -36,7 +38,17 @@ export const RoundSetup: React.FC<RoundSetupProps> = ({
   currentGroup,
   isGroupCreator = true,
   hasLimitedAccess = false,
+  planType = 'express',
+  onShowPlans,
 }) => {
+  const isExpress = planType === 'express';
+  const handleGameModeClick = (mode: GameMode) => {
+    if (isExpress && mode !== 'stableford') {
+      setShowUpgradeModal(true);
+      return;
+    }
+    setGameMode(mode);
+  };
   const [courses, setCourses] = useState<GolfCourse[]>([]);
   const [selectedCourse, setSelectedCourse] = useState<string | null>(null);
   const [selectedCourseName, setSelectedCourseName] = useState<string>('');
@@ -523,7 +535,7 @@ export const RoundSetup: React.FC<RoundSetupProps> = ({
                   </label>
                   <div className="grid grid-cols-2 gap-3">
                     <button
-                      onClick={() => setGameMode('stableford')}
+                      onClick={() => handleGameModeClick('stableford')}
                       className={`py-3 px-4 rounded-lg font-bold transition-all text-sm ${
                         gameMode === 'stableford'
                           ? 'bg-accent text-on-accent shadow-card'
@@ -533,33 +545,36 @@ export const RoundSetup: React.FC<RoundSetupProps> = ({
                       Stableford
                     </button>
                     <button
-                      onClick={() => setGameMode('match')}
-                      className={`py-3 px-4 rounded-lg font-bold transition-all text-sm ${
+                      onClick={() => handleGameModeClick('match')}
+                      className={`relative py-3 px-4 rounded-lg font-bold transition-all text-sm ${
                         gameMode === 'match'
                           ? 'bg-accent text-on-accent shadow-card'
                           : 'bg-neutral text-ink hover:bg-neutral-hover'
-                      }`}
+                      } ${isExpress ? 'opacity-60' : ''}`}
                     >
+                      {isExpress && <Lock size={10} className="absolute top-1 right-1 text-ink-3" />}
                       Match
                     </button>
                     <button
-                      onClick={() => setGameMode('sindicato')}
-                      className={`py-3 px-4 rounded-lg font-bold transition-all text-sm ${
+                      onClick={() => handleGameModeClick('sindicato')}
+                      className={`relative py-3 px-4 rounded-lg font-bold transition-all text-sm ${
                         gameMode === 'sindicato'
                           ? 'bg-accent text-on-accent shadow-card'
                           : 'bg-neutral text-ink hover:bg-neutral-hover'
-                      }`}
+                      } ${isExpress ? 'opacity-60' : ''}`}
                     >
+                      {isExpress && <Lock size={10} className="absolute top-1 right-1 text-ink-3" />}
                       Sindicato
                     </button>
                     <button
-                      onClick={() => setGameMode('parejas')}
-                      className={`py-3 px-4 rounded-lg font-bold transition-all text-sm ${
+                      onClick={() => handleGameModeClick('parejas')}
+                      className={`relative py-3 px-4 rounded-lg font-bold transition-all text-sm ${
                         gameMode === 'parejas'
                           ? 'bg-accent text-on-accent shadow-card'
                           : 'bg-neutral text-ink hover:bg-neutral-hover'
-                      }`}
+                      } ${isExpress ? 'opacity-60' : ''}`}
                     >
+                      {isExpress && <Lock size={10} className="absolute top-1 right-1 text-ink-3" />}
                       Parejas
                     </button>
                   </div>

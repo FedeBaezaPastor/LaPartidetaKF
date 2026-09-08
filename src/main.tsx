@@ -8,6 +8,7 @@ if (import.meta.env.DEV) {
 }
 import App from './App.tsx';
 import ErrorBoundary from './components/ErrorBoundary';
+import { AuthProvider } from './context/AuthContext';
 import './index.css';
 
 try {
@@ -22,7 +23,9 @@ try {
   root.render(
     <StrictMode>
       <ErrorBoundary>
-        <App />
+        <AuthProvider>
+          <App />
+        </AuthProvider>
       </ErrorBoundary>
     </StrictMode>
   );

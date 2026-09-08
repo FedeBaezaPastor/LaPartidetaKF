@@ -1,178 +1,115 @@
-import React, { useEffect, useState } from 'react';
-import { ArrowLeft, Save, User, ShieldCheck } from 'lucide-react';
-import { supabase } from '../services/supabaseClient';
-import { UserTier } from '../types';
-import { PremiumModal } from './PremiumModal';
+import React, { useState } from 'react';
+import { ArrowLeft, LogOut, Settings, BarChart3, Gamepad2, Crown, ChevronRight, CreditCard } from 'lucide-react';
+import { UserProfile, PlanType } from '../types';
 
 interface ProfileScreenProps {
-  authUser: any;
+  profile: UserProfile | null;
+  planType: PlanType;
   onBack: () => void;
-  onUserUpdated: (user: any) => void;
   onLogout: () => void;
+  onShowStats: () => void;
+  onShowHistory: () => void;
+  onShowUpgrade: () => void;
+  onShowProShop: () => void;
+  onShowGroups: () => void;
+  onShowSettings: () => void;
 }
 
-const tierOptions: UserTier[] = ['Express', 'Player', 'Team'];
+export const ProfileScreen: React.FC<ProfileScreenProps> = ({
+  profile,
+  planType,
+  onBack,
+  onLogout,
+  onShowStats,
+  onShowHistory,
+  onShowUpgrade,
+  onShowProShop,
+  onShowGroups,
+  onShowSettings,
+}) => {
+  const isTeam = planType === 'team';
+  const isPlayer = planType === 'player';
 
-export default function ProfileScreen({ authUser, onBack, onUserUpdated, onLogout }: ProfileScreenProps) {
-  const [selectedTier, setSelectedTier] = useState<UserTier>('Express');
-  const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState('');
-  const [error, setError] = useState('');
-  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
-  const [pendingTier, setPendingTier] = useState<UserTier | null>(null);
-
-  useEffect(() => {
-    const currentTier = (authUser?.user_metadata?.user_tier || authUser?.user_metadata?.tier || 'Express') as UserTier;
-    setSelectedTier(currentTier);
-  }, [authUser]);
-
-  const applyTier = async (tier: UserTier) => {
-    if (!authUser?.id) return;
-
-    setLoading(true);
-    setError('');
-    setMessage('');
-
-    try {
-      const { data, error: updateError } = await supabase.auth.updateUser({
-        data: {
-          user_tier: tier,
-          tier,
-        },
-      });
-
-      if (updateError) throw updateError;
-
-      onUserUpdated(data.user);
-      setMessage(`Tu tier se ha actualizado a ${tier}.`);
-      setShowUpgradeModal(false);
-      setPendingTier(null);
-    } catch (err: any) {
-      setError(err.message || 'No se pudo guardar el tier');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleSave = async () => {
-    const currentTier = (authUser?.user_metadata?.user_tier || authUser?.user_metadata?.tier || 'Express') as UserTier;
-
-    if (selectedTier === currentTier) {
-      setMessage(`Ya tienes el tier ${selectedTier}.`);
-      return;
-    }
-
-    if (selectedTier === 'Express') {
-      await applyTier(selectedTier);
-      return;
-    }
-
-    setPendingTier(selectedTier);
-    setShowUpgradeModal(true);
-  };
+  const menuItems = [
+    { icon: Gamepad2, label: 'Mis partidas jugadas', onClick: onShowHistory, show: true },
+    { icon: BarChart3, label: 'Mis estadisticas', onClick: onShowStats, show: true },
+    { icon: Crown, label: 'Mis grupos', onClick: onShowGroups, show: isTeam },
+    { icon: CreditCard, label: 'Pro-Shop', onClick: onShowProShop, show: isTeam },
+    { icon: Settings, label: 'Mis datos de registro', onClick: onShowSettings, show: true },
+  ];
 
   return (
-    <div className="min-h-screen bg-app p-4 flex items-center justify-center">
-      <div className="max-w-md w-full bg-card rounded-2xl shadow-card p-8">
-        <button
-          onClick={onBack}
-          className="flex items-center gap-2 text-ink-3 hover:text-ink mb-6 transition-colors"
-        >
-          <ArrowLeft size={20} />
-          Volver
-        </button>
-
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-accent-soft rounded-full mb-4">
-            <User className="w-8 h-8 text-accent-ink" />
-          </div>
-          <h2 className="text-3xl font-bold text-ink mb-2">Mis Datos</h2>
-          <p className="text-ink-3">Gestiona tu perfil y tu tier</p>
+    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-emerald-50">
+      <div className="max-w-lg mx-auto px-4 py-6">
+        <div className="flex items-center justify-between mb-6">
+          <button onClick={onBack} className="flex items-center gap-2 text-ink-3 hover:text-ink">
+            <ArrowLeft size={20} />
+            Volver
+          </button>
+          <button
+            onClick={onLogout}
+            className="flex items-center gap-2 text-red-600 hover:text-red-700 text-sm font-medium"
+          >
+            <LogOut size={18} />
+            Cerrar sesion
+          </button>
         </div>
 
-        <div className="space-y-6">
-          <div className="bg-card-2 rounded-xl p-4 border border-line">
-            <p className="text-xs font-semibold uppercase tracking-wide text-ink-3">Correo</p>
-            <p className="mt-2 text-sm text-ink font-medium break-all">{authUser?.email || 'Sin email'}</p>
+        {/* Profile header */}
+        <div className="bg-card rounded-2xl shadow-card p-6 mb-5">
+          <div className="flex items-center gap-4">
+            {profile?.avatar_url ? (
+              <img src={profile.avatar_url} alt="avatar" className="w-16 h-16 rounded-full border-2 border-accent-ring" />
+            ) : (
+              <div className="w-16 h-16 bg-accent-soft rounded-full flex items-center justify-center">
+                <Settings className="text-accent-ink" size={24} />
+              </div>
+            )}
+            <div className="flex-1">
+              <h2 className="text-xl font-bold text-ink">{profile?.nick || 'Jugador'}</h2>
+              <p className="text-sm text-ink-3">{profile?.display_name || ''}</p>
+              <div className="flex items-center gap-2 mt-1">
+                <span className={`text-xs font-bold px-2 py-0.5 rounded-full uppercase ${isTeam ? 'bg-amber-100 text-amber-700' : 'bg-accent-soft text-accent-ink'}`}>
+                  {planType}
+                </span>
+                {profile?.exact_handicap !== undefined && (
+                  <span className="text-xs text-ink-3">HCP {profile.exact_handicap}</span>
+                )}
+              </div>
+            </div>
+            {isTeam && <Crown className="text-amber-500" size={24} />}
           </div>
+        </div>
 
-          <div>
-            <label className="block text-sm font-medium text-ink-2 mb-3">
-              Tipo de usuario
-            </label>
-            <div className="grid grid-cols-3 gap-2">
-              {tierOptions.map((tier) => {
-                const isSelected = selectedTier === tier;
-
-                return (
-                  <button
-                    key={tier}
-                    type="button"
-                    onClick={() => setSelectedTier(tier)}
-                    className={`px-3 py-2 rounded-xl border text-sm font-medium transition-colors ${
-                      isSelected
-                        ? 'border-accent bg-accent-soft text-accent-ink'
-                        : 'border-line bg-card text-ink-3 hover:border-line-2'
-                    }`}
-                  >
-                    {tier}
-                  </button>
-                );
-              })}
+        {/* Upgrade banner for Player */}
+        {isPlayer && (
+          <button
+            onClick={onShowUpgrade}
+            className="w-full bg-gradient-to-r from-amber-400 to-amber-500 text-white rounded-2xl p-4 mb-5 shadow-card hover:from-amber-500 hover:to-amber-600 transition-all text-left flex items-center justify-between"
+          >
+            <div>
+              <p className="font-bold">Prueba Team por 30 dias</p>
+              <p className="text-sm text-white/90">Crea grupos, invita jugadores y mucho mas</p>
             </div>
-          </div>
+            <ChevronRight size={20} />
+          </button>
+        )}
 
-          {message && (
-            <div className="bg-accent-soft border border-accent-ring text-accent-ink px-4 py-3 rounded-xl text-sm">
-              {message}
-            </div>
-          )}
-
-          {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm">
-              {error}
-            </div>
-          )}
-
-          <div className="flex gap-3">
+        {/* Menu items */}
+        <div className="bg-card rounded-2xl shadow-card overflow-hidden">
+          {menuItems.filter(m => m.show).map((item, i) => (
             <button
-              type="button"
-              onClick={handleSave}
-              disabled={loading}
-              className="flex-1 flex items-center justify-center gap-2 bg-accent text-on-accent px-4 py-3 rounded-xl hover:bg-accent-hover transition-colors font-semibold disabled:opacity-60"
+              key={i}
+              onClick={item.onClick}
+              className={`w-full flex items-center gap-3 px-5 py-4 hover:bg-card-2 transition-colors ${i > 0 ? 'border-t border-line' : ''}`}
             >
-              <Save size={18} />
-              {loading ? 'Guardando...' : 'Guardar'}
+              <item.icon size={20} className="text-ink-3" />
+              <span className="flex-1 text-left font-medium text-ink">{item.label}</span>
+              <ChevronRight size={18} className="text-ink-4" />
             </button>
-
-            <button
-              type="button"
-              onClick={onLogout}
-              className="flex items-center justify-center gap-2 bg-red-50 text-red-600 px-4 py-3 rounded-xl hover:bg-red-100 transition-colors font-semibold"
-            >
-              <ShieldCheck size={18} />
-              Salir
-            </button>
-          </div>
+          ))}
         </div>
       </div>
-
-      {showUpgradeModal && pendingTier && (
-        <PremiumModal
-          isOpen={showUpgradeModal}
-          onClose={() => {
-            setShowUpgradeModal(false);
-            setPendingTier(null);
-          }}
-          userId={authUser?.id || ''}
-          targetTier={pendingTier}
-          onSuccess={async (tier) => {
-            if (tier) {
-              await applyTier(tier);
-            }
-          }}
-        />
-      )}
     </div>
   );
-}
+};

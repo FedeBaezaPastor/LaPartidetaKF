@@ -42,6 +42,65 @@ export interface Group {
   group_code: string;
   created_at: string;
   created_by?: string;
+  hoyo_19_enabled?: boolean;
+  max_players?: number;
+  premium_branding?: boolean;
+  weekend_mode_until?: string | null;
+  group_type?: string;
+}
+
+export type PlanType = 'express' | 'player' | 'team';
+
+export interface UserProfile {
+  id: string;
+  user_id: string;
+  nick: string;
+  display_name?: string;
+  avatar_url?: string;
+  exact_handicap: number;
+  default_tee: string;
+  country?: string;
+  postal_code?: string;
+  age?: number;
+  accepted_terms: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface GroupMember {
+  id: string;
+  group_id: string;
+  user_id: string;
+  role: 'admin' | 'member';
+  invited_by?: string;
+  joined_at: string;
+  profile?: UserProfile;
+}
+
+export interface GroupInvitation {
+  id: string;
+  group_id: string;
+  invited_user_id: string;
+  invited_by: string;
+  status: 'pending' | 'accepted' | 'rejected';
+  message?: string;
+  created_at: string;
+  responded_at?: string;
+  group?: Group;
+  inviter_profile?: UserProfile;
+}
+
+export interface ProShopPurchase {
+  id: string;
+  group_id: string;
+  purchased_by: string;
+  product_type: 'extra_players' | 'premium_branding' | 'weekend_mode';
+  amount_paid: number;
+  payment_method: 'lightning' | 'stripe';
+  payment_ref?: string;
+  status: 'pending' | 'completed' | 'failed';
+  active_until?: string;
+  created_at: string;
 }
 
 export interface Player {
