@@ -99,7 +99,7 @@ export const ProShop: React.FC<ProShopProps> = ({ groupId, userId, onBack, onPur
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-emerald-50">
+    <div className="min-h-screen bg-app transition-colors">
       <div className="max-w-lg mx-auto px-4 py-6">
         <button onClick={onBack} className="flex items-center gap-2 text-ink-3 hover:text-ink mb-6">
           <ArrowLeft size={20} />
@@ -122,7 +122,7 @@ export const ProShop: React.FC<ProShopProps> = ({ groupId, userId, onBack, onPur
           {products.map((product, i) => (
             <div key={i} className="bg-card rounded-2xl shadow-card p-5">
               <div className="flex items-start gap-4 mb-4">
-                <div className="w-12 h-12 bg-gradient-to-br from-emerald-100 to-emerald-200 rounded-xl flex items-center justify-center shrink-0">
+                <div className="w-12 h-12 bg-accent-soft border border-accent-ring rounded-xl flex items-center justify-center shrink-0">
                   <product.icon size={22} className="text-accent-ink" />
                 </div>
                 <div className="flex-1">
@@ -185,7 +185,7 @@ const InfoTrigger: React.FC<{ text: string }> = ({ text }) => {
         <Info size={14} />
       </button>
       {show && (
-        <div className="absolute z-50 right-0 top-6 w-56 bg-slate-800 text-white text-xs p-2.5 rounded-lg shadow-card">
+        <div className="absolute z-50 right-0 top-6 w-56 bg-ink text-card text-xs p-2.5 rounded-lg shadow-card">
           {text}
         </div>
       )}

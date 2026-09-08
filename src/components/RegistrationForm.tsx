@@ -131,7 +131,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({ planType, on
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-emerald-50">
+    <div className="min-h-screen bg-app transition-colors">
       <div className="max-w-lg mx-auto px-4 py-6">
         <button
           onClick={onBack}
@@ -261,7 +261,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({ planType, on
                 <button
                   key={t}
                   onClick={() => setDefaultTee(t)}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium capitalize transition-all ${defaultTee === t ? 'bg-accent text-on-accent' : 'bg-card-2 text-ink-3 hover:bg-gray-200'}`}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium capitalize transition-all ${defaultTee === t ? 'bg-accent text-on-accent' : 'bg-card-2 text-ink-3 hover:bg-neutral-hover'}`}
                 >
                   {t}
                 </button>

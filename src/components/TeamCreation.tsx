@@ -27,7 +27,7 @@ const Tooltip: React.FC<TooltipProps> = ({ text }) => {
         <Info size={14} />
       </button>
       {show && (
-        <div className="absolute z-50 left-1/2 -translate-x-1/2 top-6 w-56 bg-slate-800 text-white text-xs p-2.5 rounded-lg shadow-card">
+        <div className="absolute z-50 left-1/2 -translate-x-1/2 top-6 w-56 bg-ink text-card text-xs p-2.5 rounded-lg shadow-card">
           {text}
         </div>
       )}
@@ -126,7 +126,7 @@ export const TeamCreation: React.FC<TeamCreationProps> = ({ userId, onBack, onTe
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-emerald-50">
+    <div className="min-h-screen bg-app transition-colors">
       <div className="max-w-lg mx-auto px-4 py-6">
         <button onClick={onBack} className="flex items-center gap-2 text-ink-3 hover:text-ink mb-6">
           <ArrowLeft size={20} />
@@ -175,7 +175,7 @@ export const TeamCreation: React.FC<TeamCreationProps> = ({ userId, onBack, onTe
                 />
                 <button
                   onClick={() => setGroupCode(generateCode())}
-                  className="px-4 py-2.5 bg-card-2 hover:bg-gray-200 rounded-xl text-sm font-medium text-ink-2"
+                  className="px-4 py-2.5 bg-card-2 hover:bg-neutral-hover rounded-xl text-sm font-medium text-ink-2"
                 >
                   Generar
                 </button>
@@ -274,7 +274,7 @@ export const TeamCreation: React.FC<TeamCreationProps> = ({ userId, onBack, onTe
             <div className="flex gap-3">
               <button
                 onClick={() => setStep(1)}
-                className="flex-1 bg-card-2 hover:bg-gray-200 text-ink-2 font-semibold py-3 rounded-xl transition-colors"
+                className="flex-1 bg-card-2 hover:bg-neutral-hover text-ink-2 font-semibold py-3 rounded-xl transition-colors"
               >
                 Atras
               </button>
@@ -354,7 +354,7 @@ export const TeamCreation: React.FC<TeamCreationProps> = ({ userId, onBack, onTe
             <div className="flex gap-3">
               <button
                 onClick={() => setStep(2)}
-                className="flex-1 bg-card-2 hover:bg-gray-200 text-ink-2 font-semibold py-3 rounded-xl transition-colors"
+                className="flex-1 bg-card-2 hover:bg-neutral-hover text-ink-2 font-semibold py-3 rounded-xl transition-colors"
               >
                 Atras
               </button>

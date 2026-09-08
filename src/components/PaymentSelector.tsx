@@ -122,7 +122,7 @@ export const PaymentSelector: React.FC<PaymentSelectorProps> = ({
             </p>
             <button
               onClick={() => setState('select')}
-              className="bg-card-2 hover:bg-gray-200 text-ink-2 font-semibold px-6 py-2.5 rounded-xl text-sm transition-colors"
+              className="bg-card-2 hover:bg-neutral-hover text-ink-2 font-semibold px-6 py-2.5 rounded-xl text-sm transition-colors"
             >
               Volver a metodos de pago
             </button>
@@ -160,7 +160,7 @@ export const PaymentSelector: React.FC<PaymentSelectorProps> = ({
             </div>
             <button
               onClick={() => { setMethod(null); setInvoiceData(null); setState('select'); }}
-              className="text-sm text-ink-3 hover:text-gray-700"
+              className="text-sm text-ink-3 hover:text-ink"
             >
               Cambiar metodo de pago
             </button>

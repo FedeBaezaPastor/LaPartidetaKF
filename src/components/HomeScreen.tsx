@@ -41,6 +41,15 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
 }) => {
   const isExpress = planType === 'express';
   const isTeam = planType === 'team';
+  const plansButton = (
+    <button
+      onClick={onShowPlans}
+      className="w-full flex items-center justify-center gap-3 bg-card-2 text-ink-2 border border-line px-6 py-3.5 rounded-2xl hover:bg-neutral-hover transition-all font-semibold active:scale-[0.98]"
+    >
+      <CreditCard className="w-5 h-5 text-accent-ink" />
+      Ver planes
+    </button>
+  );
 
   return (
     <div className="min-h-screen bg-app flex items-center justify-center p-4 transition-colors">
@@ -127,14 +136,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             Unirse a Partida
           </button>
 
-          <button
-            onClick={onShowPlans}
-            className="w-full flex items-center justify-center gap-3 bg-card-2 text-ink-2 border border-line px-6 py-3.5 rounded-2xl hover:bg-neutral-hover transition-all font-semibold active:scale-[0.98]"
-          >
-            <CreditCard className="w-5 h-5 text-accent-ink" />
-            Ver planes
-            <ChevronRight className="w-4 h-4 text-ink-4" />
-          </button>
+          {!isTeam && plansButton}
 
           {isTeam && (
             <button
@@ -173,6 +175,8 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
               <ChevronRight size={14} className="text-ink-4" />
             </button>
           )}
+
+          {isTeam && plansButton}
         </div>
 
         {simulatorEnabled && (
