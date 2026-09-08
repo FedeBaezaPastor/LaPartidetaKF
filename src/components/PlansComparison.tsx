@@ -40,7 +40,7 @@ export const PlansComparison: React.FC<PlansComparisonProps> = ({ onBack, onSele
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-emerald-50">
+    <div className="min-h-screen bg-app transition-colors">
       <div className="max-w-5xl mx-auto px-4 py-6">
         <button
           onClick={onBack}
@@ -57,7 +57,7 @@ export const PlansComparison: React.FC<PlansComparisonProps> = ({ onBack, onSele
 
         <div className="grid md:grid-cols-3 gap-6 mb-8">
           {/* Express */}
-          <div className="bg-card rounded-2xl shadow-card p-6 flex flex-col border-2 border-transparent hover:border-gray-200 transition-all">
+          <div className="bg-card rounded-2xl shadow-card p-6 flex flex-col border-2 border-line hover:border-line-2 transition-all">
             <div className="w-12 h-12 bg-card-2 rounded-full flex items-center justify-center mb-4">
               <Zap className="w-6 h-6 text-ink-3" />
             </div>
@@ -71,7 +71,7 @@ export const PlansComparison: React.FC<PlansComparisonProps> = ({ onBack, onSele
             </ul>
             <button
               onClick={() => onSelectPlan('express')}
-              className="w-full bg-card-2 hover:bg-gray-200 text-ink-2 font-semibold py-3 rounded-xl transition-colors"
+              className="w-full bg-card-2 hover:bg-neutral-hover text-ink-2 font-semibold py-3 rounded-xl transition-colors"
             >
               Empezar gratis
             </button>
@@ -163,7 +163,7 @@ export const PlansComparison: React.FC<PlansComparisonProps> = ({ onBack, onSele
               <div className="flex gap-3">
                 <button
                   onClick={() => setSelectedPlan(null)}
-                  className="flex-1 bg-card-2 hover:bg-gray-200 text-ink-2 font-semibold py-2.5 rounded-xl transition-colors"
+                  className="flex-1 bg-card-2 hover:bg-neutral-hover text-ink-2 font-semibold py-2.5 rounded-xl transition-colors"
                 >
                   Cancelar
                 </button>
