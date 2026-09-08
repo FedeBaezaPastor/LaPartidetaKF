@@ -91,6 +91,45 @@ function App() {
   const [showPayment, setShowPayment] = useState(false);
   const [paymentAmount, setPaymentAmount] = useState(0);
   const [paymentDescription, setPaymentDescription] = useState('');
+  const [simulatorEnabled, setSimulatorEnabled] = useState(false);
+  const [simulatedPlan, setSimulatedPlan] = useState<PlanType | null>(null);
+  const [simulatorUpdating, setSimulatorUpdating] = useState(false);
+  const activePlanType = simulatorEnabled && simulatedPlan ? simulatedPlan : planType;
+
+  const handleToggleSimulator = () => {
+    if (!user) {
+      setCurrentView('auth');
+      return;
+    }
+
+    setSimulatorEnabled((enabled) => {
+      if (!enabled) setSimulatedPlan(planType);
+      return !enabled;
+    });
+  };
+
+  const handleCycleSimulatorPlan = async () => {
+    if (!user || simulatorUpdating) return;
+
+    const currentPlan = simulatedPlan ?? planType;
+    const nextPlan: PlanType = currentPlan === 'express'
+      ? 'player'
+      : currentPlan === 'player'
+        ? 'team'
+        : 'express';
+
+    setSimulatorUpdating(true);
+    setSimulatedPlan(nextPlan);
+    try {
+      await userService.setPlanType(user.id, nextPlan, 'simulator');
+      await refreshSubscription();
+    } catch (error) {
+      console.error('Error actualizando el plan del simulador:', error);
+      setSimulatedPlan(currentPlan);
+    } finally {
+      setSimulatorUpdating(false);
+    }
+  };
 
   useEffect(() => {
     if (user) {
@@ -772,7 +811,7 @@ function App() {
         <GlobalThemeSwitch />
         <div className={isIncognito ? 'pt-10' : ''}>
           <RegistrationForm
-            planType={planType === 'express' ? 'player' : planType}
+            planType={activePlanType === 'express' ? 'player' : activePlanType}
             onBack={() => setCurrentView('plans')}
             onRegistered={() => {
               refreshSubscription();
@@ -812,7 +851,7 @@ function App() {
         <div className={isIncognito ? 'pt-10' : ''}>
           <ProfileScreen
             profile={profile}
-            planType={planType}
+            planType={activePlanType}
             onBack={() => setCurrentView('main')}
             onLogout={async () => {
               await logout();
@@ -933,7 +972,7 @@ function App() {
         <GlobalThemeSwitch />
         <div className={isIncognito ? 'pt-10' : ''}>
           <HomeScreen
-            planType={planType}
+            planType={activePlanType}
             profile={profile}
             pendingInvitations={pendingInvitations}
             onQuickPlay={() => setCurrentView('setup')}
@@ -948,6 +987,10 @@ function App() {
             onShowNotifications={() => setCurrentView('notifications')}
             onShowAuth={() => setCurrentView('auth')}
             onShowShare={() => setShowShareModal(true)}
+            simulatorEnabled={simulatorEnabled}
+            simulatorUpdating={simulatorUpdating}
+            onToggleSimulator={handleToggleSimulator}
+            onCycleSimulatorPlan={handleCycleSimulatorPlan}
           />
           {showAccessCodeModal && (
             <AccessCodeModal
@@ -964,7 +1007,7 @@ function App() {
             <PaymentSelector
               isOpen={showPayment}
               onClose={() => setShowPayment(false)}
-              planType={planType}
+              planType={activePlanType}
               userId={user.id}
               amount={paymentAmount}
               description={paymentDescription}
@@ -999,7 +1042,7 @@ function App() {
           currentGroup={currentGroup}
           isGroupCreator={isGroupCreator}
           hasLimitedAccess={hasLimitedAccess}
-          planType={planType}
+          planType={activePlanType}
           onShowPlans={() => setCurrentView('plans')}
         />
       )}
@@ -1018,7 +1061,7 @@ function App() {
           onLeaveGroup={() => {}}
           onBack={() => setCurrentView('main')}
           currentGroup={null}
-          planType={planType}
+          planType={activePlanType}
           onShowPlans={() => setCurrentView('plans')}
         />
       )}

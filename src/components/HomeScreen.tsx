@@ -1,5 +1,5 @@
 import React from 'react';
-import { Zap, LogIn, Plus, Share2, Bell, Crown, ChevronRight } from 'lucide-react';
+import { Zap, LogIn, Plus, Share2, Bell, Crown, ChevronRight, FlaskConical } from 'lucide-react';
 import { PlanType, UserProfile } from '../types';
 
 interface HomeScreenProps {
@@ -14,6 +14,10 @@ interface HomeScreenProps {
   onShowNotifications: () => void;
   onShowAuth: () => void;
   onShowShare: () => void;
+  simulatorEnabled: boolean;
+  simulatorUpdating: boolean;
+  onToggleSimulator: () => void;
+  onCycleSimulatorPlan: () => void;
 }
 
 export const HomeScreen: React.FC<HomeScreenProps> = ({
@@ -23,11 +27,14 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   onQuickPlay,
   onJoinQuickPlay,
   onCreateTeam,
-  onShowPlans,
   onShowProfile,
   onShowNotifications,
   onShowAuth,
   onShowShare,
+  simulatorEnabled,
+  simulatorUpdating,
+  onToggleSimulator,
+  onCycleSimulatorPlan,
 }) => {
   const isExpress = planType === 'express';
   const isTeam = planType === 'team';
@@ -56,7 +63,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           {/* Entrance pill / Nick */}
           {isExpress ? (
             <button
-              onClick={onShowPlans}
+              onClick={onShowAuth}
               className="flex items-center gap-2 bg-accent text-on-accent px-5 py-2.5 rounded-full shadow-soft hover:bg-accent-hover transition-all font-semibold text-sm"
             >
               <LogIn size={16} />
@@ -123,6 +130,40 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           <Share2 className="w-5 h-5" />
           Compartir App / Codigo QR
         </button>
+
+        <div className="mt-6 flex items-center justify-center gap-3">
+          <button
+            type="button"
+            onClick={onToggleSimulator}
+            disabled={simulatorUpdating}
+            className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold transition-all disabled:opacity-60 ${
+              simulatorEnabled
+                ? 'bg-blue-600 text-white shadow-soft'
+                : 'bg-card text-ink-3 border border-line hover:bg-card-2'
+            }`}
+          >
+            <FlaskConical size={14} />
+            Simulador
+          </button>
+
+          {simulatorEnabled && (
+            <button
+              type="button"
+              onClick={onCycleSimulatorPlan}
+              disabled={simulatorUpdating}
+              className="flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold bg-card text-ink-2 shadow-soft hover:bg-card-2 transition-all border border-line disabled:opacity-60"
+            >
+              Plan: <span className="text-accent-ink capitalize">{planType}</span>
+              <ChevronRight size={14} className="text-ink-4" />
+            </button>
+          )}
+        </div>
+
+        {simulatorEnabled && (
+          <p className="text-center text-xs text-ink-4 mt-2">
+            Viendo la app como {profile?.nick || 'usuario'} con plan {planType}
+          </p>
+        )}
 
       </div>
     </div>
