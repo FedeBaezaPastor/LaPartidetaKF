@@ -8,6 +8,13 @@ import { adminPinUtils } from '../utils/adminPin';
 import { getUserId } from '../utils/userId';
 import { ArrowLeft, Eye, Trash2, Trophy, UserX, UserPlus, TrendingUp, Archive } from 'lucide-react';
 
+const gameModeLabels: Record<string, string> = {
+  stableford: 'Stableford',
+  match: 'Match Play',
+  sindicato: 'Sindicato',
+  parejas: 'Parejas',
+};
+
 interface RoundStats {
   round: GolfRound;
   players: RoundPlayer[];
@@ -553,6 +560,9 @@ export const ActiveRoundsViewer: React.FC<ActiveRoundsViewerProps> = ({
                             {roundStats.round.reference_number}
                           </span>
                           <p className="font-bold text-lg text-ink">{courseHoles}</p>
+                          <span className="bg-accent-soft text-accent-ink border border-accent-ring text-[10px] sm:text-xs font-bold px-2 py-1 rounded uppercase tracking-wide">
+                            {gameModeLabels[roundStats.round.game_mode || 'stableford'] || 'Stableford'}
+                          </span>
                           {roundStats.round.status === 'completed' ? (
                             <span className="bg-accent text-on-accent text-xs font-semibold px-2.5 py-1 rounded">
                               FINALIZADA

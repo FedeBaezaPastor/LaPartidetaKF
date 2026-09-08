@@ -875,7 +875,7 @@ function App() {
               setCurrentView('main');
             }}
             onShowStats={() => openFromProfile(currentGroup ? 'statistics' : 'quickplay-statistics')}
-            onShowHistory={() => openFromProfile(currentGroup ? 'statistics' : 'quickplay-statistics')}
+            onShowHistory={() => openFromProfile('active-rounds')}
             onShowUpgrade={() => openFromProfile('plans')}
             onShowProShop={() => setCurrentView('pro-shop')}
             onShowGroups={() => openFromProfile('my-groups')}
@@ -1173,7 +1173,7 @@ function App() {
 
       {currentView === 'active-rounds' && (
         <ActiveRoundsViewer
-          onBack={() => setCurrentView(currentGroup ? 'main' : 'setup')}
+          onBack={() => backFromProfileSection(currentGroup ? 'main' : 'setup')}
           onJoinRound={handleJoinRound}
           currentGroup={currentGroup}
         />

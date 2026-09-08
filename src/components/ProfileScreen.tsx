@@ -85,11 +85,11 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
         {isPlayer && (
           <button
             onClick={onShowUpgrade}
-            className="w-full bg-gradient-to-r from-amber-400 to-amber-500 text-white rounded-2xl p-4 mb-5 shadow-card hover:from-amber-500 hover:to-amber-600 transition-all text-left flex items-center justify-between"
+            className="w-full bg-amber-100 text-amber-900 border-2 border-amber-300 rounded-2xl p-4 mb-5 shadow-card hover:bg-amber-200 transition-all text-left flex items-center justify-between"
           >
             <div>
               <p className="font-bold">Prueba Team por 30 dias</p>
-              <p className="text-sm text-white/90">Crea grupos, invita jugadores y mucho mas</p>
+              <p className="text-sm text-amber-800">Crea grupos, invita jugadores y mucho mas</p>
             </div>
             <ChevronRight size={20} />
           </button>
