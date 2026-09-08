@@ -65,6 +65,7 @@ function App() {
   const [hasLimitedAccess, setHasLimitedAccess] = useState(false);
   const [groupLoading, setGroupLoading] = useState(true);
   const [currentView, setCurrentView] = useState<ViewType>('main');
+  const [authReturnView, setAuthReturnView] = useState<ViewType>('main');
   const [roundState, setRoundState] = useState<RoundState>({
     round: null,
     holes: [],
@@ -97,6 +98,11 @@ function App() {
   const [returnToProfile, setReturnToProfile] = useState(false);
   const activePlanType = simulatorEnabled && simulatedPlan ? simulatedPlan : planType;
 
+  const openAuth = (returnView: ViewType) => {
+    setAuthReturnView(returnView);
+    setCurrentView('auth');
+  };
+
   const openFromProfile = (view: ViewType) => {
     setReturnToProfile(true);
     setCurrentView(view);
@@ -113,7 +119,7 @@ function App() {
 
   const handleToggleSimulator = () => {
     if (!user) {
-      setCurrentView('auth');
+      openAuth('main');
       return;
     }
 
@@ -811,7 +817,7 @@ function App() {
                 setCurrentView('registration');
               }
             }}
-            onShowAuth={() => setCurrentView('auth')}
+            onShowAuth={() => openAuth('plans')}
           />
         </div>
       </>
@@ -947,9 +953,15 @@ function App() {
         <GlobalThemeSwitch />
         <div className={isIncognito ? 'pt-10' : ''}>
           <Auth
-            onAuthSuccess={() => setCurrentView('my-groups')}
+            onAuthSuccess={() => {
+              setAuthReturnView('main');
+              setCurrentView('my-groups');
+            }}
             onAdminLoginAttempt={handleAdminLoginAttempt}
-            onBack={() => setCurrentView('main')}
+            onBack={() => {
+              setCurrentView(authReturnView);
+              setAuthReturnView('main');
+            }}
           />
           {showAdminPinModal && (
             <AdminPinModal
@@ -994,6 +1006,7 @@ function App() {
         <div className={isIncognito ? 'pt-10' : ''}>
           <HomeScreen
             planType={activePlanType}
+            isAuthenticated={!!user}
             profile={profile}
             pendingInvitations={pendingInvitations}
             onQuickPlay={() => setCurrentView('setup')}
@@ -1006,7 +1019,7 @@ function App() {
             onShowPlans={() => setCurrentView('plans')}
             onShowProfile={() => setCurrentView('profile')}
             onShowNotifications={() => setCurrentView('notifications')}
-            onShowAuth={() => setCurrentView('auth')}
+            onShowAuth={() => openAuth('main')}
             onShowShare={() => setShowShareModal(true)}
             simulatorEnabled={simulatorEnabled}
             simulatorUpdating={simulatorUpdating}

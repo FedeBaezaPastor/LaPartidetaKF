@@ -11,7 +11,7 @@ interface ShareModalProps {
 export default function ShareModal({ 
   onClose, 
   shareUrl = window.location.origin, 
-  title = "¡Únete a La Partideta Golf!" 
+  title = "¡Únete a Omiki Golf!"
 }: ShareModalProps) {
   const [copied, setCopied] = useState(false);
   const [showQR, setShowQR] = useState(false);
@@ -22,7 +22,7 @@ export default function ShareModal({
   const handleNativeShare = async () => {
     try {
       await navigator.share({
-        title: 'La Partideta Golf',
+        title: 'Omiki Golf',
         text: '¡Lleva el control de tus partidas de golf con amigos!',
         url: shareUrl,
       });
@@ -42,7 +42,7 @@ export default function ShareModal({
       <div className="bg-card rounded-2xl max-w-sm w-full p-6 shadow-card relative animate-in fade-in zoom-in duration-200">
         <button 
           onClick={onClose}
-          className="absolute top-4 right-4 text-ink-4 hover:text-ink-3 p-1 rounded-full"
+          className="absolute top-4 right-4 text-ink-4 hover:text-ink p-1 rounded-full"
         >
           <X className="w-5 h-5" />
         </button>
@@ -75,7 +75,7 @@ export default function ShareModal({
 
             <button
               onClick={() => setShowQR(true)}
-              className="w-full flex items-center justify-center gap-2 bg-card-2 text-ink font-semibold py-3 px-4 rounded-xl hover:bg-gray-200 transition-colors border border-line"
+              className="w-full flex items-center justify-center gap-2 bg-card-2 text-ink font-semibold py-3 px-4 rounded-xl hover:bg-neutral-hover transition-colors border border-line"
             >
               <QrCode className="w-5 h-5 text-ink-3" />
               Mostrar código QR

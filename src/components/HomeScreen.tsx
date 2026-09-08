@@ -1,9 +1,10 @@
 import React from 'react';
-import { Zap, LogIn, Plus, Share2, Bell, Crown, ChevronRight, FlaskConical } from 'lucide-react';
+import { Zap, LogIn, Plus, Share2, Bell, Crown, ChevronRight, FlaskConical, CreditCard } from 'lucide-react';
 import { PlanType, UserProfile } from '../types';
 
 interface HomeScreenProps {
   planType: PlanType;
+  isAuthenticated: boolean;
   profile: UserProfile | null;
   pendingInvitations: number;
   onQuickPlay: () => void;
@@ -22,11 +23,13 @@ interface HomeScreenProps {
 
 export const HomeScreen: React.FC<HomeScreenProps> = ({
   planType,
+  isAuthenticated,
   profile,
   pendingInvitations,
   onQuickPlay,
   onJoinQuickPlay,
   onCreateTeam,
+  onShowPlans,
   onShowProfile,
   onShowNotifications,
   onShowAuth,
@@ -44,24 +47,37 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
       <div className="max-w-md w-full">
         {/* Top bar */}
         <div className="flex items-center justify-between mb-8">
-          {/* Notifications bell (only for registered users) */}
-          {!isExpress && (
+          <div className="flex items-center gap-2">
             <button
-              onClick={onShowNotifications}
+              type="button"
+              onClick={onShowShare}
+              title="Compartir la app"
+              aria-label="Compartir la app"
               className="relative p-2.5 bg-card border border-line rounded-full shadow-soft hover:bg-card-2 transition-all"
             >
-              <Bell size={20} className="text-ink-2" />
-              {pendingInvitations > 0 && (
-                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">
-                  {pendingInvitations}
-                </span>
-              )}
+              <Share2 size={20} className="text-ink-2" />
             </button>
-          )}
-          {isExpress && <div className="w-10" />}
+
+            {isAuthenticated && (
+              <button
+                type="button"
+                onClick={onShowNotifications}
+                title="Avisos"
+                aria-label="Avisos"
+                className="relative p-2.5 bg-card border border-line rounded-full shadow-soft hover:bg-card-2 transition-all"
+              >
+                <Bell size={20} className="text-ink-2" />
+                {pendingInvitations > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">
+                    {pendingInvitations}
+                  </span>
+                )}
+              </button>
+            )}
+          </div>
 
           {/* Entrance pill / Nick */}
-          {isExpress ? (
+          {!isAuthenticated ? (
             <button
               onClick={onShowAuth}
               className="flex items-center gap-2 bg-accent text-on-accent px-5 py-2.5 rounded-full shadow-soft hover:bg-accent-hover transition-all font-semibold text-sm"
@@ -111,6 +127,15 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             Unirse a Partida
           </button>
 
+          <button
+            onClick={onShowPlans}
+            className="w-full flex items-center justify-center gap-3 bg-card-2 text-ink-2 border border-line px-6 py-3.5 rounded-2xl hover:bg-neutral-hover transition-all font-semibold active:scale-[0.98]"
+          >
+            <CreditCard className="w-5 h-5 text-accent-ink" />
+            Ver planes
+            <ChevronRight className="w-4 h-4 text-ink-4" />
+          </button>
+
           {isTeam && (
             <button
               onClick={onCreateTeam}
@@ -121,15 +146,6 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             </button>
           )}
         </div>
-
-        {/* Share button */}
-        <button
-          onClick={onShowShare}
-          className="w-full flex items-center justify-center gap-2 bg-slate-800 text-white px-6 py-3 rounded-xl hover:bg-slate-900 transition-colors font-medium text-sm shadow"
-        >
-          <Share2 className="w-5 h-5" />
-          Compartir App / Codigo QR
-        </button>
 
         <div className="mt-6 flex items-center justify-center gap-3">
           <button
