@@ -194,16 +194,11 @@ export const Scorecard: React.FC<ScorecardProps> = ({
               <div className="flex-1">
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className="text-lg font-bold">{courseName || 'Campo de Golf'}</span>
-                  {isModeScoring && (
-                    <span className="bg-on-accent/25 text-white text-xs font-bold px-2 py-0.5 rounded-md uppercase tracking-wide">
-                      {modeLabels[gameMode]}
-                    </span>
-                  )}
                   {hasEditAccess && onCourseChanged && roundId && courseId && (
                     <button
                       onClick={() => setShowCourseChangeModal(true)}
                       disabled={changingCourse}
-                      className="bg-on-accent/20 hover:bg-on-accent/30 text-white text-xs px-2 py-1 rounded-md flex items-center gap-1 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="bg-black/10 hover:bg-black/20 text-on-accent text-xs px-2 py-1 rounded-md flex items-center gap-1 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                       title="Cambiar campo de golf"
                     >
                       <MapPin size={12} />
@@ -211,9 +206,13 @@ export const Scorecard: React.FC<ScorecardProps> = ({
                     </button>
                   )}
                 </div>
-                <p className="text-sm text-white/90 mt-1">
-                  Hoyo {currentHole} de {numHoles}
-                </p>
+                <div className="flex items-center gap-2 mt-1 text-sm text-on-accent/90">
+                  <span>Hoyo {currentHole} de {numHoles}</span>
+                  <span aria-hidden="true">·</span>
+                  <span className="bg-black/10 px-2 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-wide leading-4">
+                    {modeLabels[gameMode]}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
