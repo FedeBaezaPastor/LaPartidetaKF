@@ -50,7 +50,7 @@ export const NotificationsBell: React.FC<NotificationsBellProps> = ({ userId, on
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-emerald-50">
+    <div className="min-h-screen bg-app transition-colors">
       <div className="max-w-lg mx-auto px-4 py-6">
         <button onClick={onBack} className="flex items-center gap-2 text-ink-3 hover:text-ink mb-6">
           <ArrowLeft size={20} />
@@ -64,7 +64,7 @@ export const NotificationsBell: React.FC<NotificationsBellProps> = ({ userId, on
 
         {loading ? (
           <div className="text-center py-12">
-            <div className="w-8 h-8 border-2 border-line-2 border-t-emerald-600 rounded-full animate-spin mx-auto mb-3" />
+            <div className="w-8 h-8 border-2 border-line-2 border-t-accent rounded-full animate-spin mx-auto mb-3" />
             <p className="text-ink-3 text-sm">Cargando...</p>
           </div>
         ) : invitations.length === 0 ? (
@@ -106,7 +106,7 @@ export const NotificationsBell: React.FC<NotificationsBellProps> = ({ userId, on
                   <button
                     onClick={() => handleRespond(inv.id, 'rejected')}
                     disabled={responding === inv.id}
-                    className="flex-1 flex items-center justify-center gap-2 bg-card-2 hover:bg-gray-200 text-ink-2 font-semibold py-2.5 rounded-xl transition-colors disabled:opacity-50"
+                    className="flex-1 flex items-center justify-center gap-2 bg-card-2 hover:bg-neutral-hover text-ink-2 font-semibold py-2.5 rounded-xl transition-colors disabled:opacity-50"
                   >
                     <X size={16} />
                     Rechazar

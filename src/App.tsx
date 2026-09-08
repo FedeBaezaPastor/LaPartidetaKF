@@ -94,7 +94,22 @@ function App() {
   const [simulatorEnabled, setSimulatorEnabled] = useState(false);
   const [simulatedPlan, setSimulatedPlan] = useState<PlanType | null>(null);
   const [simulatorUpdating, setSimulatorUpdating] = useState(false);
+  const [returnToProfile, setReturnToProfile] = useState(false);
   const activePlanType = simulatorEnabled && simulatedPlan ? simulatedPlan : planType;
+
+  const openFromProfile = (view: ViewType) => {
+    setReturnToProfile(true);
+    setCurrentView(view);
+  };
+
+  const backFromProfileSection = (fallback: ViewType) => {
+    if (returnToProfile) {
+      setReturnToProfile(false);
+      setCurrentView('profile');
+      return;
+    }
+    setCurrentView(fallback);
+  };
 
   const handleToggleSimulator = () => {
     if (!user) {
@@ -788,7 +803,7 @@ function App() {
         <GlobalThemeSwitch />
         <div className={isIncognito ? 'pt-10' : ''}>
           <PlansComparison
-            onBack={() => setCurrentView('main')}
+            onBack={() => backFromProfileSection('main')}
             onSelectPlan={(plan) => {
               if (plan === 'express') {
                 setCurrentView('main');
@@ -851,17 +866,20 @@ function App() {
           <ProfileScreen
             profile={profile}
             planType={activePlanType}
-            onBack={() => setCurrentView('main')}
+            onBack={() => {
+              setReturnToProfile(false);
+              setCurrentView('main');
+            }}
             onLogout={async () => {
               await logout();
               setCurrentView('main');
             }}
-            onShowStats={() => setCurrentView(currentGroup ? 'statistics' : 'quickplay-statistics')}
-            onShowHistory={() => setCurrentView(currentGroup ? 'statistics' : 'quickplay-statistics')}
-            onShowUpgrade={() => setCurrentView('plans')}
+            onShowStats={() => openFromProfile(currentGroup ? 'statistics' : 'quickplay-statistics')}
+            onShowHistory={() => openFromProfile(currentGroup ? 'statistics' : 'quickplay-statistics')}
+            onShowUpgrade={() => openFromProfile('plans')}
             onShowProShop={() => setCurrentView('pro-shop')}
-            onShowGroups={() => setCurrentView('my-groups')}
-            onShowSettings={() => setCurrentView('my-groups')}
+            onShowGroups={() => openFromProfile('my-groups')}
+            onShowSettings={() => openFromProfile('my-groups')}
           />
         </div>
       </>
@@ -952,10 +970,14 @@ function App() {
         <GlobalThemeSwitch />
         <div className={isIncognito ? 'pt-10' : ''}>
           <MyGroups
-            onBack={() => setCurrentView('main')}
-            onGroupSelected={handleGroupJoined}
+            onBack={() => backFromProfileSection('main')}
+            onGroupSelected={(group) => {
+              setReturnToProfile(false);
+              void handleGroupJoined(group);
+            }}
             onLogout={async () => {
               await logout(); // 👈 Uso de logout global
+              setReturnToProfile(false);
               setCurrentView('main');
             }}
           />
@@ -1163,7 +1185,7 @@ function App() {
 
       {currentView === 'statistics' && currentGroup && (
         <Statistics
-          onBack={() => setCurrentView('main')}
+          onBack={() => backFromProfileSection('main')}
           currentGroup={currentGroup}
         />
       )}
@@ -1171,7 +1193,7 @@ function App() {
       {currentView === 'quickplay-statistics' && !currentGroup && (
         <QuickPlayStatistics
           roundId={roundState.round?.id}
-          onBack={() => setCurrentView('setup')}
+          onBack={() => backFromProfileSection('setup')}
         />
       )}
 

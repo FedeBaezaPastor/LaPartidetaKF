@@ -39,7 +39,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-emerald-50">
+    <div className="min-h-screen bg-app transition-colors">
       <div className="max-w-lg mx-auto px-4 py-6">
         <div className="flex items-center justify-between mb-6">
           <button onClick={onBack} className="flex items-center gap-2 text-ink-3 hover:text-ink">
