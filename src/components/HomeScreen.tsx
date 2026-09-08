@@ -33,7 +33,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   const isTeam = planType === 'team';
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-slate-50 to-emerald-100 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-app flex items-center justify-center p-4 transition-colors">
       <div className="max-w-md w-full">
         {/* Top bar */}
         <div className="flex items-center justify-between mb-8">
@@ -41,7 +41,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           {!isExpress && (
             <button
               onClick={onShowNotifications}
-              className="relative p-2.5 bg-white/70 backdrop-blur rounded-full shadow-soft hover:bg-white transition-all"
+              className="relative p-2.5 bg-card border border-line rounded-full shadow-soft hover:bg-card-2 transition-all"
             >
               <Bell size={20} className="text-ink-2" />
               {pendingInvitations > 0 && (
@@ -65,7 +65,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           ) : (
             <button
               onClick={onShowProfile}
-              className="flex items-center gap-2 bg-white/80 backdrop-blur px-4 py-2.5 rounded-full shadow-soft hover:bg-white transition-all"
+              className="flex items-center gap-2 bg-card border border-line px-4 py-2.5 rounded-full shadow-soft hover:bg-card-2 transition-all"
             >
               {profile?.avatar_url && (
                 <img src={profile.avatar_url} alt="avatar" className="w-6 h-6 rounded-full" />
@@ -79,7 +79,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
 
         {/* Logo */}
         <div className="text-center mb-10">
-          <div className="inline-flex items-center justify-center w-24 h-24 rounded-3xl shadow-card mb-4 overflow-hidden bg-card">
+          <div className="inline-flex items-center justify-center w-28 h-28 rounded-full shadow-card mb-4 overflow-hidden bg-transparent">
             <img src="/images/Omiki.png" alt="OMIKI Golf" className="w-full h-full object-contain" />
           </div>
           <h1 className="text-4xl font-bold text-ink mb-1">OMIKI Golf</h1>
