@@ -45,7 +45,17 @@ export const useSubscription = (): SubscriptionState => {
   }, []);
 
   useEffect(() => {
-    refresh();
+    void refresh();
+
+    const { data: authListener } = supabase.auth.onAuthStateChange(() => {
+      window.setTimeout(() => {
+        void refresh();
+      }, 0);
+    });
+
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
   }, [refresh]);
 
   return { planType, isPremium, loading, profile, refresh };
