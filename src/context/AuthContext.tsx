@@ -59,12 +59,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     });
 
     const { data: authListener } = supabase.auth.onAuthStateChange(
-      async (event, currentSession) => {
+      (_event, currentSession) => {
         setSession(currentSession);
         setUser(currentSession?.user ?? null);
 
         if (currentSession?.user) {
-          await fetchSubscription(currentSession.user.id);
+          // Supabase advises against awaiting another Supabase request inside
+          // onAuthStateChange: it can hold the auth lock and block subsequent
+          // queries (including the golf-course list). Run it after the callback.
+          window.setTimeout(() => {
+            void fetchSubscription(currentSession.user.id);
+          }, 0);
         } else {
           setSubscription(null);
         }
