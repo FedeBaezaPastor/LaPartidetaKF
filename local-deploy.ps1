@@ -20,33 +20,33 @@ function Invoke-Checked {
 
     & $Command @Arguments
     if ($LASTEXITCODE -ne 0) {
-        throw "El comando '$Command $($Arguments -join ' ')' ha fallado con código $LASTEXITCODE."
+        throw "El comando '$Command $($Arguments -join ' ')' ha fallado con codigo $LASTEXITCODE."
     }
 }
 
 function Write-Step {
     param([string]$Message)
-    Write-Host "`n▶ $Message" -ForegroundColor Cyan
+    Write-Host "`n>> $Message" -ForegroundColor Cyan
 }
 
 Set-Location -LiteralPath $PSScriptRoot
 
 try {
-    Write-Host "🚀 Publicación de OMIKI Golf" -ForegroundColor Green
+    Write-Host "Publicacion de OMIKI Golf" -ForegroundColor Green
 
     $branch = (& git branch --show-current).Trim()
     if ($LASTEXITCODE -ne 0) {
         throw "No se ha podido leer la rama actual de Git."
     }
     if ($branch -ne "main") {
-        throw "La publicación solo se permite desde main. Rama actual: $branch"
+        throw "La publicacion solo se permite desde main. Rama actual: $branch"
     }
 
     if (-not $SkipChecks) {
         Write-Step "Comprobando TypeScript"
         Invoke-Checked -Command "npm.cmd" -Arguments @("run", "typecheck")
 
-        Write-Step "Generando build de producción"
+        Write-Step "Generando build de produccion"
         Invoke-Checked -Command "npm.cmd" -Arguments @("run", "build")
 
         Write-Step "Comprobando formato del diff"
@@ -71,18 +71,18 @@ try {
 
     Write-Step "Subiendo main a GitHub"
     Invoke-Checked -Command "git" -Arguments @("push", "origin", "main")
-    Write-Host "✅ GitHub actualizado." -ForegroundColor Green
+    Write-Host "OK: GitHub actualizado." -ForegroundColor Green
 
     if ($SkipVps) {
-        Write-Host "⏭ Despliegue del VPS omitido mediante -SkipVps." -ForegroundColor Yellow
+        Write-Host "Despliegue del VPS omitido mediante -SkipVps." -ForegroundColor Yellow
         exit 0
     }
 
     if ($VpsHost -notmatch '^[a-zA-Z0-9.-]+$' -or $VpsUser -notmatch '^[a-zA-Z0-9_-]+$') {
-        throw "El usuario o el host del VPS contienen caracteres no válidos."
+        throw "El usuario o el host del VPS contienen caracteres no validos."
     }
     if ($VpsPath -notmatch '^/[a-zA-Z0-9._/-]+$') {
-        throw "La ruta del VPS no es válida: $VpsPath"
+        throw "La ruta del VPS no es valida: $VpsPath"
     }
 
     $sshTarget = "${VpsUser}@${VpsHost}"
@@ -109,9 +109,9 @@ try {
         throw "La web ha respondido con HTTP $($response.StatusCode)."
     }
 
-    Write-Host "`n✅ Publicación completada. GitHub y golf.arinsaldev.com están actualizados." -ForegroundColor Green
+    Write-Host "`nOK: Publicacion completada. GitHub y golf.arinsaldev.com estan actualizados." -ForegroundColor Green
 } catch {
-    Write-Host "`n❌ Publicación detenida: $($_.Exception.Message)" -ForegroundColor Red
-    Write-Host "No se ha continuado después del paso que falló." -ForegroundColor Yellow
+    Write-Host "`nERROR: Publicacion detenida: $($_.Exception.Message)" -ForegroundColor Red
+    Write-Host "No se ha continuado despues del paso que fallo." -ForegroundColor Yellow
     exit 1
 }
