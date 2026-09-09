@@ -283,7 +283,17 @@ export const QuickPlayStatistics: React.FC<QuickPlayStatisticsProps> = ({ onBack
             clonedExport.style.maxWidth = 'none';
             clonedExport.style.overflow = 'visible';
 
+            // Evita que los contenedores de la pantalla recorten el informe completo.
+            let ancestor = clonedExport.parentElement;
+            while (ancestor) {
+              ancestor.style.overflow = 'visible';
+              ancestor.style.maxHeight = 'none';
+              ancestor = ancestor.parentElement;
+            }
+
             clonedExport.querySelectorAll<HTMLElement>('*').forEach((element) => {
+              element.style.animation = 'none';
+              element.style.transition = 'none';
               if (
                 element.classList.contains('overflow-x-auto') ||
                 element.classList.contains('overflow-hidden')
@@ -549,6 +559,262 @@ export const QuickPlayStatistics: React.FC<QuickPlayStatisticsProps> = ({ onBack
         </div>
       )}
     </div>
+  );
+
+  // La pantalla y la imagen comparten las mismas tablas y premios.
+  const renderStatisticsDetails = (exporting = false) => (
+    <>
+          {/* TABLA COMPLETA */}
+          <div
+            className={`bg-white/10 backdrop-blur-md rounded-2xl p-6 shadow-2xl mb-8 transition-all duration-1000 delay-500 ${
+              exporting || animateIn ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+            }`}
+          >
+            <h3 className="text-2xl font-black text-white mb-6">Detalle contra Par</h3>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b-2 border-white/20">
+                    <th className="text-left text-white font-bold p-3">Jugador</th>
+                    <th className="text-center text-white font-bold p-3">Puntos</th>
+                    <th className="text-center text-white font-bold p-3">vs Par</th>
+                    <th className="text-center text-white font-bold p-3">Eagles+</th>
+                    <th className="text-center text-white font-bold p-3">Birdies</th>
+                    <th className="text-center text-white font-bold p-3">Pares</th>
+                    <th className="text-center text-white font-bold p-3">Bogeys</th>
+                    <th className="text-center text-white font-bold p-3">Doble+</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[...highlights].sort((a, b) => b.totalPoints - a.totalPoints).map((h, index) => (
+                    <tr key={h.playerId} className="border-b border-white/10 hover:bg-white/5 transition-colors">
+                      <td className="text-white font-semibold p-3">
+                        <div className="flex items-center gap-2">
+                          <span className={`w-6 h-6 flex-shrink-0 flex items-center justify-center rounded-full text-xs font-bold ${
+                            index === 0 ? 'bg-yellow-400 text-yellow-900' :
+                            index === 1 ? 'bg-slate-400 text-slate-900' :
+                            index === 2 ? 'bg-orange-400 text-orange-900' :
+                            'bg-gray-600 text-white'
+                          }`}>
+                            {index + 1}
+                          </span>
+                          {h.playerName}
+                        </div>
+                      </td>
+                      <td className="text-center text-emerald-300 font-bold p-3 text-lg">{h.totalPoints}</td>
+                      <td className={`text-center font-bold p-3 text-lg ${
+                        h.scoreToPar.value === 0 ? 'text-white' :
+                        h.scoreToPar.value < 0 ? 'text-green-300' :
+                        'text-red-300'
+                      }`}>
+                        {h.scoreToPar.display}
+                      </td>
+                      <td className="text-center text-white p-3">{h.eagles}</td>
+                      <td className="text-center text-white p-3">{h.birdies}</td>
+                      <td className="text-center text-white p-3">{h.pares}</td>
+                      <td className="text-center text-white p-3">{h.bogeys}</td>
+                      <td className="text-center text-white p-3">{h.doubleBogeyPlus}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* PUNTOS POR HOYO */}
+          <div
+            className={`bg-white/10 backdrop-blur-md rounded-2xl p-6 shadow-2xl mb-8 transition-all duration-1000 delay-700 ${
+              exporting || animateIn ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+            }`}
+          >
+            <h3 className="text-2xl font-black text-white mb-6">
+              {isMatchMode ? 'Puntos por Hoyo (Match)' :
+               isSindicatoMode ? 'Puntos por Hoyo (Sindicato)' :
+               isParejasMode ? 'Puntos por Hoyo (Parejas)' :
+               'Puntos por Hoyo'}
+            </h3>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b-2 border-white/20">
+                    <th className="text-left text-white font-bold p-2 sticky left-0 bg-slate-900/90 backdrop-blur-md">
+                      {isParejasMode ? 'Pareja' : 'Jugador'}
+                    </th>
+                    {holes.map((hole: any) => (
+                      <th key={hole.hole_number} className="text-center text-white font-bold p-2 min-w-[40px]">
+                        {hole.hole_number}
+                      </th>
+                    ))}
+                    <th className="text-center text-white font-bold p-2 bg-emerald-900/50">Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {holeTableRows.map((row) => {
+                    return (
+                      <tr key={row.key} className="border-b border-white/10 hover:bg-white/5 transition-colors">
+                        <td className="text-white font-semibold p-2 sticky left-0 bg-slate-900/90 backdrop-blur-md">
+                          <span className="flex items-center gap-2">
+                            <span className={`w-6 h-6 flex items-center justify-center rounded-full text-xs font-bold ${
+                              row.rank === 0 ? 'bg-yellow-400 text-yellow-900' :
+                              row.rank === 1 ? 'bg-slate-400 text-slate-900' :
+                              row.rank === 2 ? 'bg-orange-400 text-orange-900' :
+                              'bg-gray-600 text-white'
+                            }`}>
+                              {row.rank + 1}
+                            </span>
+                            {row.name}
+                          </span>
+                        </td>
+                        {holes.map((hole: any) => {
+                          const score = row.scores.find((s: any) => s.hole_number === hole.hole_number);
+                          const isAbandoned = score?.abandoned;
+                          const points = isMatchMode || isSindicatoMode || isParejasMode
+                            ? (score?.mode_points || 0)
+                            : (score?.stableford_points || 0);
+
+                          if (isAbandoned) {
+                            return (
+                              <td key={hole.hole_number} className="text-center p-2 font-bold text-white">
+                                0
+                              </td>
+                            );
+                          }
+
+                          return (
+                            <td key={hole.hole_number} className={`text-center p-2 font-bold ${
+                              isMatchMode || isSindicatoMode || isParejasMode ? (
+                                points > 0 ? 'text-emerald-300' :
+                                points === 0 ? 'text-red-300' :
+                                'text-white'
+                              ) : (
+                                points >= 4 ? 'text-green-300' :
+                                points === 3 ? 'text-emerald-300' :
+                                points === 2 ? 'text-white' :
+                                points === 1 ? 'text-orange-300' :
+                                'text-red-300'
+                              )
+                            }`}>
+                              {points}
+                            </td>
+                          );
+                        })}
+                        <td className="text-center text-emerald-300 font-black p-2 text-lg bg-emerald-900/50">
+                          {row.totalPoints}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* TABLA DE GOLPES */}
+          <div
+            className={`bg-white/10 backdrop-blur-md rounded-2xl p-6 shadow-2xl mb-8 transition-all duration-1000 delay-600 ${
+              exporting || animateIn ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+            }`}
+          >
+            <h3 className="text-2xl font-black text-white mb-6">Tabla de Golpes</h3>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b-2 border-white/20">
+                    <th className="text-left text-white font-bold p-2 sticky left-0 bg-slate-900/90 backdrop-blur-md">Jugador</th>
+                    {holes.map((hole: any) => (
+                      <th key={hole.hole_number} className="text-center text-white font-bold p-2 min-w-[40px]">
+                        {hole.hole_number}
+                      </th>
+                    ))}
+                    <th className="text-center text-white font-bold p-2 bg-emerald-900/50">Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {ranking.map((entry: any, index: number) => {
+                    const playerScores = roundData.scores.filter((s: any) => s.player_id === entry.player.id);
+                    const totalGross = playerScores.reduce((sum: number, score: any) => {
+                      const hole = holes.find((h: any) => h.hole_number === score.hole_number);
+                      return sum + getEffectiveGrossStrokes(score, hole);
+                    }, 0);
+
+                    return (
+                      <tr key={entry.player.id} className="border-b border-white/10 hover:bg-white/5 transition-colors">
+                        <td className="text-white font-semibold p-2 sticky left-0 bg-slate-900/90 backdrop-blur-md">
+                          <div className="flex items-center gap-2">
+                            <span className={`w-6 h-6 flex-shrink-0 flex items-center justify-center rounded-full text-xs font-bold ${
+                              index === 0 ? 'bg-yellow-400 text-yellow-900' :
+                              index === 1 ? 'bg-slate-400 text-slate-900' :
+                              index === 2 ? 'bg-orange-400 text-orange-900' :
+                              'bg-gray-600 text-white'
+                            }`}>
+                              {index + 1}
+                            </span>
+                            {entry.player.name}
+                          </div>
+                        </td>
+                        {holes.map((hole: any) => {
+                          const score = playerScores.find((s: any) => s.hole_number === hole.hole_number);
+                          const value = getEffectiveGrossStrokes(score, hole);
+                          return (
+                            <td key={hole.hole_number} className="text-center text-white p-2 font-bold">
+                              {value}
+                            </td>
+                          );
+                        })}
+                        <td className="text-center text-emerald-300 font-black p-2 text-lg bg-emerald-900/50">{totalGross}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* PREMIOS ESPECIALES */}
+          {(awards.reyDelBosque || awards.noPasoRojas || awards.holeInOne || awards.hoyoMuerte || awards.hoyoGloria) && (
+            <div
+              className={`bg-white/10 backdrop-blur-md rounded-2xl p-6 shadow-2xl transition-all duration-1000 ${
+                exporting || animateIn ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+              }`}
+            >
+              <h3 className="text-2xl font-black text-white mb-6">Premios Especiales</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" style={exporting ? { gridTemplateColumns: 'repeat(3, minmax(0, 1fr))' } : undefined}>
+                {awards.reyDelBosque && (
+                  <div className="bg-gradient-to-br from-rose-500/20 to-rose-600/20 border-2 border-rose-400 rounded-xl p-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <TrendingDown size={20} className="text-rose-400" />
+                      <p className="text-rose-300 font-bold text-sm">Rey del Bosque</p>
+                    </div>
+                    <p className="text-white font-bold text-lg">{awards.reyDelBosque.player.name}</p>
+                    <p className="text-rose-300 text-sm">Mayor número de dobles bogeys o peor</p>
+                  </div>
+                )}
+
+                {awards.noPasoRojas && (
+                  <div className="bg-gradient-to-br from-amber-500/20 to-amber-600/20 border-2 border-amber-400 rounded-xl p-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Flag size={20} className="text-amber-400" />
+                      <p className="text-amber-300 font-bold text-sm">No Pasó Rojas</p>
+                    </div>
+                    <p className="text-white font-bold text-lg">{awards.noPasoRojas.player.name}</p>
+                    <p className="text-amber-300 text-sm">Premio a la salida más corta</p>
+                  </div>
+                )}
+
+                {awards.holeInOne && (
+                  <div className="bg-gradient-to-br from-yellow-500/20 to-yellow-600/20 border-2 border-yellow-400 rounded-xl p-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Zap size={20} className="text-yellow-400" />
+                      <p className="text-yellow-300 font-bold text-sm">Hole in One</p>
+                    </div>
+                    <p className="text-white font-bold text-lg">{awards.holeInOne.player.name}</p>
+                    <p className="text-yellow-300 text-sm">¡Hoyo en uno increíble!</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+    </>
   );
 
   return (
@@ -869,256 +1135,7 @@ export const QuickPlayStatistics: React.FC<QuickPlayStatisticsProps> = ({ onBack
             </div>
           </div>
 
-          {/* TABLA COMPLETA */}
-          <div
-            className={`bg-white/10 backdrop-blur-md rounded-2xl p-6 shadow-2xl mb-8 transition-all duration-1000 delay-500 ${
-              animateIn ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
-            }`}
-          >
-            <h3 className="text-2xl font-black text-white mb-6">Detalle contra Par</h3>
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b-2 border-white/20">
-                    <th className="text-left text-white font-bold p-3">Jugador</th>
-                    <th className="text-center text-white font-bold p-3">Puntos</th>
-                    <th className="text-center text-white font-bold p-3">vs Par</th>
-                    <th className="text-center text-white font-bold p-3">Eagles+</th>
-                    <th className="text-center text-white font-bold p-3">Birdies</th>
-                    <th className="text-center text-white font-bold p-3">Pares</th>
-                    <th className="text-center text-white font-bold p-3">Bogeys</th>
-                    <th className="text-center text-white font-bold p-3">Doble+</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {highlights.sort((a, b) => b.totalPoints - a.totalPoints).map((h, index) => (
-                    <tr key={h.playerId} className="border-b border-white/10 hover:bg-white/5 transition-colors">
-                      <td className="text-white font-semibold p-3">
-                        <div className="flex items-center gap-2">
-                          <span className={`w-6 h-6 flex-shrink-0 flex items-center justify-center rounded-full text-xs font-bold ${
-                            index === 0 ? 'bg-yellow-400 text-yellow-900' :
-                            index === 1 ? 'bg-slate-400 text-slate-900' :
-                            index === 2 ? 'bg-orange-400 text-orange-900' :
-                            'bg-gray-600 text-white'
-                          }`}>
-                            {index + 1}
-                          </span>
-                          {h.playerName}
-                        </div>
-                      </td>
-                      <td className="text-center text-emerald-300 font-bold p-3 text-lg">{h.totalPoints}</td>
-                      <td className={`text-center font-bold p-3 text-lg ${
-                        h.scoreToPar.value === 0 ? 'text-white' :
-                        h.scoreToPar.value < 0 ? 'text-green-300' :
-                        'text-red-300'
-                      }`}>
-                        {h.scoreToPar.display}
-                      </td>
-                      <td className="text-center text-white p-3">{h.eagles}</td>
-                      <td className="text-center text-white p-3">{h.birdies}</td>
-                      <td className="text-center text-white p-3">{h.pares}</td>
-                      <td className="text-center text-white p-3">{h.bogeys}</td>
-                      <td className="text-center text-white p-3">{h.doubleBogeyPlus}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          {/* PUNTOS POR HOYO */}
-          <div
-            className={`bg-white/10 backdrop-blur-md rounded-2xl p-6 shadow-2xl mb-8 transition-all duration-1000 delay-700 ${
-              animateIn ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
-            }`}
-          >
-            <h3 className="text-2xl font-black text-white mb-6">
-              {isMatchMode ? 'Puntos por Hoyo (Match)' :
-               isSindicatoMode ? 'Puntos por Hoyo (Sindicato)' :
-               isParejasMode ? 'Puntos por Hoyo (Parejas)' :
-               'Puntos por Hoyo'}
-            </h3>
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b-2 border-white/20">
-                    <th className="text-left text-white font-bold p-2 sticky left-0 bg-slate-900/90 backdrop-blur-md">
-                      {isParejasMode ? 'Pareja' : 'Jugador'}
-                    </th>
-                    {holes.map((hole: any) => (
-                      <th key={hole.hole_number} className="text-center text-white font-bold p-2 min-w-[40px]">
-                        {hole.hole_number}
-                      </th>
-                    ))}
-                    <th className="text-center text-white font-bold p-2 bg-emerald-900/50">Total</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {holeTableRows.map((row) => {
-                    return (
-                      <tr key={row.key} className="border-b border-white/10 hover:bg-white/5 transition-colors">
-                        <td className="text-white font-semibold p-2 sticky left-0 bg-slate-900/90 backdrop-blur-md">
-                          <span className="flex items-center gap-2">
-                            <span className={`w-6 h-6 flex items-center justify-center rounded-full text-xs font-bold ${
-                              row.rank === 0 ? 'bg-yellow-400 text-yellow-900' :
-                              row.rank === 1 ? 'bg-slate-400 text-slate-900' :
-                              row.rank === 2 ? 'bg-orange-400 text-orange-900' :
-                              'bg-gray-600 text-white'
-                            }`}>
-                              {row.rank + 1}
-                            </span>
-                            {row.name}
-                          </span>
-                        </td>
-                        {holes.map((hole: any) => {
-                          const score = row.scores.find((s: any) => s.hole_number === hole.hole_number);
-                          const isAbandoned = score?.abandoned;
-                          const points = isMatchMode || isSindicatoMode || isParejasMode
-                            ? (score?.mode_points || 0)
-                            : (score?.stableford_points || 0);
-
-                          if (isAbandoned) {
-                            return (
-                              <td key={hole.hole_number} className="text-center p-2 font-bold text-white">
-                                0
-                              </td>
-                            );
-                          }
-
-                          return (
-                            <td key={hole.hole_number} className={`text-center p-2 font-bold ${
-                              isMatchMode || isSindicatoMode || isParejasMode ? (
-                                points > 0 ? 'text-emerald-300' :
-                                points === 0 ? 'text-red-300' :
-                                'text-white'
-                              ) : (
-                                points >= 4 ? 'text-green-300' :
-                                points === 3 ? 'text-emerald-300' :
-                                points === 2 ? 'text-white' :
-                                points === 1 ? 'text-orange-300' :
-                                'text-red-300'
-                              )
-                            }`}>
-                              {points}
-                            </td>
-                          );
-                        })}
-                        <td className="text-center text-emerald-300 font-black p-2 text-lg bg-emerald-900/50">
-                          {row.totalPoints}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          {/* TABLA DE GOLPES */}
-          <div
-            className={`bg-white/10 backdrop-blur-md rounded-2xl p-6 shadow-2xl mb-8 transition-all duration-1000 delay-600 ${
-              animateIn ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
-            }`}
-          >
-            <h3 className="text-2xl font-black text-white mb-6">Tabla de Golpes</h3>
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b-2 border-white/20">
-                    <th className="text-left text-white font-bold p-2 sticky left-0 bg-slate-900/90 backdrop-blur-md">Jugador</th>
-                    {holes.map((hole: any) => (
-                      <th key={hole.hole_number} className="text-center text-white font-bold p-2 min-w-[40px]">
-                        {hole.hole_number}
-                      </th>
-                    ))}
-                    <th className="text-center text-white font-bold p-2 bg-emerald-900/50">Total</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {ranking.map((entry: any, index: number) => {
-                    const playerScores = roundData.scores.filter((s: any) => s.player_id === entry.player.id);
-                    const totalGross = playerScores.reduce((sum: number, score: any) => {
-                      const hole = holes.find((h: any) => h.hole_number === score.hole_number);
-                      return sum + getEffectiveGrossStrokes(score, hole);
-                    }, 0);
-
-                    return (
-                      <tr key={entry.player.id} className="border-b border-white/10 hover:bg-white/5 transition-colors">
-                        <td className="text-white font-semibold p-2 sticky left-0 bg-slate-900/90 backdrop-blur-md">
-                          <div className="flex items-center gap-2">
-                            <span className={`w-6 h-6 flex-shrink-0 flex items-center justify-center rounded-full text-xs font-bold ${
-                              index === 0 ? 'bg-yellow-400 text-yellow-900' :
-                              index === 1 ? 'bg-slate-400 text-slate-900' :
-                              index === 2 ? 'bg-orange-400 text-orange-900' :
-                              'bg-gray-600 text-white'
-                            }`}>
-                              {index + 1}
-                            </span>
-                            {entry.player.name}
-                          </div>
-                        </td>
-                        {holes.map((hole: any) => {
-                          const score = playerScores.find((s: any) => s.hole_number === hole.hole_number);
-                          const value = getEffectiveGrossStrokes(score, hole);
-                          return (
-                            <td key={hole.hole_number} className="text-center text-white p-2 font-bold">
-                              {value}
-                            </td>
-                          );
-                        })}
-                        <td className="text-center text-emerald-300 font-black p-2 text-lg bg-emerald-900/50">{totalGross}</td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          {/* PREMIOS ESPECIALES */}
-          {(awards.reyDelBosque || awards.noPasoRojas || awards.holeInOne || awards.hoyoMuerte || awards.hoyoGloria) && (
-            <div
-              className={`bg-white/10 backdrop-blur-md rounded-2xl p-6 shadow-2xl transition-all duration-1000 ${
-                animateIn ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
-              }`}
-            >
-              <h3 className="text-2xl font-black text-white mb-6">Premios Especiales</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {awards.reyDelBosque && (
-                  <div className="bg-gradient-to-br from-rose-500/20 to-rose-600/20 border-2 border-rose-400 rounded-xl p-4">
-                    <div className="flex items-center gap-2 mb-2">
-                      <TrendingDown size={20} className="text-rose-400" />
-                      <p className="text-rose-300 font-bold text-sm">Rey del Bosque</p>
-                    </div>
-                    <p className="text-white font-bold text-lg">{awards.reyDelBosque.player.name}</p>
-                    <p className="text-rose-300 text-sm">Mayor número de dobles bogeys o peor</p>
-                  </div>
-                )}
-
-                {awards.noPasoRojas && (
-                  <div className="bg-gradient-to-br from-amber-500/20 to-amber-600/20 border-2 border-amber-400 rounded-xl p-4">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Flag size={20} className="text-amber-400" />
-                      <p className="text-amber-300 font-bold text-sm">No Pasó Rojas</p>
-                    </div>
-                    <p className="text-white font-bold text-lg">{awards.noPasoRojas.player.name}</p>
-                    <p className="text-amber-300 text-sm">Premio a la salida más corta</p>
-                  </div>
-                )}
-
-                {awards.holeInOne && (
-                  <div className="bg-gradient-to-br from-yellow-500/20 to-yellow-600/20 border-2 border-yellow-400 rounded-xl p-4">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Zap size={20} className="text-yellow-400" />
-                      <p className="text-yellow-300 font-bold text-sm">Hole in One</p>
-                    </div>
-                    <p className="text-white font-bold text-lg">{awards.holeInOne.player.name}</p>
-                    <p className="text-yellow-300 text-sm">¡Hoyo en uno increíble!</p>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
+          {renderStatisticsDetails()}
 
         </div> {/* FIN DE statsContainerRef */}
 
@@ -1256,79 +1273,7 @@ export const QuickPlayStatistics: React.FC<QuickPlayStatisticsProps> = ({ onBack
               </div>
             </div>
 
-            {/* Tabla Completa de Estadísticas */}
-            <div className="bg-slate-800/50 p-6 rounded-xl border border-white/10 mb-8">
-              <h3 className="text-xl font-black text-white mb-4">Tabla Completa de Estadísticas</h3>
-              <table className="w-full text-center">
-                <thead>
-                  <tr className="border-b border-white/20 text-white/70 text-sm">
-                    <th className="text-left p-2">Jugador</th>
-                    <th className="p-2">Puntos</th>
-                    <th className="p-2">vs Par</th>
-                    <th className="p-2">Birdies</th>
-                    <th className="p-2">Pares</th>
-                    <th className="p-2">Bogeys</th>
-                    <th className="p-2">Doble+</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {highlights.sort((a, b) => b.totalPoints - a.totalPoints).map((h) => (
-                    <tr key={h.playerId} className="border-b border-white/10 text-white">
-                      <td className="text-left font-bold p-2">{h.playerName}</td>
-                      <td className="font-bold text-emerald-400 p-2">{h.totalPoints}</td>
-                      <td className="font-bold p-2">{h.scoreToPar.display}</td>
-                      <td className="p-2">{h.birdies}</td>
-                      <td className="p-2">{h.pares}</td>
-                      <td className="p-2">{h.bogeys}</td>
-                      <td className="p-2">{h.doubleBogeyPlus}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            {/* Tabla Hoyo a Hoyo Dinámica */}
-            <div className="bg-slate-800/50 p-6 rounded-xl border border-white/10">
-              <h3 className="text-xl font-black text-white mb-4">
-                Puntos por Hoyo ({getModeLabel(gameMode)})
-              </h3>
-              <table className="w-full text-center text-sm">
-                <thead>
-                  <tr className="border-b border-white/20 text-white/70">
-                    <th className="text-left p-2">{isParejasMode ? 'Pareja' : 'Jugador'}</th>
-                    {holes.map((hole: any) => (
-                      <th key={hole.hole_number} className="p-2">{hole.hole_number}</th>
-                    ))}
-                    <th className="p-2 text-emerald-400 font-bold">Total</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {holeTableRows.map((row) => (
-                    <tr key={row.key} className="border-b border-white/10 text-white">
-                      <td className="text-left font-bold p-2">{row.name}</td>
-                      {holes.map((hole: any) => {
-                        const score = row.scores.find((s: any) => s.hole_number === hole.hole_number);
-                        const isAbandoned = score?.abandoned;
-                        const points = isMatchMode || isSindicatoMode || isParejasMode 
-                          ? (score?.mode_points || 0) 
-                          : (score?.stableford_points || 0);
-
-                        if (isAbandoned) {
-                          return (
-                            <td key={hole.hole_number} className="p-2 font-bold text-white">
-                              0
-                            </td>
-                          );
-                        }
-
-                        return <td key={hole.hole_number} className="p-2 font-bold">{points}</td>;
-                      })}
-                      <td className="p-2 font-black text-emerald-400 text-base">{row.totalPoints}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            {renderStatisticsDetails(true)}
 
           </div>
         </div>
