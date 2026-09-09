@@ -47,6 +47,7 @@ export const QuickPlayStatistics: React.FC<QuickPlayStatisticsProps> = ({ onBack
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [animateIn, setAnimateIn] = useState(false);
   const [sharing, setSharing] = useState(false);
+  const [shareError, setShareError] = useState('');
 
   const statsContainerRef = useRef<HTMLDivElement>(null);
   const desktopExportRef = useRef<HTMLDivElement>(null);
@@ -216,65 +217,140 @@ export const QuickPlayStatistics: React.FC<QuickPlayStatisticsProps> = ({ onBack
 
     try {
       setSharing(true);
+      setShareError('');
+      const exportElement = desktopExportRef.current;
+
+      if (document.fonts?.ready) {
+        await document.fonts.ready;
+      }
+
+      await Promise.all(
+        Array.from(exportElement.querySelectorAll('img')).map(async (image) => {
+          if (!image.complete) {
+            await new Promise<void>((resolve) => {
+              image.addEventListener('load', () => resolve(), { once: true });
+              image.addEventListener('error', () => resolve(), { once: true });
+            });
+          }
+          if (typeof image.decode === 'function') {
+            await image.decode().catch(() => undefined);
+          }
+        })
+      );
+
+      await new Promise<void>((resolve) => {
+        requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
+      });
+
+      const exportWidth = Math.ceil(Math.max(1200, exportElement.scrollWidth));
+      const exportHeight = Math.ceil(exportElement.scrollHeight);
+      const maxCanvasSide = 8192;
+      const maxCanvasPixels = 16_000_000;
+      const scale = Math.max(0.1, Math.min(
+        2,
+        maxCanvasSide / exportWidth,
+        maxCanvasSide / exportHeight,
+        Math.sqrt(maxCanvasPixels / (exportWidth * exportHeight))
+      ));
+
       const { default: html2canvas } = await import('html2canvas-pro');
-      const canvas = await html2canvas(desktopExportRef.current, {
-        scale: 2,
+      const canvas = await html2canvas(exportElement, {
+        scale,
         useCORS: true,
         backgroundColor: '#0f172a',
         logging: false,
-        x: 0,
-        y: 0,
         scrollX: 0,
         scrollY: 0,
-        windowWidth: desktopExportRef.current.scrollWidth,
-        windowHeight: desktopExportRef.current.scrollHeight,
+        width: exportWidth,
+        height: exportHeight,
+        windowWidth: exportWidth,
+        windowHeight: exportHeight,
+        onclone: (clonedDocument) => {
+          const clonedExport = clonedDocument.querySelector<HTMLElement>('[data-statistics-export]');
+          const clonedWrapper = clonedDocument.querySelector<HTMLElement>('[data-statistics-export-wrapper]');
+
+          if (clonedWrapper) {
+            clonedWrapper.style.position = 'absolute';
+            clonedWrapper.style.inset = '0 auto auto 0';
+            clonedWrapper.style.width = `${exportWidth}px`;
+            clonedWrapper.style.height = `${exportHeight}px`;
+            clonedWrapper.style.overflow = 'visible';
+          }
+
+          if (clonedExport) {
+            clonedExport.style.width = `${exportWidth}px`;
+            clonedExport.style.height = 'auto';
+            clonedExport.style.maxWidth = 'none';
+            clonedExport.style.overflow = 'visible';
+
+            clonedExport.querySelectorAll<HTMLElement>('*').forEach((element) => {
+              if (
+                element.classList.contains('overflow-x-auto') ||
+                element.classList.contains('overflow-hidden')
+              ) {
+                element.style.overflow = 'visible';
+              }
+              if (element.classList.contains('sticky')) {
+                element.style.position = 'static';
+              }
+            });
+          }
+        },
       });
 
-      canvas.toBlob(async (blob) => {
-        if (!blob) {
-          setSharing(false);
-          return;
-        }
+      const blob = await new Promise<Blob>((resolve, reject) => {
+        canvas.toBlob((result) => {
+          if (result) resolve(result);
+          else reject(new Error('No se pudo convertir la captura en imagen.'));
+        }, 'image/png');
+      });
 
-        const dateStr = new Date(roundData?.round?.created_at || Date.now()).toLocaleDateString('es-ES');
-        const fileName = `Estadisticas_Golf_${dateStr.replace(/\//g, '-')}.png`;
-        const file = new File([blob], fileName, { type: 'image/png' });
+      const dateStr = new Date(roundData?.round?.created_at || Date.now()).toLocaleDateString('es-ES');
+      const fileName = `Estadisticas_Golf_${dateStr.replace(/\//g, '-')}.png`;
+      const file = new File([blob], fileName, { type: 'image/png' });
 
-        if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-          try {
-            await navigator.share({
-              files: [file],
-              title: 'Estadísticas de la Partida',
-              text: `📊 ¡Mirad las estadísticas de nuestra partida de golf! (${dateStr})`,
-            });
-          } catch (shareError) {
-            console.log('Compartir cancelado por el usuario.');
+      if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+        try {
+          await navigator.share({
+            files: [file],
+            title: 'Estadísticas de la Partida',
+            text: `📊 ¡Mirad las estadísticas de nuestra partida de golf! (${dateStr})`,
+          });
+        } catch (nativeShareError) {
+          if (nativeShareError instanceof DOMException && nativeShareError.name === 'AbortError') {
+            return;
           }
-        } else {
-          try {
+          throw nativeShareError;
+        }
+      } else {
+        try {
+          if (typeof ClipboardItem !== 'undefined' && navigator.clipboard?.write) {
             await navigator.clipboard.write([
               new ClipboardItem({ [blob.type]: blob }),
             ]);
-            const textMessage = encodeURIComponent(
-              `📊 ¡Estadísticas de la partida de golf (${dateStr})!\n\n (Pega la imagen en el chat con Ctrl+V)`
-            );
-            window.open(`https://wa.me/?text=${textMessage}`, '_blank');
-          } catch (clipboardError) {
-            console.warn('No se pudo copiar al portapapeles, recurriendo a descarga:', clipboardError);
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = fileName;
-            link.click();
-            const textMessage = encodeURIComponent(
-              `📊 ¡He generado la imagen de la partida (${dateStr})! Adjunto el archivo.`
-            );
-            window.open(`https://wa.me/?text=${textMessage}`, '_blank');
           }
+          const textMessage = encodeURIComponent(
+            `📊 ¡Estadísticas de la partida de golf (${dateStr})!\n\nPega la imagen en el chat.`
+          );
+          window.open(`https://wa.me/?text=${textMessage}`, '_blank');
+        } catch (clipboardError) {
+          console.warn('No se pudo copiar al portapapeles, recurriendo a descarga:', clipboardError);
+          const imageUrl = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = imageUrl;
+          link.download = fileName;
+          link.click();
+          window.setTimeout(() => URL.revokeObjectURL(imageUrl), 1000);
+          const textMessage = encodeURIComponent(
+            `📊 ¡He generado la imagen de la partida (${dateStr})! Adjunto el archivo.`
+          );
+          window.open(`https://wa.me/?text=${textMessage}`, '_blank');
         }
-        setSharing(false);
-      }, 'image/png');
+      }
     } catch (error) {
       console.error('Error al generar la imagen para WhatsApp:', error);
+      setShareError('No se ha podido generar la imagen completa. Inténtalo de nuevo.');
+    } finally {
       setSharing(false);
     }
   };
@@ -542,6 +618,12 @@ export const QuickPlayStatistics: React.FC<QuickPlayStatisticsProps> = ({ onBack
             </button>
           </div>
         </div>
+
+        {shareError && (
+          <div role="alert" className="mb-4 rounded-xl border border-red-400/50 bg-red-950/70 px-4 py-3 text-sm text-red-100">
+            {shareError}
+          </div>
+        )}
 
         {/* CONTENEDOR VISIBLE DE LA PWA */}
         <div ref={statsContainerRef} className="p-4 md:p-6 rounded-2xl bg-slate-900/60 backdrop-blur-md border border-white/10 shadow-2xl">
@@ -1041,9 +1123,14 @@ export const QuickPlayStatistics: React.FC<QuickPlayStatisticsProps> = ({ onBack
         </div> {/* FIN DE statsContainerRef */}
 
         {/* PLANTILLA OCULTA DE ESCRITORIO (EXCLUSIVA PARA CAPTURA/IMAGEN) */}
-        <div className="absolute top-0 left-0 h-0 w-0 overflow-hidden pointer-events-none opacity-0">
+        <div
+          data-statistics-export-wrapper
+          aria-hidden="true"
+          className="fixed top-0 left-[-10000px] w-[1200px] h-auto overflow-visible pointer-events-none"
+        >
           <div 
-            ref={desktopExportRef} 
+            ref={desktopExportRef}
+            data-statistics-export
             className="w-[1200px] p-8 bg-slate-900 text-white rounded-2xl border border-white/10"
           >
             {/* Cabecera del Reporte Dinámica */}

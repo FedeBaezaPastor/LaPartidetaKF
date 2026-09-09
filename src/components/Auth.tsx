@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Mail, Lock, User, ArrowLeft, AlertCircle, Eye, EyeOff } from 'lucide-react';
-import { supabase } from '../services/supabaseClient';
+import { Mail, Lock, User, ArrowLeft, AlertCircle, Eye, EyeOff, Check, X } from 'lucide-react';
+import { clearStoredAuthSession, supabase } from '../services/supabaseClient';
 import { UserTier } from '../types';
+import { EmailSentModal } from './EmailSentModal';
+import { userService } from '../services/userService';
+import { AVATAR_OPTIONS, DEFAULT_AVATAR_URL } from '../utils/avatarOptions';
 
 interface AuthProps {
-  onAuthSuccess: () => void;
+  onAuthSuccess: (userId: string) => void | Promise<void>;
   onAdminLoginAttempt?: () => void;
   onBack: () => void;
 }
@@ -19,10 +22,53 @@ export default function Auth({ onAuthSuccess, onAdminLoginAttempt, onBack }: Aut
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
+  const [showEmailSentModal, setShowEmailSentModal] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [selectedTier, setSelectedTier] = useState<UserTier>('Express');
+  const [displayName, setDisplayName] = useState('');
+  const [nick, setNick] = useState('');
+  const [avatarUrl, setAvatarUrl] = useState(DEFAULT_AVATAR_URL);
+  const [nickStatus, setNickStatus] = useState<'idle' | 'checking' | 'available' | 'taken'>('idle');
+  const [nickSuggestion, setNickSuggestion] = useState('');
   const tierOptions: UserTier[] = ['Express', 'Player', 'Team'];
+
+  const checkNick = async () => {
+    const candidate = nick.trim();
+    setNickSuggestion('');
+    if (candidate.length < 2) {
+      setNickStatus('taken');
+      return false;
+    }
+
+    setNickStatus('checking');
+    try {
+      if (await userService.checkNickAvailable(candidate)) {
+        setNickStatus('available');
+        return true;
+      }
+
+      setNickStatus('taken');
+      const base = (candidate || displayName || email.split('@')[0])
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-zA-Z0-9_]/g, '')
+        .slice(0, 18) || 'jugador';
+
+      for (let suffix = 2; suffix <= 20; suffix += 1) {
+        const suggestion = `${base}${suffix}`;
+        if (await userService.checkNickAvailable(suggestion)) {
+          setNickSuggestion(suggestion);
+          break;
+        }
+      }
+      return false;
+    } catch {
+      setNickStatus('idle');
+      setError('No se ha podido comprobar el nick. Inténtalo de nuevo.');
+      return false;
+    }
+  };
 
   useEffect(() => {
     const { data: authListener } = supabase.auth.onAuthStateChange((event) => {
@@ -42,6 +88,9 @@ export default function Auth({ onAuthSuccess, onAdminLoginAttempt, onBack }: Aut
     setError('');
 
     try {
+      await supabase.auth.signOut({ scope: 'local' });
+      clearStoredAuthSession();
+
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -73,7 +122,7 @@ export default function Auth({ onAuthSuccess, onAdminLoginAttempt, onBack }: Aut
 
         const { golfService } = await import('../services/golfService');
         await golfService.linkGroupsToAuthUser();
-        onAuthSuccess();
+        await onAuthSuccess(data.user.id);
       }
     } catch (err: any) {
       setError(err.message || 'Error al iniciar sesión');
@@ -95,6 +144,16 @@ export default function Auth({ onAuthSuccess, onAdminLoginAttempt, onBack }: Aut
       return;
     }
 
+    if (!displayName.trim()) {
+      setError('Introduce tu nombre');
+      return;
+    }
+
+    if (!(await checkNick())) {
+      setError('Elige un nick disponible');
+      return;
+    }
+
     setLoading(true);
     setError('');
 
@@ -107,6 +166,12 @@ export default function Auth({ onAuthSuccess, onAdminLoginAttempt, onBack }: Aut
           data: {
             user_tier: selectedTier,
             tier: selectedTier,
+            requested_plan: selectedTier.toLowerCase(),
+            registration_pending: true,
+            nick: nick.trim(),
+            display_name: displayName.trim(),
+            avatar_url: avatarUrl,
+            accepted_terms: false,
           },
         },
       });
@@ -114,14 +179,15 @@ export default function Auth({ onAuthSuccess, onAdminLoginAttempt, onBack }: Aut
       if (error) throw error;
 
       if (data.user && data.session) {
+        const registeredUserId = data.user.id;
         const { golfService } = await import('../services/golfService');
         await golfService.linkGroupsToAuthUser();
         setMessage('Cuenta creada exitosamente. Iniciando sesión...');
         setTimeout(() => {
-          onAuthSuccess();
+          void onAuthSuccess(registeredUserId);
         }, 1500);
       } else if (data.user) {
-        setMessage('Revisa tu correo. Te hemos enviado un enlace de Omiki Golf para confirmar tu cuenta.');
+        setShowEmailSentModal(true);
       }
     } catch (err: any) {
       setError(err.message || 'Error al registrarse');
@@ -312,6 +378,85 @@ export default function Auth({ onAuthSuccess, onAdminLoginAttempt, onBack }: Aut
 
           <form onSubmit={handleRegister} className="space-y-6">
             <div>
+              <label className="block text-sm font-medium text-ink-2 mb-2">Nombre</label>
+              <div className="relative">
+                <User className="absolute left-3 top-3.5 text-ink-4" size={20} />
+                <input
+                  type="text"
+                  value={displayName}
+                  onChange={(event) => setDisplayName(event.target.value)}
+                  placeholder="Tu nombre"
+                  required
+                  className="w-full pl-10 pr-4 py-3 bg-card text-ink border border-line-2 rounded-xl focus:ring-2 focus:ring-accent focus:border-transparent"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-ink-2 mb-2">Nick único</label>
+              <div className="relative">
+                <User className="absolute left-3 top-3.5 text-ink-4" size={20} />
+                <input
+                  type="text"
+                  value={nick}
+                  onChange={(event) => {
+                    setNick(event.target.value);
+                    setNickStatus('idle');
+                    setNickSuggestion('');
+                  }}
+                  onBlur={() => void checkNick()}
+                  placeholder="Tu nombre dentro de Omiki"
+                  minLength={2}
+                  maxLength={24}
+                  required
+                  className="w-full pl-10 pr-10 py-3 bg-card text-ink border border-line-2 rounded-xl focus:ring-2 focus:ring-accent focus:border-transparent"
+                />
+                {nickStatus === 'available' && <Check className="absolute right-3 top-3.5 text-accent-ink" size={20} />}
+                {nickStatus === 'taken' && <X className="absolute right-3 top-3.5 text-red-500" size={20} />}
+              </div>
+              {nickStatus === 'checking' && <p className="text-xs text-ink-3 mt-1">Comprobando disponibilidad…</p>}
+              {nickStatus === 'available' && <p className="text-xs text-accent-ink mt-1">Nick disponible</p>}
+              {nickStatus === 'taken' && (
+                <p className="text-xs text-red-600 mt-1">
+                  Este nick no está disponible.
+                  {nickSuggestion && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setNick(nickSuggestion);
+                        setNickStatus('available');
+                        setNickSuggestion('');
+                      }}
+                      className="ml-1 font-semibold underline"
+                    >
+                      Usar {nickSuggestion}
+                    </button>
+                  )}
+                </p>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-ink-2 mb-2">Avatar</label>
+              <div className="grid grid-cols-5 gap-2">
+                {AVATAR_OPTIONS.map((avatar) => (
+                  <button
+                    key={avatar.id}
+                    type="button"
+                    onClick={() => setAvatarUrl(avatar.url)}
+                    className={`aspect-square rounded-full overflow-hidden border-2 transition-all ${
+                      avatarUrl === avatar.url ? 'border-accent ring-2 ring-accent-ring' : 'border-line'
+                    }`}
+                    aria-label={`Seleccionar ${avatar.name}`}
+                    aria-pressed={avatarUrl === avatar.url}
+                  >
+                    <img src={avatar.url} alt="" loading="lazy" className="w-full h-full object-cover" />
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div>
               <label className="block text-sm font-medium text-ink-2 mb-2">
                 Correo Electrónico
               </label>
@@ -434,6 +579,15 @@ export default function Auth({ onAuthSuccess, onAdminLoginAttempt, onBack }: Aut
               </button>
             </div>
           </form>
+          {showEmailSentModal && (
+            <EmailSentModal
+              email={email}
+              onAccept={() => {
+                setShowEmailSentModal(false);
+                onBack();
+              }}
+            />
+          )}
         </div>
       </div>
     );

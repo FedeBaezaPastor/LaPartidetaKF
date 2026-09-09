@@ -544,11 +544,7 @@ export const ActiveRoundsViewer: React.FC<ActiveRoundsViewerProps> = ({
 
               return (
                 <div key={roundStats.round.id} className="space-y-4">
-                  <div
-                    className={`bg-card rounded-lg shadow-card overflow-hidden transition-all ${
-                      isCompleted && isExpanded ? 'max-h-[400px]' : ''
-                    }`}
-                  >
+                  <div className="bg-card rounded-lg shadow-card overflow-hidden transition-all">
                     <button
                       onClick={() => setSelectedRound(isExpanded ? null : roundStats.round.id)}
                       className="w-full p-4 md:p-6 flex items-center justify-between hover:bg-card-2 transition-colors"
@@ -680,7 +676,7 @@ export const ActiveRoundsViewer: React.FC<ActiveRoundsViewerProps> = ({
                         </div>
                       </div>
 
-                      <div className="flex gap-2">
+                      <div className="flex flex-col sm:flex-row gap-2">
                         <button
                           onClick={() => {
                             onJoinRound(roundStats.round.id);
@@ -761,7 +757,7 @@ export const ActiveRoundsViewer: React.FC<ActiveRoundsViewerProps> = ({
                       <div className="flex gap-2">
                         <button
                           onClick={() => handleArchiveRoundClick(roundStats.round.id)}
-                          className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition-colors flex items-center justify-center gap-2"
+                          className="w-full sm:flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition-colors flex items-center justify-center gap-2"
                         >
                           <Archive size={20} />
                           Archivar Partida
@@ -771,7 +767,7 @@ export const ActiveRoundsViewer: React.FC<ActiveRoundsViewerProps> = ({
                             onJoinRound(roundStats.round.id);
                             setSelectedRound(null);
                           }}
-                          className="flex-1 bg-accent hover:bg-accent-hover text-on-accent font-bold py-3 rounded-lg transition-colors"
+                          className="w-full sm:flex-1 bg-accent hover:bg-accent-hover text-on-accent font-bold py-3 rounded-lg transition-colors"
                         >
                           Ver Resultados Completos
                         </button>

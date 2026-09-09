@@ -28,11 +28,11 @@ export default function MyGroups({ onBack, onGroupSelected, onLogout }: MyGroups
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const [userEmail, setUserEmail] = useState('');
   const [groupToDelete, setGroupToDelete] = useState<string | null>(null);
+  const [user, setUser] = useState<any>(null);
   
   // ─── PREMIUM ───
   const [showPremium, setShowPremium] = useState(false);
-  const { isPremium, loading: subLoading } = useSubscription();
-  const [user, setUser] = useState<any>(null);
+  const { isPremium, loading: subLoading } = useSubscription(user?.id ?? null);
 
   useEffect(() => {
     loadGroups();

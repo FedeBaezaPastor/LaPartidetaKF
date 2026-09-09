@@ -1,5 +1,6 @@
 import { supabase } from './supabaseClient';
 import { UserProfile, GroupMember, GroupInvitation, PlanType } from '../types';
+import { normalizeAvatarUrl } from '../utils/avatarOptions';
 
 export const userService = {
   async getProfile(userId: string): Promise<UserProfile | null> {
@@ -23,7 +24,7 @@ export const userService = {
         user_id: userId,
         nick: metadata.nick,
         display_name: typeof metadata.display_name === 'string' ? metadata.display_name : undefined,
-        avatar_url: typeof metadata.avatar_url === 'string' ? metadata.avatar_url : undefined,
+        avatar_url: normalizeAvatarUrl(typeof metadata.avatar_url === 'string' ? metadata.avatar_url : undefined),
         exact_handicap: typeof metadata.exact_handicap === 'number' ? metadata.exact_handicap : 0,
         default_tee: typeof metadata.default_tee === 'string' ? metadata.default_tee : 'amarillo',
         country: typeof metadata.country === 'string' ? metadata.country : undefined,

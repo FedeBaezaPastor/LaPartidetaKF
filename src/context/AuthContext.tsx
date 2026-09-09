@@ -34,7 +34,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         .eq('user_id', userId)
         .maybeSingle();
 
-      if (!error && data) {
+      if (error) {
+        console.error('Error cargando la suscripcion:', error);
+        setSubscription(null);
+      } else if (data) {
         setSubscription({
           planType: data.plan_type,
           status: data.status,
@@ -43,7 +46,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       } else {
         setSubscription(null);
       }
-    } catch {
+    } catch (error) {
+      console.error('Error inesperado cargando la suscripcion:', error);
       setSubscription(null);
     }
   };

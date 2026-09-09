@@ -38,3 +38,21 @@ try {
 }
 
 export const supabase = supabaseClient;
+
+export const clearStoredAuthSession = (): void => {
+  const isAuthKey = (key: string) =>
+    key === 'supabase.auth.token' || /^sb-.*-auth-token$/.test(key);
+
+  safeStorage.removeItem('supabase.auth.token');
+
+  for (const storage of [window.localStorage, window.sessionStorage]) {
+    try {
+      const keys = Array.from({ length: storage.length }, (_, index) => storage.key(index))
+        .filter((key): key is string => Boolean(key));
+      keys.filter(isAuthKey).forEach((key) => storage.removeItem(key));
+    } catch {
+      // Private browsing may make browser storage unavailable. SafeStorage has
+      // already cleared the in-memory session used by this client.
+    }
+  }
+};

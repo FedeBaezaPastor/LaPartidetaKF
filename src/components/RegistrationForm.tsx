@@ -1,27 +1,21 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ArrowLeft, Eye, EyeOff, Check, X, AlertCircle, Camera, Info, MailCheck } from 'lucide-react';
+import { ArrowLeft, Eye, EyeOff, Check, X, AlertCircle, Info } from 'lucide-react';
 import { supabase } from '../services/supabaseClient';
 import { userService } from '../services/userService';
 import { PlanType } from '../types';
+import { EmailSentModal } from './EmailSentModal';
+import { AVATAR_OPTIONS, DEFAULT_AVATAR_URL } from '../utils/avatarOptions';
 
 interface RegistrationFormProps {
   planType: PlanType;
   onBack: () => void;
   onRegistered: () => void;
+  onConfirmationAccepted: () => void;
 }
-
-const AVATAR_PRESETS = [
-  'https://api.dicebear.com/7.x/adventurer/svg?seed=Golf1&backgroundColor=dbeafe',
-  'https://api.dicebear.com/7.x/adventurer/svg?seed=Golf2&backgroundColor=fce7f3',
-  'https://api.dicebear.com/7.x/adventurer/svg?seed=Golf3&backgroundColor=d1fae5',
-  'https://api.dicebear.com/7.x/adventurer/svg?seed=Golf4&backgroundColor=fef3c7',
-  'https://api.dicebear.com/7.x/adventurer/svg?seed=Golf5&backgroundColor=ede9fe',
-  'https://api.dicebear.com/7.x/adventurer/svg?seed=Golf6&backgroundColor=fee2e2',
-];
 
 const TEE_OPTIONS = ['amarillo', 'rojo', 'blanco', 'azul'];
 
-export const RegistrationForm: React.FC<RegistrationFormProps> = ({ planType, onBack, onRegistered }) => {
+export const RegistrationForm: React.FC<RegistrationFormProps> = ({ planType, onBack, onRegistered, onConfirmationAccepted }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -33,7 +27,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({ planType, on
   const [country, setCountry] = useState('Espana');
   const [postalCode, setPostalCode] = useState('');
   const [age, setAge] = useState('');
-  const [avatarUrl, setAvatarUrl] = useState(AVATAR_PRESETS[0]);
+  const [avatarUrl, setAvatarUrl] = useState(DEFAULT_AVATAR_URL);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [over14, setOver14] = useState(false);
   const [error, setError] = useState('');
@@ -143,6 +137,8 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({ planType, on
         accepted_terms: true,
       });
 
+      await userService.setPlanType(userId, planType, 'registration');
+
       onRegistered();
     } catch (err: any) {
       if (err.message?.includes('already registered')) {
@@ -157,25 +153,8 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({ planType, on
 
   if (confirmationEmail) {
     return (
-      <div className="min-h-screen bg-app flex items-center justify-center p-4 transition-colors">
-        <div className="max-w-md w-full bg-card border border-line rounded-2xl shadow-card p-8 text-center">
-          <div className="w-16 h-16 bg-accent-soft rounded-full flex items-center justify-center mx-auto mb-5">
-            <MailCheck className="w-8 h-8 text-accent-ink" />
-          </div>
-          <h1 className="text-2xl font-bold text-ink mb-3">Confirma tu correo</h1>
-          <p className="text-ink-3 mb-2">Te hemos enviado un mensaje de Omiki Golf a:</p>
-          <p className="font-semibold text-ink break-all mb-5">{confirmationEmail}</p>
-          <p className="text-sm text-ink-3 mb-6">
-            Abre el correo y pulsa “Confirmar mi cuenta”. Después volverás a Omiki Golf con tu sesión iniciada.
-          </p>
-          <button
-            type="button"
-            onClick={onBack}
-            className="w-full bg-card-2 hover:bg-neutral-hover text-ink-2 border border-line font-semibold py-3 rounded-xl transition-colors"
-          >
-            Volver
-          </button>
-        </div>
+      <div className="min-h-screen bg-app">
+        <EmailSentModal email={confirmationEmail} onAccept={onConfirmationAccepted} />
       </div>
     );
   }
@@ -205,19 +184,19 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({ planType, on
           {/* Avatar selection */}
           <div className="mb-5">
             <label className="block text-sm font-medium text-ink-2 mb-2">Avatar</label>
-            <div className="flex flex-wrap gap-3">
-              {AVATAR_PRESETS.map((url, i) => (
+            <div className="grid grid-cols-5 gap-3">
+              {AVATAR_OPTIONS.map((avatar) => (
                 <button
-                  key={i}
-                  onClick={() => setAvatarUrl(url)}
-                  className={`w-14 h-14 rounded-full overflow-hidden border-2 transition-all ${avatarUrl === url ? 'border-accent ring-2 ring-emerald-200' : 'border-line'}`}
+                  key={avatar.id}
+                  type="button"
+                  onClick={() => setAvatarUrl(avatar.url)}
+                  className={`aspect-square rounded-full overflow-hidden border-2 transition-all ${avatarUrl === avatar.url ? 'border-accent ring-2 ring-emerald-200' : 'border-line'}`}
+                  aria-label={`Seleccionar ${avatar.name}`}
+                  aria-pressed={avatarUrl === avatar.url}
                 >
-                  <img src={url} alt="avatar" className="w-full h-full" />
+                  <img src={avatar.url} alt="" loading="lazy" className="w-full h-full object-cover" />
                 </button>
               ))}
-              <div className="w-14 h-14 rounded-full border-2 border-dashed border-line-2 flex items-center justify-center text-ink-4">
-                <Camera size={18} />
-              </div>
             </div>
           </div>
 

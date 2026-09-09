@@ -1,10 +1,12 @@
 import React from 'react';
-import { Zap, LogIn, Plus, Share2, Bell, Crown, ChevronRight, FlaskConical, CreditCard } from 'lucide-react';
+import { Zap, LogIn, Plus, Share2, Bell, User, ChevronRight, FlaskConical, CreditCard } from 'lucide-react';
 import { PlanType, UserProfile } from '../types';
+import { ThemeToggle } from './ThemeToggle';
 
 interface HomeScreenProps {
   planType: PlanType;
   isAuthenticated: boolean;
+  userEmail?: string;
   profile: UserProfile | null;
   pendingInvitations: number;
   onQuickPlay: () => void;
@@ -24,6 +26,7 @@ interface HomeScreenProps {
 export const HomeScreen: React.FC<HomeScreenProps> = ({
   planType,
   isAuthenticated,
+  userEmail,
   profile,
   pendingInvitations,
   onQuickPlay,
@@ -52,10 +55,10 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   );
 
   return (
-    <div className="min-h-screen bg-app flex items-center justify-center p-4 transition-colors">
+    <div className="min-h-screen bg-app flex justify-center px-4 py-4 sm:py-8 transition-colors">
       <div className="max-w-md w-full">
         {/* Top bar */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center justify-between gap-3 mb-5">
           <div className="flex items-center gap-2">
             <button
               type="button"
@@ -83,6 +86,8 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                 )}
               </button>
             )}
+
+            <ThemeToggle />
           </div>
 
           {/* Entrance pill / Nick */}
@@ -97,21 +102,36 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           ) : (
             <button
               onClick={onShowProfile}
-              className="flex items-center gap-2 bg-card border border-line px-4 py-2.5 rounded-full shadow-soft hover:bg-card-2 transition-all"
+              title="Mi perfil"
+              aria-label="Abrir Mi perfil"
+              className="flex items-center justify-center w-11 h-11 bg-card border border-line rounded-full shadow-soft hover:bg-card-2 transition-all"
             >
-              {profile?.avatar_url && (
-                <img src={profile.avatar_url} alt="avatar" className="w-6 h-6 rounded-full" />
+              {profile?.avatar_url ? (
+                <img src={profile.avatar_url} alt="" className="w-9 h-9 rounded-full" />
+              ) : (
+                <User size={21} className="text-ink-2" />
               )}
-              <span className="font-semibold text-ink text-sm">{profile?.nick || 'Perfil'}</span>
-              {isTeam && <Crown size={16} className="text-amber-500" />}
-              <ChevronRight size={16} className="text-ink-4" />
             </button>
           )}
         </div>
 
+        {isAuthenticated && (
+          <div className="bg-card border border-line rounded-2xl px-4 py-3 mb-5 shadow-soft text-center">
+            <p className="font-semibold text-ink">¡Bienvenido!</p>
+            <div className="flex items-center justify-center gap-2 mt-1 min-w-0">
+              <span className="text-sm text-ink-3 truncate">{profile?.nick || userEmail}</span>
+              <span className={`shrink-0 text-[10px] font-bold uppercase px-2 py-0.5 rounded-full ${
+                isTeam ? 'bg-amber-100 text-amber-700' : 'bg-accent-soft text-accent-ink'
+              }`}>
+                {planType}
+              </span>
+            </div>
+          </div>
+        )}
+
         {/* Logo */}
-        <div className="text-center mb-10">
-          <div className="inline-flex items-center justify-center w-28 h-28 rounded-full shadow-card mb-4 overflow-hidden bg-transparent">
+        <div className="text-center mb-6 sm:mb-8">
+          <div className="inline-flex items-center justify-center w-24 h-24 sm:w-28 sm:h-28 rounded-full shadow-card mb-3 overflow-hidden bg-transparent">
             <img src="/images/Omiki.png" alt="OMIKI Golf" className="w-full h-full object-contain" />
           </div>
           <h1 className="text-4xl font-bold text-ink mb-1">OMIKI Golf</h1>

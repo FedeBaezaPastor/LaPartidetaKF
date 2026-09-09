@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { AlertTriangle, CheckCircle2, X } from 'lucide-react';
+import { AlertTriangle, CheckCircle2 } from 'lucide-react';
 import { GolfRound, GolfHole, GolfCourse, RoundPlayer, RoundScore, Group, GameMode, PlanType } from './types';
 import { golfService } from './services/golfService';
 import { calculateModePoints, ModeScoreInput } from './utils/calculations';
@@ -28,6 +28,7 @@ import { PlansComparison } from './components/PlansComparison';
 import { RegistrationForm } from './components/RegistrationForm';
 import { HomeScreen } from './components/HomeScreen';
 import { ProfileScreen } from './components/ProfileScreen';
+import { ProfileDetails } from './components/ProfileDetails';
 import { TeamCreation } from './components/TeamCreation';
 import { NotificationsBell } from './components/NotificationsBell';
 import { ProShop } from './components/ProShop';
@@ -35,8 +36,9 @@ import { PaymentSelector } from './components/PaymentSelector';
 import { useSubscription } from './hooks/useSubscription';
 import { userService } from './services/userService';
 import ShareModal from './components/ShareModal';
+import { EmailConfirmedScreen } from './components/EmailConfirmedScreen';
 
-type ViewType = 'main' | 'setup' | 'players' | 'scorecard' | 'leaderboard' | 'active-rounds' | 'viewer' | 'game-points' | 'statistics' | 'quickplay-statistics' | 'auth' | 'my-groups' | 'admin-dashboard' | 'plans' | 'registration' | 'profile' | 'team-creation' | 'notifications' | 'pro-shop';
+type ViewType = 'main' | 'setup' | 'players' | 'scorecard' | 'leaderboard' | 'active-rounds' | 'viewer' | 'game-points' | 'statistics' | 'quickplay-statistics' | 'auth' | 'my-groups' | 'admin-dashboard' | 'plans' | 'registration' | 'profile' | 'profile-details' | 'team-creation' | 'notifications' | 'pro-shop';
 
 interface RoundState {
   round: GolfRound | null;
@@ -57,7 +59,7 @@ const GlobalThemeSwitch = () => (
 );
 
 function App() {
-  const { user, subscription, logout } = useAuth(); // 👈 Usar el contexto global
+  const { user, logout } = useAuth(); // 👈 Usar el contexto global
   const [isIncognito, setIsIncognito] = useState(false);
   const [authUser, setAuthUser] = useState<any>(null);
   const [currentGroup, setCurrentGroup] = useState<Group | null>(null);
@@ -89,7 +91,7 @@ function App() {
   const [showAdminPinModal, setShowAdminPinModal] = useState(false);
   const [adminPinError, setAdminPinError] = useState('');
   const [adminPinAttempts, setAdminPinAttempts] = useState(0);
-  const { planType, profile, refresh: refreshSubscription } = useSubscription();
+  const { planType, profile, loading: subscriptionLoading, refresh: refreshSubscription } = useSubscription(user?.id ?? null);
   const [pendingInvitations, setPendingInvitations] = useState(0);
   const [showShareModal, setShowShareModal] = useState(false);
   const [showPayment, setShowPayment] = useState(false);
@@ -99,7 +101,32 @@ function App() {
   const [simulatedPlan, setSimulatedPlan] = useState<PlanType | null>(null);
   const [simulatorUpdating, setSimulatorUpdating] = useState(false);
   const [returnToProfile, setReturnToProfile] = useState(false);
-  const activePlanType = simulatorEnabled && simulatedPlan ? simulatedPlan : planType;
+  const [profileSaved, setProfileSaved] = useState(false);
+  // The database subscription is the single source of truth. The simulator
+  // persists changes in user_subscriptions, so a local plan override can only
+  // leak stale state when switching accounts.
+  const activePlanType = planType;
+
+  useEffect(() => {
+    // Simulator state belongs to a single authenticated user. Keeping it when
+    // switching accounts can make the next account display the previous plan.
+    setSimulatorEnabled(false);
+    setSimulatedPlan(null);
+    setSimulatorUpdating(false);
+  }, [user?.id]);
+
+  useEffect(() => {
+    if (currentView === 'my-groups' && !subscriptionLoading && activePlanType !== 'team') {
+      setReturnToProfile(false);
+      setCurrentView('main');
+    }
+  }, [activePlanType, currentView, subscriptionLoading]);
+
+  useEffect(() => {
+    if (!profileSaved) return;
+    const timeoutId = window.setTimeout(() => setProfileSaved(false), 3000);
+    return () => window.clearTimeout(timeoutId);
+  }, [profileSaved]);
 
   const openAuth = (returnView: ViewType) => {
     setAuthReturnView(returnView);
@@ -803,25 +830,6 @@ function App() {
 
   const IncognitoWarning = () => (
     <>
-      {emailConfirmed && (
-        <div className="fixed left-3 right-3 top-16 z-[110] mx-auto max-w-lg bg-card border-2 border-accent-ring text-ink px-4 py-3 rounded-xl shadow-card">
-          <div className="flex items-center gap-3">
-            <CheckCircle2 size={20} className="text-accent-ink shrink-0" />
-            <div className="flex-1">
-              <p className="font-semibold">Correo confirmado correctamente</p>
-              <p className="text-sm text-ink-3">Tu cuenta de Omiki Golf ya está lista.</p>
-            </div>
-            <button
-              type="button"
-              onClick={() => setEmailConfirmed(false)}
-              className="p-1 text-ink-4 hover:text-ink"
-              aria-label="Cerrar aviso"
-            >
-              <X size={18} />
-            </button>
-          </div>
-        </div>
-      )}
       {isIncognito && (
         <div className="fixed top-0 left-0 right-0 z-50 bg-amber-500 text-white px-4 py-2 text-center text-sm font-medium shadow-card">
           <div className="flex items-center justify-center gap-2">
@@ -832,6 +840,18 @@ function App() {
       )}
     </>
   );
+
+  if (emailConfirmed) {
+    return (
+      <EmailConfirmedScreen
+        onLogin={async () => {
+          await logout();
+          setEmailConfirmed(false);
+          openAuth('main');
+        }}
+      />
+    );
+  }
 
   if (currentView === 'plans') {
     return (
@@ -864,6 +884,7 @@ function App() {
           <RegistrationForm
             planType={activePlanType === 'express' ? 'player' : activePlanType}
             onBack={() => setCurrentView('plans')}
+            onConfirmationAccepted={() => setCurrentView('main')}
             onRegistered={() => {
               refreshSubscription();
               if (user?.id) {
@@ -899,6 +920,15 @@ function App() {
       <>
         <IncognitoWarning />
         <GlobalThemeSwitch />
+        {profileSaved && (
+          <div
+            role="status"
+            className="fixed top-16 left-1/2 z-[110] flex -translate-x-1/2 items-center gap-2 whitespace-nowrap rounded-xl border border-accent-ring bg-card px-4 py-3 text-sm font-medium text-ink shadow-card"
+          >
+            <CheckCircle2 size={19} className="text-accent-ink" />
+            Perfil actualizado correctamente
+          </div>
+        )}
         <div className={isIncognito ? 'pt-10' : ''}>
           <ProfileScreen
             profile={profile}
@@ -916,7 +946,29 @@ function App() {
             onShowUpgrade={() => openFromProfile('plans')}
             onShowProShop={() => setCurrentView('pro-shop')}
             onShowGroups={() => openFromProfile('my-groups')}
-            onShowSettings={() => openFromProfile('my-groups')}
+            onShowSettings={() => setCurrentView('profile-details')}
+          />
+        </div>
+      </>
+    );
+  }
+
+  if (currentView === 'profile-details' && user) {
+    return (
+      <>
+        <IncognitoWarning />
+        <GlobalThemeSwitch />
+        <div className={isIncognito ? 'pt-10' : ''}>
+          <ProfileDetails
+            profile={profile}
+            userId={user.id}
+            email={user.email}
+            onBack={() => setCurrentView('profile')}
+            onSaved={async () => {
+              await refreshSubscription();
+              setProfileSaved(true);
+              setCurrentView('profile');
+            }}
           />
         </div>
       </>
@@ -985,8 +1037,10 @@ function App() {
         <div className={isIncognito ? 'pt-10' : ''}>
           <Auth
             onAuthSuccess={() => {
+              setSimulatorEnabled(false);
+              setSimulatedPlan(null);
               setAuthReturnView('main');
-              setCurrentView('my-groups');
+              setCurrentView('main');
             }}
             onAdminLoginAttempt={handleAdminLoginAttempt}
             onBack={() => {
@@ -1033,11 +1087,11 @@ function App() {
     return (
       <>
         <IncognitoWarning />
-        <GlobalThemeSwitch />
         <div className={isIncognito ? 'pt-10' : ''}>
           <HomeScreen
             planType={activePlanType}
             isAuthenticated={!!user}
+            userEmail={user?.email}
             profile={profile}
             pendingInvitations={pendingInvitations}
             onQuickPlay={() => setCurrentView('setup')}
