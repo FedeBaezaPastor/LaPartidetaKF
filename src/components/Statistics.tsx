@@ -1,6 +1,7 @@
+import { NavigationButton } from './NavigationButton';
 import React, { useState, useEffect } from 'react';
 import { golfService } from '../services/golfService';
-import { ArrowLeft, User, Users, MapPin, TrendingUp, Trophy, Award, Beer, ChevronRight, Banknote, Euro, Zap, ThumbsDown, Calendar, Target, Activity, TreePine } from 'lucide-react';
+import { User, Users, MapPin, TrendingUp, Trophy, Award, Beer, ChevronRight, Euro, Zap, ThumbsDown, Calendar, Target, Activity, TreePine } from 'lucide-react';
 import { Group } from '../types';
 import { AwardRankingModal } from './AwardRankingModal';
 import { ArchivedRoundsModal } from './ArchivedRoundsModal';
@@ -8,12 +9,13 @@ import { ArchivedRoundDetailModal } from './ArchivedRoundDetailModal';
 
 interface StatisticsProps {
   onBack: () => void;
+  backDestination?: 'back' | 'home';
   currentGroup: Group;
 }
 
 type TabType = 'player' | 'group' | 'course';
 
-export const Statistics: React.FC<StatisticsProps> = ({ onBack, currentGroup }) => {
+export const Statistics: React.FC<StatisticsProps> = ({ onBack, backDestination = 'back', currentGroup }) => {
   const [activeTab, setActiveTab] = useState<TabType>('player');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -198,7 +200,7 @@ const openRankingModal = async (type: 'patrocinador' | 'barraLibre' | 'corto' | 
           console.log('>>> 2. Llamando a getPatrocinadorRanking...');
           const patrocinadorData = await golfService.getPatrocinadorRanking(currentGroup.id);
           console.log('>>> 3. DATOS RECIBIDOS DE LA API (Patrocinador):', patrocinadorData);
-          
+
           modalData = (patrocinadorData || []).map((entry: any) => ({
             ...entry,
             value: entry.total_beers_paid,
@@ -477,12 +479,10 @@ const openRankingModal = async (type: 'patrocinador' | 'barraLibre' | 'corto' | 
     return (
       <div className="min-h-screen bg-app p-4 md:p-8">
         <div className="max-w-4xl mx-auto">
-          <button
+          <NavigationButton destination={backDestination}
             onClick={onBack}
-            className="bg-card hover:bg-card-2 text-title font-bold py-2 px-4 rounded-lg flex items-center justify-center transition-colors mb-6"
-          >
-            <ArrowLeft size={20} />
-          </button>
+            className="bg-card hover:bg-card-2 text-title font-bold py-2 px-3 rounded-lg flex items-center justify-center transition-colors mb-6"
+          />
 
           <div className="bg-card rounded-lg shadow-card p-8 text-center">
             <TrendingUp size={64} className="mx-auto text-ink-4 mb-4" />
@@ -500,12 +500,10 @@ const openRankingModal = async (type: 'patrocinador' | 'barraLibre' | 'corto' | 
     <div className="min-h-screen bg-app p-4 md:p-8">
       <div className="max-w-6xl mx-auto">
         <div className="flex items-center justify-between mb-6">
-          <button
+          <NavigationButton destination={backDestination}
             onClick={onBack}
-            className="bg-card hover:bg-card-2 text-title font-bold py-2 px-4 rounded-lg flex items-center justify-center transition-colors"
-          >
-            <ArrowLeft size={20} />
-          </button>
+            className="bg-card hover:bg-card-2 text-title font-bold py-2 px-3 rounded-lg flex items-center justify-center transition-colors"
+          />
 
           <h1 className="text-3xl font-bold text-title">Estadísticas</h1>
           <div className="w-24"></div>

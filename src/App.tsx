@@ -17,11 +17,9 @@ import { Statistics } from './components/Statistics';
 import { QuickPlayStatistics } from './components/QuickPlayStatistics';
 import { AccessCodeModal } from './components/AccessCodeModal';
 import { ConfirmModal } from './components/ConfirmModal';
-import { AdminPinModal } from './components/AdminPinModal';
 import GroupSetup from './components/GroupSetup';
 import Auth from './components/Auth';
 import MyGroups from './components/MyGroups';
-import AdminDashboard from './components/AdminDashboard';
 import { PremiumModal } from './components/PremiumModal';
 import { ThemeToggle } from './components/ThemeToggle';
 import { PlansComparison } from './components/PlansComparison';
@@ -38,7 +36,7 @@ import { userService } from './services/userService';
 import ShareModal from './components/ShareModal';
 import { EmailConfirmedScreen } from './components/EmailConfirmedScreen';
 
-type ViewType = 'main' | 'setup' | 'players' | 'scorecard' | 'leaderboard' | 'active-rounds' | 'viewer' | 'game-points' | 'statistics' | 'quickplay-statistics' | 'auth' | 'my-groups' | 'admin-dashboard' | 'plans' | 'registration' | 'profile' | 'profile-details' | 'team-creation' | 'notifications' | 'pro-shop';
+type ViewType = 'main' | 'setup' | 'players' | 'scorecard' | 'leaderboard' | 'active-rounds' | 'viewer' | 'game-points' | 'statistics' | 'quickplay-statistics' | 'auth' | 'my-groups' | 'plans' | 'registration' | 'profile' | 'profile-details' | 'team-creation' | 'notifications' | 'pro-shop';
 
 interface RoundState {
   round: GolfRound | null;
@@ -88,9 +86,6 @@ function App() {
   const [pendingRoundId, setPendingRoundId] = useState<string | null>(null);
   const [accessCodeError, setAccessCodeError] = useState('');
   const [showLeaveGroupConfirm, setShowLeaveGroupConfirm] = useState(false);
-  const [showAdminPinModal, setShowAdminPinModal] = useState(false);
-  const [adminPinError, setAdminPinError] = useState('');
-  const [adminPinAttempts, setAdminPinAttempts] = useState(0);
   const { planType, profile, loading: subscriptionLoading, refresh: refreshSubscription } = useSubscription(user?.id ?? null);
   const [pendingInvitations, setPendingInvitations] = useState(0);
   const [showShareModal, setShowShareModal] = useState(false);
@@ -414,57 +409,6 @@ function App() {
     setHasLimitedAccess(false);
     setShowLeaveGroupConfirm(false);
     handleBackToMain();
-  };
-
-  const handleAdminLoginAttempt = () => {
-    golfService.leaveGroup();
-    setCurrentGroup(null);
-    setIsGroupCreator(false);
-    setHasLimitedAccess(false);
-    setShowAdminPinModal(true);
-    setAdminPinError('');
-    setAdminPinAttempts(0);
-  };
-
-  const handleAdminPinSubmit = async (pin: string) => {
-    try {
-      const { supabase } = await import('./services/supabaseClient');
-      const { data: config } = await supabase
-        .from('admin_config')
-        .select('admin_pin')
-        .single();
-
-      const correctPin = config?.admin_pin || import.meta.env.VITE_ADMIN_PIN;
-
-      if (pin === correctPin) {
-        setShowAdminPinModal(false);
-        setAdminPinError('');
-        setAdminPinAttempts(0);
-        setCurrentView('admin-dashboard');
-      } else {
-        const newAttempts = adminPinAttempts + 1;
-        setAdminPinAttempts(newAttempts);
-
-        if (newAttempts >= 3) {
-          setShowAdminPinModal(false);
-          setAdminPinError('');
-          setAdminPinAttempts(0);
-          setCurrentView('my-groups');
-        } else {
-          setAdminPinError(`Código incorrecto. Intento ${newAttempts} de 3.`);
-        }
-      }
-    } catch (err) {
-      console.error('Error validating PIN:', err);
-      setAdminPinError('Error al validar el PIN');
-    }
-  };
-
-  const handleAdminPinCancel = () => {
-    setShowAdminPinModal(false);
-    setAdminPinError('');
-    setAdminPinAttempts(0);
-    setCurrentView('my-groups');
   };
 
   const handleCancelLeaveGroup = () => {
@@ -859,7 +803,7 @@ function App() {
         <IncognitoWarning />
         <GlobalThemeSwitch />
         <div className={isIncognito ? 'pt-10' : ''}>
-          <PlansComparison
+          <PlansComparison backDestination={returnToProfile ? 'back' : 'home'}
             onBack={() => backFromProfileSection('main')}
             onSelectPlan={(plan) => {
               if (plan === 'express') {
@@ -1035,26 +979,19 @@ function App() {
         <IncognitoWarning />
         <GlobalThemeSwitch />
         <div className={isIncognito ? 'pt-10' : ''}>
-          <Auth
+          <Auth backDestination={authReturnView === 'main' ? 'home' : 'back'}
             onAuthSuccess={() => {
               setSimulatorEnabled(false);
               setSimulatedPlan(null);
               setAuthReturnView('main');
               setCurrentView('main');
             }}
-            onAdminLoginAttempt={handleAdminLoginAttempt}
             onBack={() => {
               setCurrentView(authReturnView);
               setAuthReturnView('main');
             }}
           />
-          {showAdminPinModal && (
-            <AdminPinModal
-              onSubmit={handleAdminPinSubmit}
-              onCancel={handleAdminPinCancel}
-              error={adminPinError}
-            />
-          )}
+
         </div>
       </>
     );
@@ -1066,7 +1003,7 @@ function App() {
         <IncognitoWarning />
         <GlobalThemeSwitch />
         <div className={isIncognito ? 'pt-10' : ''}>
-          <MyGroups
+          <MyGroups backDestination={returnToProfile ? 'back' : 'home'}
             onBack={() => backFromProfileSection('main')}
             onGroupSelected={(group) => {
               setReturnToProfile(false);
@@ -1195,7 +1132,7 @@ function App() {
               editable={roundState.isCreator}
             />
           )}
-          <PlayerSetup
+          <PlayerSetup backDestination={currentGroup ? 'home' : 'back'}
             roundId={roundState.round.id}
             players={roundState.players}
             useSlope={roundState.round.use_slope}
@@ -1216,7 +1153,7 @@ function App() {
       )}
 
       {currentView === 'scorecard' && roundState.round && (
-        <Scorecard
+        <Scorecard backDestination={currentGroup ? 'home' : 'back'}
           holes={roundState.holes}
           players={roundState.players}
           rounds={roundState.players.map((player) => ({
@@ -1249,7 +1186,7 @@ function App() {
       )}
 
       {currentView === 'leaderboard' && roundState.round && (
-        <Leaderboard
+        <Leaderboard backDestination={'back'}
           players={roundState.players}
           rounds={roundState.players.map((player) => ({
             playerId: player.id,
@@ -1270,7 +1207,7 @@ function App() {
       )}
 
       {currentView === 'active-rounds' && (
-        <ActiveRoundsViewer
+        <ActiveRoundsViewer backDestination={!returnToProfile && currentGroup ? 'home' : 'back'}
           onBack={() => backFromProfileSection(currentGroup ? 'main' : 'setup')}
           onJoinRound={handleJoinRound}
           currentGroup={currentGroup}
@@ -1282,7 +1219,7 @@ function App() {
       )}
 
       {currentView === 'statistics' && currentGroup && (
-        <Statistics
+        <Statistics backDestination={returnToProfile ? 'back' : 'home'}
           onBack={() => backFromProfileSection('main')}
           currentGroup={currentGroup}
         />
@@ -1295,11 +1232,7 @@ function App() {
         />
       )}
 
-      {currentView === 'admin-dashboard' && (
-        <AdminDashboard
-          onBack={() => setCurrentView('main')}
-        />
-      )}
+
 
       {showAccessCodeModal && (
         <AccessCodeModal
@@ -1326,7 +1259,7 @@ function App() {
               <p className="text-ink-3 mb-6">
                 Estás viendo esta partida como observador. Solo el creador puede editar puntuaciones.
               </p>
-              <Leaderboard
+              <Leaderboard backDestination={currentGroup ? 'home' : 'back'}
                 players={roundState.players}
                 rounds={roundState.players.map((player) => ({
                   playerId: player.id,

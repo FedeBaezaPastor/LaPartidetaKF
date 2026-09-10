@@ -1,5 +1,6 @@
+import { NavigationButton } from './NavigationButton';
 import React from 'react';
-import { Zap, ShieldCheck, ArrowRight, Lock, CheckCircle2 } from 'lucide-react';
+import { ArrowRight, Lock, CheckCircle2 } from 'lucide-react';
 import { UPGRADE_TIERS, TierInfo } from '../services/expressTierGuard';
 
 interface ParTeeUpgradeModalProps {
@@ -18,7 +19,11 @@ export const ParTeeUpgradeModal: React.FC<ParTeeUpgradeModalProps> = ({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-fadeIn">
       <div className="bg-slate-900 border border-slate-800 rounded-3xl max-w-2xl w-full p-6 md:p-8 shadow-2xl overflow-hidden relative">
-        
+
+        <NavigationButton destination="back"
+          onClick={onClose}
+          className="absolute top-3 left-3 text-slate-400 hover:text-white transition-colors underline"
+        />
         {/* Cabecera del Modal */}
         <div className="text-center mb-6">
           <div className="w-12 h-12 bg-amber-500/10 border border-amber-500/20 rounded-2xl flex items-center justify-center mx-auto mb-3 text-amber-400">
@@ -70,12 +75,7 @@ export const ParTeeUpgradeModal: React.FC<ParTeeUpgradeModalProps> = ({
             <CheckCircle2 size={14} className="text-emerald-400" />
             <span>Guarda tu historial en la nube al actualizar</span>
           </div>
-          <button
-            onClick={onClose}
-            className="text-slate-400 hover:text-white transition-colors underline"
-          >
-            Volver al inicio
-          </button>
+
         </div>
 
       </div>

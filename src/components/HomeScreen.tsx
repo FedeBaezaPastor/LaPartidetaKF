@@ -2,6 +2,7 @@ import React from 'react';
 import { Zap, LogIn, Plus, Share2, Bell, User, ChevronRight, FlaskConical, CreditCard } from 'lucide-react';
 import { PlanType, UserProfile } from '../types';
 import { ThemeToggle } from './ThemeToggle';
+import { ResetExpressRounds } from './ResetExpressRounds';
 
 interface HomeScreenProps {
   planType: PlanType;
@@ -90,14 +91,16 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             <ThemeToggle />
           </div>
 
-          {/* Entrance pill / Nick */}
+          {/* Acceso / Perfil */}
           {!isAuthenticated ? (
             <button
+              type="button"
               onClick={onShowAuth}
-              className="flex items-center gap-2 bg-accent text-on-accent px-5 py-2.5 rounded-full shadow-soft hover:bg-accent-hover transition-all font-semibold text-sm"
+              title="Entrar"
+              aria-label="Entrar"
+              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-accent bg-accent text-on-accent shadow-soft transition-all hover:bg-accent-hover active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
             >
-              <LogIn size={16} />
-              Entrar
+              <LogIn size={22} aria-hidden="true" />
             </button>
           ) : (
             <button
@@ -170,6 +173,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
         </div>
 
         <div className="mt-6 flex items-center justify-center gap-3">
+          {isExpress && !isAuthenticated && <ResetExpressRounds />}
           <button
             type="button"
             onClick={onToggleSimulator}

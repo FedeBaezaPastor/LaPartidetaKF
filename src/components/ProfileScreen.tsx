@@ -1,5 +1,6 @@
+import { NavigationButton } from './NavigationButton';
 import React, { useState } from 'react';
-import { ArrowLeft, LogOut, Settings, BarChart3, Gamepad2, Crown, ChevronRight, CreditCard } from 'lucide-react';
+import { Settings, BarChart3, Gamepad2, Crown, ChevronRight, CreditCard } from 'lucide-react';
 import { UserProfile, PlanType } from '../types';
 
 interface ProfileScreenProps {
@@ -42,17 +43,14 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
     <div className="min-h-screen bg-app transition-colors">
       <div className="max-w-lg mx-auto px-4 py-6">
         <div className="flex items-center justify-between mb-6">
-          <button onClick={onBack} className="flex items-center gap-2 text-ink-3 hover:text-ink">
-            <ArrowLeft size={20} />
-            Volver
-          </button>
-          <button
+          <NavigationButton destination="home"
+            onClick={onBack}
+            className="flex items-center gap-2 text-ink-3 hover:text-ink"
+          />
+          <NavigationButton destination="logout"
             onClick={onLogout}
-            className="flex items-center gap-2 text-red-600 hover:text-red-700 text-sm font-medium"
-          >
-            <LogOut size={18} />
-            Cerrar sesion
-          </button>
+            className="h-11 w-11 !rounded-full border border-red-200 bg-red-50 text-red-600 shadow-soft transition-all hover:bg-red-100 hover:text-red-700 active:scale-95"
+          />
         </div>
 
         {/* Profile header */}

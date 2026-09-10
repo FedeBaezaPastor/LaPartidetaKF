@@ -1,7 +1,8 @@
+import { NavigationButton } from './NavigationButton';
 import React, { useState, useEffect } from 'react';
 //import { Users, LogIn, Plus, Zap, User, Flag, UserCheck, RefreshCw, Mail, Lock, Eye, EyeOff, AlertCircle } from 'lucide-react';
 // 1. Añade Share2 al import de lucide-react
-import { Users, LogIn, Plus, Zap, User, Flag, UserCheck, RefreshCw, Mail, Lock, Eye, EyeOff, AlertCircle, Share2, LogOut } from 'lucide-react';
+import { Users, LogIn, Plus, Zap, User, Flag, UserCheck, RefreshCw, Mail, Lock, Eye, EyeOff, AlertCircle, Share2} from 'lucide-react';
 import { Group, UserTier } from '../types';
 import { supabase } from '../services/supabaseClient';
 import ComingSoonModal from './ComingSoonModal';
@@ -192,6 +193,7 @@ export default function GroupSetup({ onGroupCreated, onGroupJoined, onQuickPlay,
     return (
       <div className="min-h-screen bg-app p-4 flex items-center justify-center">
         <div className="max-w-md w-full bg-card rounded-2xl shadow-card p-8">
+
           {/* Header con login/logout button */}
           <div className="flex items-center justify-between mb-6 min-h-10">
             <div></div>
@@ -244,16 +246,13 @@ export default function GroupSetup({ onGroupCreated, onGroupJoined, onQuickPlay,
                     <div className="border-t border-line"></div>
 
                     {/* Logout */}
-                    <button
+                    <NavigationButton destination="logout"
                       onClick={() => {
-                        setShowUserMenu(false);
-                        onLogout?.();
+                      setShowUserMenu(false);
+                      onLogout?.();
                       }}
-                      className="w-full px-4 py-3 text-left text-sm text-red-600 hover:bg-red-50 transition-colors flex items-center gap-2 font-medium"
-                    >
-                      <LogOut size={16} />
-                      Salir
-                    </button>
+                      className=" px-3 py-3 text-left text-sm text-red-600 hover:bg-red-50 transition-colors flex items-center gap-2 font-medium"
+                    />
                   </div>
                 )}
               </div>
@@ -336,6 +335,11 @@ export default function GroupSetup({ onGroupCreated, onGroupJoined, onQuickPlay,
     return (
       <div className="min-h-screen bg-app p-4 flex items-center justify-center">
         <div className="max-w-md w-full bg-card rounded-2xl shadow-card p-8">
+          <NavigationButton destination="back"
+            onClick={() => setMode('choose')}
+            disabled={loading}
+            className="mb-4 px-3 py-3 border-2 border-line-2 text-ink-2 rounded-xl hover:bg-card-2 transition-colors font-semibold disabled:opacity-50"
+          />
           <div className="text-center mb-8">
             <div className="inline-flex items-center justify-center w-16 h-16 bg-accent-soft rounded-full mb-4">
               <Plus className="w-8 h-8 text-accent-ink" />
@@ -511,13 +515,7 @@ export default function GroupSetup({ onGroupCreated, onGroupJoined, onQuickPlay,
             )}
 
             <div className="flex gap-3">
-              <button
-                onClick={() => setMode('choose')}
-                disabled={loading}
-                className="flex-1 px-6 py-3 border-2 border-line-2 text-ink-2 rounded-xl hover:bg-card-2 transition-colors font-semibold disabled:opacity-50"
-              >
-                Atrás
-              </button>
+
               <button
                 onClick={handleCreateGroup}
                 disabled={loading || !groupName.trim() || (useCustomCode && customCode.length < 6)}
@@ -535,6 +533,11 @@ export default function GroupSetup({ onGroupCreated, onGroupJoined, onQuickPlay,
   return (
     <div className="min-h-screen bg-app p-4 flex items-center justify-center">
       <div className="max-w-md w-full bg-card rounded-2xl shadow-card p-8">
+        <NavigationButton destination="back"
+          onClick={() => setMode('choose')}
+          disabled={loading}
+          className="mb-4 px-3 py-3 border-2 border-line-2 text-ink-2 rounded-xl hover:bg-card-2 transition-colors font-semibold disabled:opacity-50"
+        />
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-accent-soft rounded-full mb-4">
             <LogIn className="w-8 h-8 text-accent-ink" />
@@ -573,13 +576,7 @@ export default function GroupSetup({ onGroupCreated, onGroupJoined, onQuickPlay,
           )}
 
           <div className="flex gap-3">
-            <button
-              onClick={() => setMode('choose')}
-              disabled={loading}
-              className="flex-1 px-6 py-3 border-2 border-line-2 text-ink-2 rounded-xl hover:bg-card-2 transition-colors font-semibold disabled:opacity-50"
-            >
-              Atrás
-            </button>
+
             <button
               onClick={handleJoinGroup}
               disabled={loading || joinCode.length < 4}

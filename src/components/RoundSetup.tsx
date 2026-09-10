@@ -1,12 +1,13 @@
+import { NavigationButton } from './NavigationButton';
 import React, { useState, useEffect } from 'react';
 import { GolfCourse, GolfHole, Group, Tee, GameMode } from '../types';
 import { golfService } from '../services/golfService';
-import { ChevronRight, Flag, Copy, Check, LogOut, ArrowLeft, Info, Lock } from 'lucide-react';
+import { ChevronRight, Copy, Check, LogOut, Info, Lock } from 'lucide-react';
 import { HolesRangeModal } from './HolesRangeModal';
 import { AdminPinModal } from './AdminPinModal';
 import { adminPinUtils } from '../utils/adminPin';
 import { safeStorage } from '../utils/safeStorage';
-import { expressTierGuard } from '../services/expressTierGuard';
+import { MAX_EXPRESS_GAMES } from '../services/expressTierGuard';
 import { ParTeeUpgradeModal } from './ParTeeUpgradeModal';
 import { trackExpressGameCreated } from '../services/expressTierGuard';
 import { supabase } from '../services/supabaseClient';
@@ -71,31 +72,30 @@ export const RoundSetup: React.FC<RoundSetupProps> = ({
   const [gameMode, setGameMode] = useState<GameMode>('stableford');
   const [completedRoundsCount, setCompletedRoundsCount] = useState<number>(0);
 
-  // Estado para controlar las partidas restantes del usuario no registrado
-  const MAX_GUEST_ROUNDS = 4;
-  const [remainingGuestRounds, setRemainingGuestRounds] = useState<number | null>(null);
+  const [quickPlayRoundsCount, setQuickPlayRoundsCount] = useState<number | null>(null);
 
   useEffect(() => {
     loadCourses();
     loadActiveRoundsCount();
     loadCompletedRounds();
-    loadGuestRoundsCount();
+    loadQuickPlayRoundsCount();
   }, []);
 
-  const loadGuestRoundsCount = async () => {
+  const loadQuickPlayRoundsCount = async () => {
     if (!currentGroup) {
       try {
         const userId = getUserId();
         const { count, error } = await supabase
           .from('golf_rounds')
           .select('id', { count: 'exact', head: true })
-          .eq('user_id', userId);
+          .eq('user_id', userId)
+          .is('group_id', null);
 
         if (!error && count !== null) {
-          setRemainingGuestRounds(Math.max(0, MAX_GUEST_ROUNDS - count));
+          setQuickPlayRoundsCount(count);
         }
       } catch (err) {
-        console.error('Error al contar partidas del usuario anónimo:', err);
+        console.error('Error al contar partidas rápidas:', err);
       }
     }
   };
@@ -176,13 +176,13 @@ export const RoundSetup: React.FC<RoundSetupProps> = ({
       try {
         setLoading(true);
 
-        const existingRounds = await golfService.getAvailableRoundsForStats(4);
-
-        if (existingRounds.length >= 4) {
-          setError('Has alcanzado el límite máximo de 4 partidas del plan Express.');
-          setShowUpgradeModal(true);
-          setLoading(false);
-          return;
+        if (isExpress) {
+          const existingRounds = await golfService.getAvailableRoundsForStats(MAX_EXPRESS_GAMES);
+          if (existingRounds.length >= MAX_EXPRESS_GAMES) {
+            setError('Has alcanzado el límite máximo de 4 partidas del plan Express.');
+            setShowUpgradeModal(true);
+            return;
+          }
         }
 
         const hasActive = await golfService.hasActiveQuickPlayRound();
@@ -235,8 +235,10 @@ export const RoundSetup: React.FC<RoundSetupProps> = ({
         gameMode
       );
 
-      trackExpressGameCreated(round.id);
-      
+      if (isExpress && !currentGroup) {
+        trackExpressGameCreated(round.id);
+      }
+
       safeStorage.setItem('lastSelectedCourse', selectedCourse);
       onRoundCreated(round.id, round.course_id, round.num_holes, round.use_slope);
     } catch (err: any) {
@@ -312,13 +314,10 @@ export const RoundSetup: React.FC<RoundSetupProps> = ({
         {/* Header */}
         <div className="text-center relative">
           {!currentGroup && onBack && (
-            <button
+            <NavigationButton destination="home"
               onClick={onBack}
               className="absolute left-0 top-0 text-ink hover:text-accent-ink flex items-center gap-2 transition-colors"
-            >
-              <ArrowLeft size={24} />
-              Atras
-            </button>
+            />
           )}
           <div className="flex items-center justify-center gap-3 mb-4">
             <h1 className="text-4xl md:text-5xl font-bold text-title">
@@ -332,20 +331,25 @@ export const RoundSetup: React.FC<RoundSetupProps> = ({
           </p>
         </div>
 
-        {/* Banner de Límite para Usuario No Registrado */}
-        {!currentGroup && remainingGuestRounds !== null && (
+        {/* Express tiene cupo; Player y Team muestran solo el total. */}
+        {!currentGroup && quickPlayRoundsCount !== null && (isExpress ? (
           <div className="bg-amber-100 dark:bg-amber-950 border-2 border-amber-300 dark:border-amber-700 rounded-xl p-4 text-amber-950 dark:text-amber-100 flex items-center gap-3 shadow-card">
             <Info className="text-amber-600 dark:text-amber-300 flex-shrink-0" size={24} />
             <div className="text-sm">
               <p className="font-semibold">
-                Modo no registrado
+                Modo Express
               </p>
               <p className="text-amber-800 dark:text-amber-200">
-                Te quedan <span className="font-bold text-amber-700 dark:text-amber-300 text-base">{remainingGuestRounds}</span> de {MAX_GUEST_ROUNDS} partidas disponibles en esta modalidad.
+                Te quedan <span className="font-bold text-amber-700 dark:text-amber-300 text-base">{Math.max(0, MAX_EXPRESS_GAMES - quickPlayRoundsCount)}</span> de {MAX_EXPRESS_GAMES} partidas disponibles en esta modalidad.
               </p>
             </div>
           </div>
-        )}
+        ) : (
+          <div className="bg-card border border-line rounded-xl p-4 text-ink-2 flex items-center gap-3 shadow-card">
+            <Info className="text-accent-ink flex-shrink-0" size={24} />
+            <p className="text-sm">Llevas <span className="font-bold">{quickPlayRoundsCount}</span> partidas</p>
+          </div>
+        ))}
 
         {/* Código de Grupo */}
         {currentGroup && !hasLimitedAccess && (

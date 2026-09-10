@@ -1,9 +1,11 @@
+import { NavigationButton } from './NavigationButton';
 import React, { useState } from 'react';
-import { ArrowLeft, Zap, User, Users, Check, X, Info, LogIn } from 'lucide-react';
+import { Zap, User, Users, Check, X, Info, LogIn } from 'lucide-react';
 import { PlanType } from '../types';
 
 interface PlansComparisonProps {
   onBack: () => void;
+  backDestination?: 'back' | 'home';
   onSelectPlan: (plan: PlanType) => void;
   onShowAuth?: () => void;
 }
@@ -30,7 +32,7 @@ const features: PlanFeature[] = [
   { label: 'Pro-Shop (ampliaciones)', express: false, player: false, team: true },
 ];
 
-export const PlansComparison: React.FC<PlansComparisonProps> = ({ onBack, onSelectPlan, onShowAuth }) => {
+export const PlansComparison: React.FC<PlansComparisonProps> = ({ onBack, backDestination = 'back', onSelectPlan, onShowAuth }) => {
   const [selectedPlan, setSelectedPlan] = useState<PlanType | null>(null);
 
   const renderValue = (value: boolean | string) => {
@@ -42,13 +44,10 @@ export const PlansComparison: React.FC<PlansComparisonProps> = ({ onBack, onSele
   return (
     <div className="min-h-screen bg-app transition-colors">
       <div className="max-w-5xl mx-auto px-4 py-6">
-        <button
+        <NavigationButton destination={backDestination}
           onClick={onBack}
           className="flex items-center gap-2 text-ink-3 hover:text-ink transition-colors mb-6"
-        >
-          <ArrowLeft size={20} />
-          Volver
-        </button>
+        />
 
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-ink mb-2">Lleva tu golf al siguiente nivel</h1>

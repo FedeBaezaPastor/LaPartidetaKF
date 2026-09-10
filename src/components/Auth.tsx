@@ -1,5 +1,7 @@
+import { adminService } from '../services/adminService';
+import { NavigationButton } from './NavigationButton';
 import React, { useState, useEffect } from 'react';
-import { Mail, Lock, User, ArrowLeft, AlertCircle, Eye, EyeOff, Check, X } from 'lucide-react';
+import { Mail, Lock, User, AlertCircle, Eye, EyeOff, Check, X } from 'lucide-react';
 import { clearStoredAuthSession, supabase } from '../services/supabaseClient';
 import { UserTier } from '../types';
 import { EmailSentModal } from './EmailSentModal';
@@ -8,14 +10,16 @@ import { AVATAR_OPTIONS, DEFAULT_AVATAR_URL } from '../utils/avatarOptions';
 
 interface AuthProps {
   onAuthSuccess: (userId: string) => void | Promise<void>;
-  onAdminLoginAttempt?: () => void;
+  recoveryRequested?: boolean;
+  onRecoveryComplete?: () => void;
   onBack: () => void;
+  backDestination?: 'back' | 'home';
 }
 
 type AuthMode = 'login' | 'register' | 'forgot-password' | 'reset-password';
 
-export default function Auth({ onAuthSuccess, onAdminLoginAttempt, onBack }: AuthProps) {
-  const [mode, setMode] = useState<AuthMode>('login');
+export default function Auth({ onAuthSuccess, recoveryRequested = false, onRecoveryComplete, onBack, backDestination = 'back' }: AuthProps) {
+  const [mode, setMode] = useState<AuthMode>(recoveryRequested ? 'reset-password' : 'login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -91,38 +95,21 @@ export default function Auth({ onAuthSuccess, onAdminLoginAttempt, onBack }: Aut
       await supabase.auth.signOut({ scope: 'local' });
       clearStoredAuthSession();
 
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (error) throw error;
-
-      if (data.user) {
-        const normalizedEmail = email.trim().toLowerCase();
-        let adminEmail = (import.meta.env.VITE_ADMIN_EMAIL || '').trim().toLowerCase();
-
-        try {
-          const { data: adminConfig } = await supabase
-            .from('admin_config')
-            .select('admin_email')
-            .maybeSingle();
-
-          if (adminConfig?.admin_email) {
-            adminEmail = String(adminConfig.admin_email).trim().toLowerCase();
-          }
-        } catch {
-          // Si no existe configuración o falla la lectura, dejamos el fallback del entorno.
-        }
-
-        if (adminEmail && normalizedEmail === adminEmail && onAdminLoginAttempt) {
-          onAdminLoginAttempt();
-          return;
-        }
+      const identifier = email.trim();
+      let signedInUser;
+      if (identifier.includes('@')) {
+        const { data, error } = await supabase.auth.signInWithPassword({ email: identifier, password });
+        if (error) throw error;
+        signedInUser = data.user;
+      } else {
+        signedInUser = await adminService.login(identifier, password);
+      }
+      if (signedInUser) {
+        if (await adminService.getAccount(signedInUser)) return;
 
         const { golfService } = await import('../services/golfService');
         await golfService.linkGroupsToAuthUser();
-        await onAuthSuccess(data.user.id);
+        await onAuthSuccess(signedInUser.id);
       }
     } catch (err: any) {
       setError(err.message || 'Error al iniciar sesión');
@@ -203,11 +190,14 @@ export default function Auth({ onAuthSuccess, onAdminLoginAttempt, onBack }: Aut
     setMessage('');
 
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: window.location.origin,
-      });
-
-      if (error) throw error;
+      if (email.trim().includes('@')) {
+        const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+          redirectTo: `${window.location.origin}/?auth-action=recovery`,
+        });
+        if (error) throw error;
+      } else {
+        await adminService.recover(email.trim());
+      }
 
       setMessage('Se ha enviado un enlace de recuperación a tu correo electrónico.');
     } catch (err: any) {
@@ -241,6 +231,7 @@ export default function Auth({ onAuthSuccess, onAdminLoginAttempt, onBack }: Aut
 
       if (error) throw error;
 
+      onRecoveryComplete?.();
       setMessage('Contraseña actualizada correctamente. Redirigiendo...');
       setTimeout(() => {
         setMode('login');
@@ -258,13 +249,10 @@ export default function Auth({ onAuthSuccess, onAdminLoginAttempt, onBack }: Aut
     return (
       <div className="min-h-screen bg-app p-4 flex items-center justify-center">
         <div className="max-w-md w-full bg-card rounded-2xl shadow-card p-8">
-          <button
+          <NavigationButton destination={backDestination}
             onClick={onBack}
             className="flex items-center gap-2 text-ink-3 hover:text-ink mb-6 transition-colors"
-          >
-            <ArrowLeft size={20} />
-            Volver
-          </button>
+          />
 
           <div className="text-center mb-8">
             <div className="inline-flex items-center justify-center w-16 h-16 bg-accent-soft rounded-full mb-4">
@@ -277,15 +265,15 @@ export default function Auth({ onAuthSuccess, onAdminLoginAttempt, onBack }: Aut
           <form onSubmit={handleLogin} className="space-y-6">
             <div>
               <label className="block text-sm font-medium text-ink-2 mb-2">
-                Correo Electrónico
+                Correo o usuario administrador
               </label>
               <div className="relative">
                 <Mail className="absolute left-3 top-3.5 text-ink-4" size={20} />
                 <input
-                  type="email"
+                  type="text" autoComplete="username" autoCapitalize="none" spellCheck={false}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="tu@email.com"
+                  placeholder="Correo o AdminF"
                   required
                   className="w-full pl-10 pr-4 py-3 border border-line-2 rounded-xl focus:ring-2 focus:ring-accent focus:border-transparent"
                 />
@@ -360,13 +348,10 @@ export default function Auth({ onAuthSuccess, onAdminLoginAttempt, onBack }: Aut
     return (
       <div className="min-h-screen bg-app p-4 flex items-center justify-center">
         <div className="max-w-md w-full bg-card rounded-2xl shadow-card p-8">
-          <button
+          <NavigationButton destination="back"
             onClick={() => setMode('login')}
             className="flex items-center gap-2 text-ink-3 hover:text-ink mb-6 transition-colors"
-          >
-            <ArrowLeft size={20} />
-            Volver al inicio de sesión
-          </button>
+          />
 
           <div className="text-center mb-8">
             <div className="inline-flex items-center justify-center w-16 h-16 bg-accent-soft rounded-full mb-4">
@@ -683,13 +668,10 @@ export default function Auth({ onAuthSuccess, onAdminLoginAttempt, onBack }: Aut
   return (
     <div className="min-h-screen bg-app p-4 flex items-center justify-center">
       <div className="max-w-md w-full bg-card rounded-2xl shadow-card p-8">
-        <button
+        <NavigationButton destination="back"
           onClick={() => setMode('login')}
           className="flex items-center gap-2 text-ink-3 hover:text-ink mb-6 transition-colors"
-        >
-          <ArrowLeft size={20} />
-          Volver al inicio de sesión
-        </button>
+        />
 
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-accent-soft rounded-full mb-4">
@@ -702,15 +684,15 @@ export default function Auth({ onAuthSuccess, onAdminLoginAttempt, onBack }: Aut
         <form onSubmit={handleForgotPassword} className="space-y-6">
           <div>
             <label className="block text-sm font-medium text-ink-2 mb-2">
-              Correo Electrónico
+              Correo o usuario administrador
             </label>
             <div className="relative">
               <Mail className="absolute left-3 top-3.5 text-ink-4" size={20} />
               <input
-                type="email"
+                type="text" autoComplete="username" autoCapitalize="none" spellCheck={false}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="tu@email.com"
+                placeholder="Correo o AdminF"
                 required
                 className="w-full pl-10 pr-4 py-3 border border-line-2 rounded-xl focus:ring-2 focus:ring-accent focus:border-transparent"
               />

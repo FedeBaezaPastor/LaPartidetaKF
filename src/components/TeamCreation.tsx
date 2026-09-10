@@ -1,5 +1,6 @@
+import { NavigationButton } from './NavigationButton';
 import React, { useState, useEffect, useRef } from 'react';
-import { ArrowLeft, Info, Search, UserPlus, Check, X, Users, Crown } from 'lucide-react';
+import { Info, Search, UserPlus, Check, X, Users} from 'lucide-react';
 import { supabase } from '../services/supabaseClient';
 import { userService } from '../services/userService';
 import { UserProfile } from '../types';
@@ -128,10 +129,10 @@ export const TeamCreation: React.FC<TeamCreationProps> = ({ userId, onBack, onTe
   return (
     <div className="min-h-screen bg-app transition-colors">
       <div className="max-w-lg mx-auto px-4 py-6">
-        <button onClick={onBack} className="flex items-center gap-2 text-ink-3 hover:text-ink mb-6">
-          <ArrowLeft size={20} />
-          Volver
-        </button>
+        <NavigationButton destination={step === 1 ? "home" : "back"}
+          onClick={() => step === 1 ? onBack() : setStep(step - 1)}
+          className="flex items-center gap-2 text-ink-3 hover:text-ink mb-6"
+        />
 
         {/* Step indicator */}
         <div className="flex items-center gap-2 mb-6">
@@ -273,12 +274,6 @@ export const TeamCreation: React.FC<TeamCreationProps> = ({ userId, onBack, onTe
 
             <div className="flex gap-3">
               <button
-                onClick={() => setStep(1)}
-                className="flex-1 bg-card-2 hover:bg-neutral-hover text-ink-2 font-semibold py-3 rounded-xl transition-colors"
-              >
-                Atras
-              </button>
-              <button
                 onClick={() => setStep(addPlayersNow ? 3 : 4)}
                 className="flex-1 bg-accent hover:bg-accent-hover text-on-accent font-semibold py-3 rounded-xl transition-colors"
               >
@@ -352,12 +347,6 @@ export const TeamCreation: React.FC<TeamCreationProps> = ({ userId, onBack, onTe
             )}
 
             <div className="flex gap-3">
-              <button
-                onClick={() => setStep(2)}
-                className="flex-1 bg-card-2 hover:bg-neutral-hover text-ink-2 font-semibold py-3 rounded-xl transition-colors"
-              >
-                Atras
-              </button>
               <button
                 onClick={handleCreate}
                 disabled={loading}

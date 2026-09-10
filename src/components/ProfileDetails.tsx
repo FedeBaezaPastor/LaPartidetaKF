@@ -1,5 +1,6 @@
+import { NavigationButton } from './NavigationButton';
 import React, { useEffect, useState } from 'react';
-import { ArrowLeft, Check, CheckCircle2, Loader2, Save, User, X } from 'lucide-react';
+import { Check, CheckCircle2, Loader2, Save, User, X } from 'lucide-react';
 import { UserProfile } from '../types';
 import { userService } from '../services/userService';
 import { AVATAR_OPTIONS, DEFAULT_AVATAR_URL, normalizeAvatarUrl } from '../utils/avatarOptions';
@@ -112,10 +113,10 @@ export const ProfileDetails: React.FC<ProfileDetailsProps> = ({
   return (
     <div className="min-h-screen bg-app transition-colors">
       <main className="max-w-lg mx-auto px-4 py-6">
-        <button onClick={onBack} className="flex items-center gap-2 text-ink-3 hover:text-ink mb-6">
-          <ArrowLeft size={20} />
-          Volver a Mi perfil
-        </button>
+        <NavigationButton destination="back"
+          onClick={onBack}
+          className="flex items-center gap-2 text-ink-3 hover:text-ink mb-6"
+        />
 
         <section className="bg-card rounded-2xl shadow-card p-6">
           <div className="text-center mb-7">

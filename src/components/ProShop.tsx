@@ -1,5 +1,6 @@
+import { NavigationButton } from './NavigationButton';
 import React, { useState } from 'react';
-import { ArrowLeft, Users, Palette, Plane, Check, Info, Zap, CreditCard } from 'lucide-react';
+import { Users, Palette, Plane, Check, Info} from 'lucide-react';
 import { PaymentSelector } from './PaymentSelector';
 
 interface ProShopProps {
@@ -101,10 +102,10 @@ export const ProShop: React.FC<ProShopProps> = ({ groupId, userId, onBack, onPur
   return (
     <div className="min-h-screen bg-app transition-colors">
       <div className="max-w-lg mx-auto px-4 py-6">
-        <button onClick={onBack} className="flex items-center gap-2 text-ink-3 hover:text-ink mb-6">
-          <ArrowLeft size={20} />
-          Volver
-        </button>
+        <NavigationButton destination="back"
+          onClick={onBack}
+          className="flex items-center gap-2 text-ink-3 hover:text-ink mb-6"
+        />
 
         <div className="text-center mb-6">
           <h1 className="text-2xl font-bold text-ink">Pro-Shop</h1>

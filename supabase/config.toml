@@ -1,0 +1,6 @@
+# Both endpoints validate their own credentials. admin-auth must allow pre-login requests.
+[functions.admin-auth]
+verify_jwt = false
+
+[functions.admin-management]
+verify_jwt = false

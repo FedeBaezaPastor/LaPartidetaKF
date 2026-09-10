@@ -1,5 +1,6 @@
+import { NavigationButton } from './NavigationButton';
 import React, { useState, useRef, useEffect } from 'react';
-import { ArrowLeft, Eye, EyeOff, Check, X, AlertCircle, Info } from 'lucide-react';
+import { Eye, EyeOff, Check, X, AlertCircle, Info } from 'lucide-react';
 import { supabase } from '../services/supabaseClient';
 import { userService } from '../services/userService';
 import { PlanType } from '../types';
@@ -162,13 +163,10 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({ planType, on
   return (
     <div className="min-h-screen bg-app transition-colors">
       <div className="max-w-lg mx-auto px-4 py-6">
-        <button
+        <NavigationButton destination="back"
           onClick={onBack}
           className="flex items-center gap-2 text-ink-3 hover:text-ink transition-colors mb-6"
-        >
-          <ArrowLeft size={20} />
-          Volver
-        </button>
+        />
 
         <div className="bg-card rounded-2xl shadow-card p-6 md:p-8">
           <h1 className="text-2xl font-bold text-ink mb-1">Crear cuenta {planType === 'player' ? 'Player' : 'Team'}</h1>

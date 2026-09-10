@@ -6,7 +6,7 @@ if (import.meta.env.DEV) {
   console.info = () => {};
   console.debug = () => {};
 }
-import App from './App.tsx';
+import { ApplicationGateway } from './components/admin/ApplicationGateway';
 import ErrorBoundary from './components/ErrorBoundary';
 import { AuthProvider } from './context/AuthContext';
 import './index.css';
@@ -24,7 +24,7 @@ try {
     <StrictMode>
       <ErrorBoundary>
         <AuthProvider>
-          <App />
+          <ApplicationGateway />
         </AuthProvider>
       </ErrorBoundary>
     </StrictMode>

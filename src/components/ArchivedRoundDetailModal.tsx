@@ -1,5 +1,6 @@
+import { NavigationButton } from './NavigationButton';
 import React, { useState, useEffect } from 'react';
-import { X, ArrowLeft, Award, Target, Users, Trophy, Beer } from 'lucide-react';
+import { X, Award, Target, Users, Trophy, Beer } from 'lucide-react';
 import { golfService } from '../services/golfService';
 
 interface ArchivedRoundDetailModalProps {
@@ -137,12 +138,10 @@ export const ArchivedRoundDetailModal: React.FC<ArchivedRoundDetailModalProps> =
       <div className="bg-card rounded-lg shadow-card max-w-6xl w-full max-h-[90vh] overflow-hidden flex flex-col">
         <div className="flex items-center justify-between p-6 border-b bg-gradient-to-r from-emerald-600 to-emerald-700">
           <div className="flex items-center gap-3">
-            <button
+            <NavigationButton destination="back"
               onClick={onBack}
               className="text-white hover:bg-accent-hover p-2 rounded-lg transition-colors"
-            >
-              <ArrowLeft size={24} />
-            </button>
+            />
             <div>
               <h2 className="text-2xl font-bold text-white">Detalles del Día</h2>
               <div className="flex items-center gap-2 flex-wrap">
@@ -397,12 +396,7 @@ export const ArchivedRoundDetailModal: React.FC<ArchivedRoundDetailModalProps> =
         </div>
 
         <div className="p-4 border-t bg-card-2 flex gap-3">
-          <button
-            onClick={onBack}
-            className="flex-1 bg-neutral hover:bg-neutral-hover text-ink font-semibold py-3 rounded-lg transition-colors"
-          >
-            Volver a lista
-          </button>
+
           <button
             onClick={onClose}
             className="flex-1 bg-accent hover:bg-accent-hover text-on-accent font-semibold py-3 rounded-lg transition-colors"

@@ -1,6 +1,7 @@
+import { NavigationButton } from './NavigationButton';
 import React, { useState, useEffect } from 'react';
 import { GolfRound, RoundPlayer, RoundScore, GameMode } from '../types';
-import { Trophy, Medal, Flame, ArrowLeft, Eye, RefreshCw } from 'lucide-react';
+import { Trophy, Medal, Flame, Eye, RefreshCw } from 'lucide-react';
 import { golfService } from '../services/golfService';
 
 interface LeaderboardProps {
@@ -12,6 +13,7 @@ interface LeaderboardProps {
   }>;
   currentHole: number;
   onBack: () => void;
+  backDestination?: 'back' | 'home';
   hasGroup?: boolean;
   gameMode?: GameMode;
 }
@@ -26,7 +28,7 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
   players,
   rounds,
   currentHole,
-  onBack,
+  onBack, backDestination = 'back',
   hasGroup = false,
   gameMode = 'stableford',
 }) => {
@@ -124,6 +126,10 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
       <div className="max-w-2xl mx-auto">
         <div className="bg-card rounded-lg shadow-card overflow-hidden">
           <div className="bg-accent-deep p-6 md:p-8">
+            <NavigationButton destination={backDestination}
+              onClick={onBack}
+              className="mb-4 px-3 bg-accent hover:bg-accent-hover text-on-accent font-bold py-4 rounded-lg flex items-center justify-center gap-2 transition-colors"
+            />
             <div className="flex items-center gap-3 mb-2">
               <Trophy size={32} className="text-yellow-400" />
               <h1 className="text-3xl md:text-4xl font-bold text-white">
@@ -394,13 +400,7 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
               </>
             )}
 
-            <button
-              onClick={onBack}
-              className="w-full mt-8 bg-accent hover:bg-accent-hover text-on-accent font-bold py-4 rounded-lg flex items-center justify-center gap-2 transition-colors"
-            >
-              <ArrowLeft size={20} />
-              Volver a la Tarjeta
-            </button>
+
           </div>
         </div>
       </div>

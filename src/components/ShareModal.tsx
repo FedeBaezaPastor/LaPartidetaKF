@@ -1,3 +1,4 @@
+import { NavigationButton } from './NavigationButton';
 import React, { useState } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import { Share2, Copy, Check, X, QrCode } from 'lucide-react';
@@ -47,6 +48,12 @@ export default function ShareModal({
           <X className="w-5 h-5" />
         </button>
 
+        {showQR && (
+          <NavigationButton destination="back"
+            onClick={() => setShowQR(false)}
+            className="absolute top-3 left-3  mb-3 text-sm text-accent-ink font-medium hover:underline"
+          />
+        )}
         <div className="text-center mb-6">
           <div className="inline-flex items-center justify-center w-12 h-12 bg-accent-soft rounded-full mb-3 text-accent-ink">
             <Share2 className="w-6 h-6" />
@@ -83,14 +90,7 @@ export default function ShareModal({
           </div>
         )}
 
-        {showQR && (
-          <button
-            onClick={() => setShowQR(false)}
-            className="w-full mb-3 text-sm text-accent-ink font-medium hover:underline"
-          >
-            ← Volver a opciones de compartir
-          </button>
-        )}
+
 
         {/* Input con enlace para copiar */}
         <div className="flex items-center gap-2 bg-card-2 p-2 rounded-xl border border-line">

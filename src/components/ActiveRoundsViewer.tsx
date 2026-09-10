@@ -1,3 +1,4 @@
+import { NavigationButton } from './NavigationButton';
 import React, { useState, useEffect } from 'react';
 import { GolfRound, RoundPlayer, RoundScore, Group } from '../types';
 import { golfService } from '../services/golfService';
@@ -6,7 +7,7 @@ import { AdminPinModal } from './AdminPinModal';
 import { RoundStatistics } from './RoundStatistics';
 import { adminPinUtils } from '../utils/adminPin';
 import { getUserId } from '../utils/userId';
-import { ArrowLeft, Eye, Trash2, Trophy, UserX, UserPlus, TrendingUp, Archive } from 'lucide-react';
+import { Eye, Trash2, Trophy, UserX, UserPlus, TrendingUp, Archive } from 'lucide-react';
 
 const gameModeLabels: Record<string, string> = {
   stableford: 'Stableford',
@@ -23,12 +24,13 @@ interface RoundStats {
 
 interface ActiveRoundsViewerProps {
   onBack: () => void;
+  backDestination?: 'back' | 'home';
   onJoinRound: (roundId: string) => void;
   currentGroup?: Group | null;
 }
 
 export const ActiveRoundsViewer: React.FC<ActiveRoundsViewerProps> = ({
-  onBack,
+  onBack, backDestination = 'back',
   onJoinRound,
   currentGroup,
 }) => {
@@ -360,13 +362,10 @@ export const ActiveRoundsViewer: React.FC<ActiveRoundsViewerProps> = ({
         {showGlobalLeaderboard ? (
           <div>
             <div className="flex items-center justify-between mb-6">
-              <button
+              <NavigationButton destination="back"
                 onClick={() => setShowGlobalLeaderboard(false)}
-                className="bg-card hover:bg-card-2 text-title font-bold py-2 px-4 rounded-lg flex items-center gap-2 transition-colors"
-              >
-                <ArrowLeft size={20} />
-               Atrás
-              </button>
+                className="bg-card hover:bg-card-2 text-title font-bold py-2 px-3 rounded-lg flex items-center gap-2 transition-colors"
+              />
 
               <h1 className="text-3xl font-bold text-title">
                 {currentGroup
@@ -452,13 +451,10 @@ export const ActiveRoundsViewer: React.FC<ActiveRoundsViewerProps> = ({
           <>
             <div className="mb-6">
               <div className="flex items-center justify-between mb-3">
-                <button
+                <NavigationButton destination={backDestination}
                   onClick={onBack}
-                  className="bg-card hover:bg-card-2 text-title font-bold py-2 px-4 rounded-lg flex items-center gap-2 transition-colors"
-                >
-                  <ArrowLeft size={20} />
-
-                </button>
+                  className="bg-card hover:bg-card-2 text-title font-bold py-2 px-3 rounded-lg flex items-center gap-2 transition-colors"
+                />
 
                 <div className="flex gap-2 flex-wrap">
                   {rounds.length > 0 && (

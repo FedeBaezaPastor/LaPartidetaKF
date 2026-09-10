@@ -1,5 +1,6 @@
+import { NavigationButton } from './NavigationButton';
 import React, { useEffect, useState } from 'react';
-import { Users, Copy, Check, ArrowLeft, LogOut, Trash2, Crown } from 'lucide-react';
+import { Users, Copy, Check, Trash2, Crown } from 'lucide-react';
 import { supabase } from '../services/supabaseClient';
 import { Group } from '../types';
 import { ConfirmModal } from './ConfirmModal';
@@ -8,6 +9,7 @@ import { useSubscription } from '../hooks/useSubscription';
 
 interface MyGroupsProps {
   onBack: () => void;
+  backDestination?: 'back' | 'home';
   onGroupSelected: (group: Group) => void;
   onLogout: () => void;
 }
@@ -21,7 +23,7 @@ interface GroupWithCode {
   user_auth_id?: string;
 }
 
-export default function MyGroups({ onBack, onGroupSelected, onLogout }: MyGroupsProps) {
+export default function MyGroups({ onBack, backDestination = 'back', onGroupSelected, onLogout }: MyGroupsProps) {
   const [groups, setGroups] = useState<GroupWithCode[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -29,14 +31,14 @@ export default function MyGroups({ onBack, onGroupSelected, onLogout }: MyGroups
   const [userEmail, setUserEmail] = useState('');
   const [groupToDelete, setGroupToDelete] = useState<string | null>(null);
   const [user, setUser] = useState<any>(null);
-  
+
   // ─── PREMIUM ───
   const [showPremium, setShowPremium] = useState(false);
   const { isPremium, loading: subLoading } = useSubscription(user?.id ?? null);
 
   useEffect(() => {
     loadGroups();
-    
+
     // Obtener usuario logueado para el modal Premium
     supabase.auth.getUser().then(({ data }) => {
       setUser(data.user);
@@ -135,14 +137,11 @@ export default function MyGroups({ onBack, onGroupSelected, onLogout }: MyGroups
       <div className="max-w-2xl mx-auto">
         <div className="bg-card rounded-2xl shadow-card p-6 mb-4">
           <div className="flex items-center justify-between mb-4">
-            <button
+            <NavigationButton destination={backDestination}
               onClick={onBack}
               className="flex items-center gap-2 text-ink-3 hover:text-ink transition-colors"
-            >
-              <ArrowLeft size={20} />
-              Volver
-            </button>
-            
+            />
+
             {/* ─── ICONOS SUPERIOR DERECHA ─── */}
             <div className="flex items-center gap-2">
               {/* Icono Premium (solo si NO es premium y terminó de cargar) */}
@@ -158,7 +157,7 @@ export default function MyGroups({ onBack, onGroupSelected, onLogout }: MyGroups
                   </span>
                 </button>
               )}
-              
+
               {/* Icono Premium activo (verde, decorativo) */}
               {isPremium && (
                 <div 
@@ -168,14 +167,11 @@ export default function MyGroups({ onBack, onGroupSelected, onLogout }: MyGroups
                   <Crown size={18} className="text-accent-ink" />
                 </div>
               )}
-              
-              <button
+
+              <NavigationButton destination="logout"
                 onClick={handleLogout}
                 className="flex items-center gap-2 text-red-600 hover:text-red-700 transition-colors text-sm font-medium"
-              >
-                <LogOut size={18} />
-                Cerrar Sesión
-              </button>
+              />
             </div>
           </div>
 
@@ -196,12 +192,10 @@ export default function MyGroups({ onBack, onGroupSelected, onLogout }: MyGroups
           {groups.length === 0 ? (
             <div className="text-center py-8">
               <p className="text-ink-3 mb-4">Aún no has creado ningún grupo</p>
-              <button
+              <NavigationButton destination={backDestination}
                 onClick={onBack}
                 className="text-accent-ink hover:text-accent-ink font-medium"
-              >
-                Crear tu primer grupo
-              </button>
+              />
             </div>
           ) : (
             <div className="space-y-3">

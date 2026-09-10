@@ -1,5 +1,6 @@
+import { NavigationButton } from './NavigationButton';
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Users, Target, TrendingUp, Calendar, MapPin, Activity, AlertCircle, Settings, Save, Eye, EyeOff } from 'lucide-react';
+import { Users, Target, TrendingUp, Calendar, MapPin, Activity, AlertCircle, Settings, Save, Eye, EyeOff } from 'lucide-react';
 import { supabase } from '../services/supabaseClient';
 
 interface AdminStats {
@@ -430,13 +431,10 @@ export default function AdminDashboard({ onBack }: AdminDashboardProps) {
     <div className="min-h-screen bg-app p-4">
       <div className="max-w-7xl mx-auto">
         <div className="bg-card rounded-2xl shadow-card p-6 mb-6">
-          <button
+          <NavigationButton destination="home"
             onClick={onBack}
             className="flex items-center gap-2 text-ink-3 hover:text-ink mb-4 transition-colors"
-          >
-            <ArrowLeft size={20} />
-            Volver
-          </button>
+          />
 
           <div className="flex items-center gap-3 mb-6">
             <div className="p-3 bg-card-2 rounded-xl">

@@ -56,7 +56,7 @@ try {
     Write-Step "Sincronizando main con GitHub"
     Invoke-Checked -Command "git" -Arguments @("pull", "--rebase", "--autostash", "origin", "main")
 
-    Write-Step "Preparando cambios (theme-kit queda excluido)"
+    Write-Step "Preparando cambios"
     Invoke-Checked -Command "git" -Arguments @("add", "-A", "--", ".")
 
     & git diff --cached --quiet

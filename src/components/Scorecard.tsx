@@ -1,3 +1,4 @@
+import { NavigationButton } from './NavigationButton';
 import React, { useState, useEffect } from 'react';
 import { GolfHole, RoundPlayer, RoundScore, GameMode } from '../types';
 import { HoleCard } from './HoleCard';
@@ -7,7 +8,7 @@ import { CourseChangeConfirmModal } from './CourseChangeConfirmModal';
 import { ScoreSymbol } from './ScoreSymbol';
 import { golfService } from '../services/golfService';
 import { getStrokesReceived, calculateScoreToPar, checkMatchPlayStatus, checkParejasStatus, checkSindicatoStatus } from '../utils/calculations';
-import { ChevronLeft, ChevronRight, Trophy, Home, Lock, MapPin, Eye, EyeOff } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Trophy, Lock, MapPin, Eye, EyeOff } from 'lucide-react';
 import { HandshakeModal } from './HandshakeModal';
 
 interface ScorecardProps {
@@ -31,6 +32,7 @@ interface ScorecardProps {
   onScoreChange: (playerId: string, holeNumber: number, score: any) => void;
   onShowLeaderboard: () => void;
   onResetGame: () => void;
+  backDestination?: 'back' | 'home';
   onFinishRound: () => void;
   onCourseChanged?: (courseId: string, numHoles: 9 | 18, holes: GolfHole[], players?: RoundPlayer[]) => void;
 }
@@ -51,7 +53,7 @@ export const Scorecard: React.FC<ScorecardProps> = ({
   onHoleChange,
   onScoreChange,
   onShowLeaderboard,
-  onResetGame,
+  onResetGame, backDestination = 'back',
   onFinishRound,
   onCourseChanged,
 }) => {
@@ -170,13 +172,10 @@ export const Scorecard: React.FC<ScorecardProps> = ({
       <div className="max-w-2xl mx-auto">
         <div className="bg-card rounded-lg shadow-card p-6 md:p-8">
           <div className="flex items-center justify-between mb-6">
-            <button
+            <NavigationButton destination={backDestination}
               onClick={onResetGame}
               className="bg-neutral hover:bg-neutral-hover text-ink p-2 rounded-lg transition-colors"
-              title="Volver al menú principal"
-            >
-              <Home size={20} />
-            </button>
+            />
             <h1 className="text-2xl md:text-3xl font-bold text-title flex-1 text-center">
               Tarjeta de Puntuación
             </h1>

@@ -1,5 +1,6 @@
+import { NavigationButton } from './NavigationButton';
 import React, { useEffect, useState } from 'react';
-import { ArrowLeft, Bell, Check, X, Users, Clock } from 'lucide-react';
+import { Bell, Check, X, Users, Clock } from 'lucide-react';
 import { userService } from '../services/userService';
 import { supabase } from '../services/supabaseClient';
 import { GroupInvitation } from '../types';
@@ -52,10 +53,10 @@ export const NotificationsBell: React.FC<NotificationsBellProps> = ({ userId, on
   return (
     <div className="min-h-screen bg-app transition-colors">
       <div className="max-w-lg mx-auto px-4 py-6">
-        <button onClick={onBack} className="flex items-center gap-2 text-ink-3 hover:text-ink mb-6">
-          <ArrowLeft size={20} />
-          Volver
-        </button>
+        <NavigationButton destination="home"
+          onClick={onBack}
+          className="flex items-center gap-2 text-ink-3 hover:text-ink mb-6"
+        />
 
         <div className="flex items-center gap-3 mb-6">
           <Bell size={24} className="text-ink-2" />

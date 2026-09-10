@@ -1,3 +1,4 @@
+import { NavigationButton } from './NavigationButton';
 import React, { useState } from 'react';
 import { X, CreditCard, Zap, Check, ArrowLeft, AlertCircle } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
@@ -107,10 +108,14 @@ export const PaymentSelector: React.FC<PaymentSelectorProps> = ({
   if (state === 'stripe-placeholder') {
     return (
       <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-        <div className="bg-card rounded-2xl max-w-md w-full p-6 shadow-card">
+        <div className="bg-card rounded-2xl max-w-md w-full p-6 shadow-card relative">
           <button onClick={handleClose} className="absolute top-4 right-4 text-ink-4 hover:text-ink-3">
             <X size={20} />
           </button>
+          <NavigationButton destination="back"
+            onClick={() => setState('select')}
+            className="absolute top-3 left-3 bg-card-2 hover:bg-neutral-hover text-ink-2 font-semibold px-3 py-2.5 rounded-xl text-sm transition-colors"
+          />
           <div className="text-center py-6">
             <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <CreditCard className="text-blue-600" size={28} />
@@ -120,12 +125,7 @@ export const PaymentSelector: React.FC<PaymentSelectorProps> = ({
               La pasarela de Stripe se activara cuando configures tu cuenta de Stripe.
               Por ahora, puedes pagar con Bitcoin Lightning.
             </p>
-            <button
-              onClick={() => setState('select')}
-              className="bg-card-2 hover:bg-neutral-hover text-ink-2 font-semibold px-6 py-2.5 rounded-xl text-sm transition-colors"
-            >
-              Volver a metodos de pago
-            </button>
+
           </div>
         </div>
       </div>
@@ -136,6 +136,10 @@ export const PaymentSelector: React.FC<PaymentSelectorProps> = ({
     return (
       <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
         <div className="bg-card rounded-2xl max-w-md w-full p-6 shadow-card relative">
+          <NavigationButton
+            onClick={() => { setMethod(null); setInvoiceData(null); setState('select'); }}
+            className="absolute top-3 left-3 text-ink-3 hover:text-ink"
+          />
           <button onClick={handleClose} className="absolute top-4 right-4 text-ink-4 hover:text-ink-3">
             <X size={20} />
           </button>
@@ -158,12 +162,6 @@ export const PaymentSelector: React.FC<PaymentSelectorProps> = ({
               <p className="text-sm text-amber-800">Esperando confirmacion del pago...</p>
               <div className="w-5 h-5 border-2 border-amber-300 border-t-amber-600 rounded-full animate-spin mx-auto mt-2" />
             </div>
-            <button
-              onClick={() => { setMethod(null); setInvoiceData(null); setState('select'); }}
-              className="text-sm text-ink-3 hover:text-ink"
-            >
-              Cambiar metodo de pago
-            </button>
           </div>
         </div>
       </div>

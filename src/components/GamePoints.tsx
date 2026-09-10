@@ -1,5 +1,6 @@
+import { NavigationButton } from './NavigationButton';
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Users, Trophy, TrendingUp, ChevronDown, ChevronUp, UserX, History, Edit2, Save, X, User } from 'lucide-react';
+import { Users, Trophy, TrendingUp, ChevronDown, ChevronUp, UserX, History, Edit2, Save, X, User } from 'lucide-react';
 import { golfService } from '../services/golfService';
 import { Player } from '../types';
 import { EditPlayerNameModal } from './EditPlayerNameModal';
@@ -296,13 +297,10 @@ export function GamePoints({ onBack }: GamePointsProps) {
       <div className="max-w-4xl mx-auto">
         <div className="bg-card rounded-lg shadow-card p-6 md:p-8">
           <div className="flex items-center mb-6">
-            <button
+            <NavigationButton destination="home"
               onClick={onBack}
               className="flex items-center text-accent-ink hover:text-title transition-colors"
-            >
-              <ArrowLeft className="w-6 h-6 mr-2" />
-              Volver
-            </button>
+            />
           </div>
 
           <h1 className="text-3xl md:text-4xl font-bold text-title mb-8 text-center">

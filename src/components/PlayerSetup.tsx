@@ -1,8 +1,9 @@
+import { NavigationButton } from './NavigationButton';
 import React, { useState, useEffect } from 'react';
 import { RoundPlayer, Player, GameMode } from '../types';
 import { calculatePlayingHandicap } from '../utils/calculations';
 import { golfService } from '../services/golfService';
-import { Trash2, Plus, Settings, ChevronDown, ArrowLeft, Lock, Eye, EyeOff, CreditCard as Edit2 } from 'lucide-react';
+import { Trash2, Plus, Settings, ChevronDown, Lock, Eye, EyeOff, CreditCard as Edit2 } from 'lucide-react';
 import { HolesRangeModal } from './HolesRangeModal';
 import { AdminPinModal } from './AdminPinModal';
 import { EditPlayerNameModal } from './EditPlayerNameModal';
@@ -23,6 +24,7 @@ interface PlayerSetupProps {
   onOpenHoleConfig: () => void;
   onHolesChanged?: (numHoles: 9 | 18, holes: any[]) => void;
   onBack?: () => void;
+  backDestination?: 'back' | 'home';
   loading?: boolean;
 }
 
@@ -40,7 +42,7 @@ export const PlayerSetup: React.FC<PlayerSetupProps> = ({
   onStartRound,
   onOpenHoleConfig,
   onHolesChanged,
-  onBack,
+  onBack, backDestination = 'back',
   loading = false,
 }) => {
   const [allPlayers, setAllPlayers] = useState<Player[]>([]);
@@ -410,13 +412,10 @@ export const PlayerSetup: React.FC<PlayerSetupProps> = ({
         <div className="bg-card rounded-lg shadow-card p-6 md:p-8">
           <div className="flex items-center justify-between mb-6">
             {onBack && (
-              <button
+              <NavigationButton destination={backDestination}
                 onClick={onBack}
                 className="text-accent-ink hover:text-title font-semibold flex items-center gap-2 transition-colors"
-              >
-                <ArrowLeft size={20} />
-                Menú Principal
-              </button>
+              />
             )}
             <div className="flex-1"></div>
           </div>
@@ -731,7 +730,16 @@ export const PlayerSetup: React.FC<PlayerSetupProps> = ({
               Configurar Hoyos
             </button>
 
-            <button
+            {currentGroup ? (
+              <NavigationButton
+                destination="home"
+                aria-label="Guardar y volver al inicio"
+                title="Guardar y volver al inicio"
+                onClick={onStartRound}
+                disabled={!canStartRound || loading || !canStartWithMode}
+                className="bg-accent hover:bg-accent-hover text-on-accent py-3 px-3 disabled:bg-neutral-hover disabled:text-ink-3 disabled:cursor-not-allowed transition-colors"
+              />
+            ) : <button
               onClick={onStartRound}
               disabled={!canStartRound || loading || !canStartWithMode}
               className={`w-full py-3 rounded-lg font-bold text-lg transition-all ${
@@ -740,8 +748,8 @@ export const PlayerSetup: React.FC<PlayerSetupProps> = ({
                   : 'bg-neutral-hover text-ink-3 cursor-not-allowed'
               }`
             }>
-              {currentGroup ? 'Guardar y Volver' : 'Comenzar Partida'}
-            </button>
+              Comenzar Partida
+            </button>}
           </div>
         </div>
       </div>

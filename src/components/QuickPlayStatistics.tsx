@@ -1,6 +1,6 @@
+import { NavigationButton } from './NavigationButton';
 import React, { useState, useEffect, useRef } from 'react';
-import { 
-  ArrowLeft, Trophy, Award, TrendingDown, Flag, Target, Zap, Trash2, 
+import { Trophy, TrendingDown, Flag, Target, Zap, Trash2,
   Activity, Flame, Calendar, MessageCircle, Swords, Users, Briefcase
 } from 'lucide-react';
 import { golfService } from '../services/golfService';
@@ -389,12 +389,10 @@ export const QuickPlayStatistics: React.FC<QuickPlayStatisticsProps> = ({ onBack
     return (
       <div className="theme-static min-h-screen bg-gradient-to-b from-emerald-900 to-emerald-800 p-4 md:p-8">
         <div className="max-w-4xl mx-auto">
-          <button
+          <NavigationButton destination="back"
             onClick={onBack}
-            className="bg-white hover:bg-gray-100 text-emerald-900 font-bold py-2 px-4 rounded-lg flex items-center justify-center transition-colors mb-6"
-          >
-            <ArrowLeft size={20} />
-          </button>
+            className="bg-white hover:bg-gray-100 text-emerald-900 font-bold py-2 px-3 rounded-lg flex items-center justify-center transition-colors mb-6"
+          />
 
           <div className="bg-white rounded-lg shadow-2xl p-8 text-center">
             <TrendingDown size={64} className="mx-auto text-gray-400 mb-4" />
@@ -637,7 +635,7 @@ export const QuickPlayStatistics: React.FC<QuickPlayStatisticsProps> = ({ onBack
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b-2 border-white/20">
-                    <th className="text-left text-white font-bold p-2 sticky left-0 bg-slate-900/90 backdrop-blur-md">
+                    <th className="text-left text-white font-bold p-2">
                       {isParejasMode ? 'Pareja' : 'Jugador'}
                     </th>
                     {holes.map((hole: any) => (
@@ -652,7 +650,7 @@ export const QuickPlayStatistics: React.FC<QuickPlayStatisticsProps> = ({ onBack
                   {holeTableRows.map((row) => {
                     return (
                       <tr key={row.key} className="border-b border-white/10 hover:bg-white/5 transition-colors">
-                        <td className="text-white font-semibold p-2 sticky left-0 bg-slate-900/90 backdrop-blur-md">
+                        <td className="text-white font-semibold p-2">
                           <span className="flex items-center gap-2">
                             <span className={`w-6 h-6 flex items-center justify-center rounded-full text-xs font-bold ${
                               row.rank === 0 ? 'bg-yellow-400 text-yellow-900' :
@@ -720,7 +718,7 @@ export const QuickPlayStatistics: React.FC<QuickPlayStatisticsProps> = ({ onBack
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b-2 border-white/20">
-                    <th className="text-left text-white font-bold p-2 sticky left-0 bg-slate-900/90 backdrop-blur-md">Jugador</th>
+                    <th className="text-left text-white font-bold p-2">Jugador</th>
                     {holes.map((hole: any) => (
                       <th key={hole.hole_number} className="text-center text-white font-bold p-2 min-w-[40px]">
                         {hole.hole_number}
@@ -739,7 +737,7 @@ export const QuickPlayStatistics: React.FC<QuickPlayStatisticsProps> = ({ onBack
 
                     return (
                       <tr key={entry.player.id} className="border-b border-white/10 hover:bg-white/5 transition-colors">
-                        <td className="text-white font-semibold p-2 sticky left-0 bg-slate-900/90 backdrop-blur-md">
+                        <td className="text-white font-semibold p-2">
                           <div className="flex items-center gap-2">
                             <span className={`w-6 h-6 flex-shrink-0 flex items-center justify-center rounded-full text-xs font-bold ${
                               index === 0 ? 'bg-yellow-400 text-yellow-900' :
@@ -825,13 +823,10 @@ export const QuickPlayStatistics: React.FC<QuickPlayStatisticsProps> = ({ onBack
 
         {/* BARRA SUPERIOR / CONTROLES */}
         <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-8">
-          <button
+          <NavigationButton destination="back"
             onClick={onBack}
-            className="bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white font-bold py-2 px-4 rounded-lg flex items-center gap-2 transition-all hover:scale-105 self-start md:self-auto"
-          >
-            <ArrowLeft size={20} />
-            <span>Volver</span>
-          </button>
+            className="bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white font-bold py-2 px-3 rounded-lg flex items-center gap-2 transition-all hover:scale-105 self-start md:self-auto"
+          />
 
           <div className="text-center flex flex-col items-center gap-2">
             <h1 className="text-3xl md:text-5xl font-black text-white drop-shadow-2xl">GAME OVER</h1>
