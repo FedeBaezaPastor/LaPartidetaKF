@@ -1,3 +1,4 @@
+import { WriteForm } from '../context/ReadOnlyContext';
 import { NavigationButton } from './NavigationButton';
 import React, { useEffect, useState } from 'react';
 import { Check, CheckCircle2, Loader2, Save, User, X } from 'lucide-react';
@@ -127,7 +128,7 @@ export const ProfileDetails: React.FC<ProfileDetailsProps> = ({
             <p className="text-sm text-ink-3 mt-1">Personaliza cómo te ven los demás jugadores.</p>
           </div>
 
-          <form onSubmit={handleSave} className="space-y-6">
+          <WriteForm onSubmit={handleSave} className="space-y-6">
               {!profile && (
                 <div className="rounded-xl border border-accent-ring bg-accent-soft p-4 text-sm text-ink-2">
                   Tu cuenta es anterior a los nuevos perfiles. Completa estos datos una sola vez para crear el tuyo.
@@ -241,7 +242,7 @@ export const ProfileDetails: React.FC<ProfileDetailsProps> = ({
                 {saving ? <Loader2 size={19} className="animate-spin" /> : <Save size={19} />}
                 {saving ? 'Guardando…' : profile ? 'Guardar cambios' : 'Crear mi perfil'}
               </button>
-            </form>
+            </WriteForm>
         </section>
       </main>
     </div>

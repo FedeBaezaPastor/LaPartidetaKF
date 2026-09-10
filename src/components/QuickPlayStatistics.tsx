@@ -1,3 +1,4 @@
+import { WriteButton } from '../context/ReadOnlyContext';
 import { NavigationButton } from './NavigationButton';
 import React, { useState, useEffect, useRef } from 'react';
 import { Trophy, TrendingDown, Flag, Target, Zap, Trash2,
@@ -870,13 +871,13 @@ export const QuickPlayStatistics: React.FC<QuickPlayStatisticsProps> = ({ onBack
               <span className="hidden sm:inline">{sharing ? 'Generando...' : 'Compartir'}</span>
             </button>
 
-            <button
+            <WriteButton
               onClick={() => setShowDeleteConfirm(true)}
               className="bg-red-600/90 hover:bg-red-700 backdrop-blur-sm text-white font-bold py-2 px-4 rounded-lg flex items-center gap-2 transition-all hover:scale-105"
             >
               <Trash2 size={20} />
               <span className="hidden sm:inline">Eliminar</span>
-            </button>
+            </WriteButton>
           </div>
         </div>
 

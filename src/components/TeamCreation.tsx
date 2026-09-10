@@ -1,3 +1,4 @@
+import { WriteButton } from '../context/ReadOnlyContext';
 import { NavigationButton } from './NavigationButton';
 import React, { useState, useEffect, useRef } from 'react';
 import { Info, Search, UserPlus, Check, X, Users} from 'lucide-react';
@@ -347,13 +348,13 @@ export const TeamCreation: React.FC<TeamCreationProps> = ({ userId, onBack, onTe
             )}
 
             <div className="flex gap-3">
-              <button
+              <WriteButton
                 onClick={handleCreate}
                 disabled={loading}
                 className="flex-1 bg-accent hover:bg-accent-hover text-on-accent font-semibold py-3 rounded-xl transition-colors disabled:opacity-50"
               >
                 {loading ? 'Creando...' : `Crear grupo${selectedPlayers.length > 0 ? ` (${selectedPlayers.length} invitaciones)` : ''}`}
-              </button>
+              </WriteButton>
             </div>
           </div>
         )}

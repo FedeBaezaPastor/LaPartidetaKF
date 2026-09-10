@@ -1,3 +1,4 @@
+import { WriteButton } from '../context/ReadOnlyContext';
 import React from 'react';
 import { Zap, LogIn, Plus, Share2, Bell, User, ChevronRight, FlaskConical, CreditCard } from 'lucide-react';
 import { PlanType, UserProfile } from '../types';
@@ -143,38 +144,38 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
 
         {/* Main buttons */}
         <div className="space-y-3 mb-6">
-          <button
+          <WriteButton
             onClick={onQuickPlay}
             className="w-full flex items-center justify-center gap-3 bg-accent text-on-accent px-6 py-4 rounded-2xl hover:bg-accent-hover transition-all font-semibold text-lg shadow-card active:scale-[0.98]"
           >
             <Zap className="w-6 h-6" />
             {isExpress ? 'Crear Partida Express' : 'Crear Partida'}
-          </button>
+          </WriteButton>
 
-          <button
+          <WriteButton
             onClick={onJoinQuickPlay}
             className="w-full flex items-center justify-center gap-3 bg-card text-accent-ink border-2 border-accent px-6 py-4 rounded-2xl hover:bg-accent-soft transition-all font-semibold text-lg active:scale-[0.98]"
           >
             <LogIn className="w-6 h-6" />
             Unirse a Partida
-          </button>
+          </WriteButton>
 
           {!isTeam && plansButton}
 
           {isTeam && (
-            <button
+            <WriteButton
               onClick={onCreateTeam}
               className="w-full flex items-center justify-center gap-3 bg-amber-500 text-white px-6 py-4 rounded-2xl hover:bg-amber-600 transition-all font-semibold text-lg shadow-card active:scale-[0.98]"
             >
               <Plus className="w-6 h-6" />
               Crear Team
-            </button>
+            </WriteButton>
           )}
         </div>
 
         <div className="mt-6 flex items-center justify-center gap-3">
           {isExpress && !isAuthenticated && <ResetExpressRounds />}
-          <button
+          <WriteButton
             type="button"
             onClick={onToggleSimulator}
             disabled={simulatorUpdating}
@@ -186,10 +187,10 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           >
             <FlaskConical size={14} />
             Simulador
-          </button>
+          </WriteButton>
 
           {simulatorEnabled && (
-            <button
+            <WriteButton
               type="button"
               onClick={onCycleSimulatorPlan}
               disabled={simulatorUpdating}
@@ -197,7 +198,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             >
               Plan: <span className="text-accent-ink capitalize">{planType}</span>
               <ChevronRight size={14} className="text-ink-4" />
-            </button>
+            </WriteButton>
           )}
 
           {isTeam && plansButton}

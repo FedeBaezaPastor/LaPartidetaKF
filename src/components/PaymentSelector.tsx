@@ -1,3 +1,4 @@
+import { WriteButton } from '../context/ReadOnlyContext';
 import { NavigationButton } from './NavigationButton';
 import React, { useState } from 'react';
 import { X, CreditCard, Zap, Check, ArrowLeft, AlertCircle } from 'lucide-react';
@@ -189,7 +190,7 @@ export const PaymentSelector: React.FC<PaymentSelectorProps> = ({
         )}
 
         <div className="space-y-3">
-          <button
+          <WriteButton
             onClick={handleLightning}
             disabled={state === 'processing'}
             className="w-full flex items-center gap-3 bg-amber-50 hover:bg-amber-100 border-2 border-amber-300 px-5 py-4 rounded-xl transition-all disabled:opacity-50"
@@ -204,9 +205,9 @@ export const PaymentSelector: React.FC<PaymentSelectorProps> = ({
             {state === 'processing' && (
               <div className="w-5 h-5 border-2 border-amber-300 border-t-amber-600 rounded-full animate-spin" />
             )}
-          </button>
+          </WriteButton>
 
-          <button
+          <WriteButton
             onClick={handleStripe}
             className="w-full flex items-center gap-3 bg-blue-50 hover:bg-blue-100 border-2 border-blue-300 px-5 py-4 rounded-xl transition-all"
           >
@@ -217,7 +218,7 @@ export const PaymentSelector: React.FC<PaymentSelectorProps> = ({
               <p className="font-semibold text-ink">Tarjeta (Stripe)</p>
               <p className="text-xs text-ink-3">Visa, Mastercard, etc.</p>
             </div>
-          </button>
+          </WriteButton>
         </div>
       </div>
     </div>

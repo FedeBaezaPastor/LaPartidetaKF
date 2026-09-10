@@ -1,3 +1,4 @@
+import { WriteButton } from '../context/ReadOnlyContext';
 import { NavigationButton } from './NavigationButton';
 import React, { useEffect, useState } from 'react';
 import { Users, Copy, Check, Trash2, Crown } from 'lucide-react';
@@ -206,13 +207,13 @@ export default function MyGroups({ onBack, backDestination = 'back', onGroupSele
                 >
                   <div className="flex items-center justify-between mb-2">
                     <h3 className="font-semibold text-ink text-lg">{group.name}</h3>
-                    <button
+                    <WriteButton
                       onClick={() => handleDeleteGroup(group.id)}
                       className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
                       title="Eliminar grupo"
                     >
                       <Trash2 size={18} />
-                    </button>
+                    </WriteButton>
                   </div>
 
                   <div className="flex items-center gap-3 mb-3">

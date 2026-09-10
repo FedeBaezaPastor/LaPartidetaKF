@@ -1,3 +1,4 @@
+import { WriteButton } from '../context/ReadOnlyContext';
 import React, { useState, useEffect } from 'react';
 import { TrendingUp, X, AlertCircle, Info } from 'lucide-react';
 import { golfService } from '../services/golfService';
@@ -221,7 +222,7 @@ export const HandicapUpdateModal: React.FC<HandicapUpdateModalProps> = ({
             >
               Cancelar
             </button>
-            <button
+            <WriteButton
               type="button"
               onClick={handleUpdate}
               disabled={updating || !hasChanges}
@@ -232,7 +233,7 @@ export const HandicapUpdateModal: React.FC<HandicapUpdateModalProps> = ({
               }`}
             >
               {updating ? 'Actualizando...' : 'Actualizar'}
-            </button>
+            </WriteButton>
           </div>
         )}
       </div>

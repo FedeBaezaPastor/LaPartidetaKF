@@ -1,3 +1,4 @@
+import { WriteButton } from '../context/ReadOnlyContext';
 import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { golfService } from '../services/golfService';
@@ -77,7 +78,7 @@ export const CourseChangeModal: React.FC<CourseChangeModalProps> = ({
               const isCurrentCourse = course.id === currentCourseId;
 
               return (
-                <button
+                <WriteButton
                   key={course.id}
                   onClick={() => !isCurrentCourse && onSelectCourse(course)}
                   disabled={isCurrentCourse}
@@ -94,7 +95,7 @@ export const CourseChangeModal: React.FC<CourseChangeModalProps> = ({
                   {isCurrentCourse && (
                     <div className="text-xs text-accent-ink mt-1 font-medium">(Campo actual)</div>
                   )}
-                </button>
+                </WriteButton>
               );
             })}
           </div>

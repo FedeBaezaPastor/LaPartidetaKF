@@ -1,3 +1,4 @@
+import { WriteButton } from '../context/ReadOnlyContext';
 import { NavigationButton } from './NavigationButton';
 import React, { useState, useEffect } from 'react';
 import { GolfCourse, GolfHole, Group, Tee, GameMode } from '../types';
@@ -593,14 +594,14 @@ export const RoundSetup: React.FC<RoundSetupProps> = ({
                   )}
                 </div>
 
-                <button
+                <WriteButton
                   onClick={handleCreateRound}
                   disabled={!selectedCourse || loading}
                   className="w-full bg-accent hover:bg-accent-hover disabled:opacity-50 disabled:cursor-not-allowed text-on-accent font-bold py-4 rounded-lg flex items-center justify-center gap-2 transition-colors mt-6"
                 >
                   Crear Partida
                   <ChevronRight size={20} />
-                </button>
+                </WriteButton>
               </div>
             </div>
           )}

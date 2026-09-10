@@ -1,21 +1,25 @@
+import { useReadOnly } from '../context/ReadOnlyContext';
 import React from 'react';
 import { AlertCircle } from 'lucide-react';
 
 interface ConfirmModalProps {
   message: string;
+  readOnlySensitive?: boolean;
   onConfirm: () => void;
   onCancel: () => void;
 }
 
 export const ConfirmModal: React.FC<ConfirmModalProps> = ({
   message,
+  readOnlySensitive = true,
   onConfirm,
   onCancel,
 }) => {
+  const restricted = useReadOnly() && readOnlySensitive;
   const handleConfirm = (e: React.MouseEvent) => {
     e.stopPropagation();
     e.preventDefault();
-    onConfirm();
+    if (!restricted) onConfirm();
   };
 
   const handleCancel = (e: React.MouseEvent) => {
@@ -58,6 +62,7 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
           </button>
           <button
             type="button"
+            disabled={restricted}
             onClick={handleConfirm}
             className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg transition-colors"
           >

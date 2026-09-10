@@ -1,3 +1,4 @@
+import { WriteButton } from '../context/ReadOnlyContext';
 import { NavigationButton } from './NavigationButton';
 import React, { useState, useEffect } from 'react';
 //import { Users, LogIn, Plus, Zap, User, Flag, UserCheck, RefreshCw, Mail, Lock, Eye, EyeOff, AlertCircle } from 'lucide-react';
@@ -277,29 +278,29 @@ export default function GroupSetup({ onGroupCreated, onGroupJoined, onQuickPlay,
           </div>
 
           <div className="space-y-3">
-            <button
+            <WriteButton
               onClick={onQuickPlay}
               className="w-full flex items-center justify-center gap-3 bg-accent text-on-accent px-6 py-3 rounded-xl hover:bg-accent-hover transition-colors font-semibold shadow-card"
             >
               <Zap className="w-6 h-6" />
               Crear Partideta Rápida
-            </button>
+            </WriteButton>
 
-            <button
+            <WriteButton
               onClick={onJoinQuickPlay}
               className="w-full flex items-center justify-center gap-3 bg-card text-accent-ink border-2 border-accent px-6 py-3 rounded-xl hover:bg-accent-soft transition-colors font-semibold"
             >
               <LogIn className="w-6 h-6" />
               Unirse a Partideta Rápida
-            </button>
+            </WriteButton>
 
-            <button
+            <WriteButton
               onClick={() => setShowCreateGroupModal(true)}
               className="w-full flex items-center justify-center gap-3 bg-accent text-on-accent px-6 py-3 rounded-xl hover:bg-accent-hover transition-colors font-semibold shadow-card"
             >
               <Plus className="w-6 h-6" />
               Crear Multipartideta
-            </button>
+            </WriteButton>
 
             <button
               onClick={() => setMode('join')}
@@ -516,13 +517,13 @@ export default function GroupSetup({ onGroupCreated, onGroupJoined, onQuickPlay,
 
             <div className="flex gap-3">
 
-              <button
+              <WriteButton
                 onClick={handleCreateGroup}
                 disabled={loading || !groupName.trim() || (useCustomCode && customCode.length < 6)}
                 className="flex-1 bg-accent text-on-accent px-6 py-3 rounded-xl hover:bg-accent-hover transition-colors font-semibold shadow-card disabled:opacity-50"
               >
                 {loading ? 'Creando...' : 'Crear Grupo'}
-              </button>
+              </WriteButton>
             </div>
           </div>
         </div>
@@ -577,13 +578,13 @@ export default function GroupSetup({ onGroupCreated, onGroupJoined, onQuickPlay,
 
           <div className="flex gap-3">
 
-            <button
+            <WriteButton
               onClick={handleJoinGroup}
               disabled={loading || joinCode.length < 4}
               className="flex-1 bg-accent text-on-accent px-6 py-3 rounded-xl hover:bg-accent-hover transition-colors font-semibold shadow-card disabled:opacity-50"
             >
               {loading ? 'Uniéndose...' : 'Unirse'}
-            </button>
+            </WriteButton>
           </div>
         </div>
       </div>

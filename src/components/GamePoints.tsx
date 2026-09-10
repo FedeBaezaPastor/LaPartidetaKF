@@ -1,3 +1,4 @@
+import { WriteButton } from '../context/ReadOnlyContext';
 import { NavigationButton } from './NavigationButton';
 import React, { useState, useEffect } from 'react';
 import { Users, Trophy, TrendingUp, ChevronDown, ChevronUp, UserX, History, Edit2, Save, X, User } from 'lucide-react';
@@ -617,13 +618,13 @@ export function GamePoints({ onBack }: GamePointsProps) {
                                     <User size={16} />
                                   </button>
                                 </div>
-                                <button
+                                <WriteButton
                                   onClick={() => handleDeletePlayerClick(player)}
                                   className="text-red-500 hover:bg-red-50 p-1.5 rounded-lg transition-colors flex-shrink-0"
                                   title="Eliminar jugador"
                                 >
                                   <UserX size={18} />
-                                </button>
+                                </WriteButton>
                               </div>
                               {editingPlayerId === player.id ? (
                                 <div className="flex items-center gap-2 flex-wrap">
@@ -723,13 +724,13 @@ export function GamePoints({ onBack }: GamePointsProps) {
               >
                 Cancelar
               </button>
-              <button
+              <WriteButton
                 onClick={handleConfirmDeletePlayer}
                 disabled={!confirmDelete}
                 className="flex-1 bg-red-600 hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-lg transition-colors"
               >
                 Eliminar
-              </button>
+              </WriteButton>
             </div>
           </div>
         </div>

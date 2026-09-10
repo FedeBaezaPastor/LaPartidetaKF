@@ -1,3 +1,4 @@
+import { WriteButton } from '../context/ReadOnlyContext';
 import { NavigationButton } from './NavigationButton';
 import React, { useState } from 'react';
 import { Users, Palette, Plane, Check, Info} from 'lucide-react';
@@ -146,12 +147,12 @@ export const ProShop: React.FC<ProShopProps> = ({ groupId, userId, onBack, onPur
 
               <div className="flex items-center justify-between">
                 <span className="text-lg font-bold text-ink">{product.price} sats</span>
-                <button
+                <WriteButton
                   onClick={() => handleBuy(product)}
                   className="bg-accent hover:bg-accent-hover text-on-accent font-semibold px-6 py-2.5 rounded-xl transition-colors text-sm"
                 >
                   Comprar
-                </button>
+                </WriteButton>
               </div>
             </div>
           ))}

@@ -1,3 +1,4 @@
+import { WriteButton } from '../context/ReadOnlyContext';
 import { NavigationButton } from './NavigationButton';
 import React, { useState, useEffect } from 'react';
 import { GolfHole, RoundPlayer, RoundScore, GameMode } from '../types';
@@ -194,7 +195,7 @@ export const Scorecard: React.FC<ScorecardProps> = ({
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className="text-lg font-bold">{courseName || 'Campo de Golf'}</span>
                   {hasEditAccess && onCourseChanged && roundId && courseId && (
-                    <button
+                    <WriteButton
                       onClick={() => setShowCourseChangeModal(true)}
                       disabled={changingCourse}
                       className="bg-black/10 hover:bg-black/20 text-on-accent text-xs px-2 py-1 rounded-md flex items-center gap-1 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
@@ -202,7 +203,7 @@ export const Scorecard: React.FC<ScorecardProps> = ({
                     >
                       <MapPin size={12} />
                       Cambiar
-                    </button>
+                    </WriteButton>
                   )}
                 </div>
                 <div className="flex items-center gap-2 mt-1 text-sm text-on-accent/90">
@@ -312,13 +313,13 @@ export const Scorecard: React.FC<ScorecardProps> = ({
             </button>
 
             {isLastHole && allScoresComplete ? (
-              <button
+              <WriteButton
                 onClick={handleFinishWithConfirm}
                 className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg flex items-center justify-center gap-2 transition-colors"
               >
                 <Trophy size={20} />
                 Finalizar Partida
-              </button>
+              </WriteButton>
             ) : (
               <button
                 onClick={() => onHoleChange(Math.min(playableHoles.length, currentHole + 1))}

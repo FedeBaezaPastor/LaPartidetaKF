@@ -1,5 +1,6 @@
+import { effectivePlan } from '../utils/effectivePlan';
 // src/context/AuthContext.tsx
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState, useRef } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '../services/supabaseClient';
 
@@ -21,12 +22,15 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType>({} as AuthContextType);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const currentUserId = useRef<string | null>(null);
+  const requestVersion = useRef(0);
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [subscription, setSubscription] = useState<UserSubscription | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
   const fetchSubscription = async (userId: string) => {
+    const request = ++requestVersion.current;
     try {
       const { data, error } = await supabase
         .from('user_subscriptions')
@@ -34,12 +38,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         .eq('user_id', userId)
         .maybeSingle();
 
+      if (currentUserId.current !== userId || request !== requestVersion.current) return;
       if (error) {
         console.error('Error cargando la suscripcion:', error);
         setSubscription(null);
       } else if (data) {
         setSubscription({
-          planType: data.plan_type,
+          planType: effectivePlan(data),
           status: data.status,
           currentPeriodEnd: data.current_period_end,
         });
@@ -47,6 +52,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setSubscription(null);
       }
     } catch (error) {
+      if (currentUserId.current !== userId || request !== requestVersion.current) return;
       console.error('Error inesperado cargando la suscripcion:', error);
       setSubscription(null);
     }
@@ -54,6 +60,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
+      currentUserId.current = currentSession?.user.id ?? null;
       setSession(currentSession);
       setUser(currentSession?.user ?? null);
       if (currentSession?.user) {
@@ -64,6 +71,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const { data: authListener } = supabase.auth.onAuthStateChange(
       (_event, currentSession) => {
+        currentUserId.current = currentSession?.user.id ?? null;
         setSession(currentSession);
         setUser(currentSession?.user ?? null);
 
@@ -86,8 +94,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
   }, []);
 
+  useEffect(() => {
+    const check = () => { if (currentUserId.current) void fetchSubscription(currentUserId.current); };
+    const timer = window.setInterval(check, 30000);
+    window.addEventListener('focus', check);
+    return () => { window.clearInterval(timer); window.removeEventListener('focus', check); };
+  }, []);
+
   const logout = async () => {
     await supabase.auth.signOut();
+    currentUserId.current = null;
     setUser(null);
     setSession(null);
     setSubscription(null);

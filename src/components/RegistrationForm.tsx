@@ -1,3 +1,4 @@
+import { WriteButton } from '../context/ReadOnlyContext';
 import { NavigationButton } from './NavigationButton';
 import React, { useState, useRef, useEffect } from 'react';
 import { Eye, EyeOff, Check, X, AlertCircle, Info } from 'lucide-react';
@@ -340,13 +341,13 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({ planType, on
             </label>
           </div>
 
-          <button
+          <WriteButton
             onClick={handleSubmit}
             disabled={loading}
             className="w-full bg-accent hover:bg-accent-hover text-on-accent font-semibold py-3 rounded-xl transition-colors disabled:opacity-50"
           >
             {loading ? 'Creando cuenta...' : 'Crear cuenta y continuar'}
-          </button>
+          </WriteButton>
 
           <p className="text-xs text-ink-4 mt-3 flex items-center justify-center gap-1">
             <Info size={12} />

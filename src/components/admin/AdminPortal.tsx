@@ -1,3 +1,4 @@
+import { AdminUsers } from './AdminUsers';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { History, Loader2, Plus, RefreshCw, ShieldCheck, Users } from 'lucide-react';
 import { adminService, type AdminAccount, type AdminAuditEntry, type AdminDirectoryEntry } from '../../services/adminService';
@@ -6,6 +7,9 @@ import { ThemeToggle } from '../ThemeToggle';
 
 const statuses = { active: 'Activo', invited: 'Pendiente de activar', disabled: 'Desactivado' };
 const actions: Record<string, string> = {
+  'user.profile_changed': 'Perfil de jugador modificado',
+  'user.plan_changed': 'Plan de jugador modificado',
+  'user.restriction_changed': 'Bloqueo de jugador modificado',
   'administrator.bootstrapped': 'Primer administrador creado',
   'administrator.invited': 'Administrador creado',
   'administrator.invitation_sent': 'Enlace de acceso enviado',
@@ -23,7 +27,7 @@ export function AdminPortal({ account, onLogout, onAccessChanged, onChangePasswo
   onAccessChanged: () => Promise<void>;
   onChangePassword: () => void;
 }) {
-  const [tab, setTab] = useState<'admins' | 'audit'>('admins');
+  const [tab, setTab] = useState<'admins' | 'audit' | 'users'>('admins');
   const [admins, setAdmins] = useState<AdminDirectoryEntry[]>([]);
   const [audit, setAudit] = useState<AdminAuditEntry[]>([]);
   const [hasMore, setHasMore] = useState(false);
@@ -107,7 +111,8 @@ export function AdminPortal({ account, onLogout, onAccessChanged, onChangePasswo
 
         <div className="flex flex-wrap items-center gap-2 mb-5">
           <button onClick={() => setTab('admins')} aria-pressed={tab === 'admins'} className={`flex gap-2 items-center rounded-xl px-4 py-3 ${tab === 'admins' ? 'bg-accent text-on-accent' : 'bg-card border border-line'}`}><Users size={18} />Administradores</button>
-          <button onClick={() => setTab('audit')} aria-pressed={tab === 'audit'} className={`flex gap-2 items-center rounded-xl px-4 py-3 ${tab === 'audit' ? 'bg-accent text-on-accent' : 'bg-card border border-line'}`}><History size={18} />Actividad</button>
+          <button onClick={() => setTab('users')} aria-pressed={tab === 'users'} className="bg-card border border-line rounded-xl px-4 py-3">Usuarios</button>
+          <button onClick={() => { setTab('audit'); void refresh(); }} aria-pressed={tab === 'audit'} className={`flex gap-2 items-center rounded-xl px-4 py-3 ${tab === 'audit' ? 'bg-accent text-on-accent' : 'bg-card border border-line'}`}><History size={18} />Actividad</button>
           <button onClick={onChangePassword} className="text-sm text-accent-ink px-3 py-3">Mi contraseña</button>
           <button disabled={loading || busy} aria-label="Actualizar" title="Actualizar" onClick={() => void refresh()} className="ml-auto flex h-11 w-11 items-center justify-center bg-card border border-line rounded-full disabled:opacity-50"><RefreshCw size={18} /></button>
         </div>
@@ -115,6 +120,7 @@ export function AdminPortal({ account, onLogout, onAccessChanged, onChangePasswo
         {error && <p role="alert" className="mb-4 bg-red-50 border border-red-200 text-red-700 p-4 rounded-xl">{error}</p>}
         {message && <p role="status" className="mb-4 bg-accent-soft text-accent-ink border border-accent-ring p-4 rounded-xl">{message}</p>}
 
+        {tab === 'users' && <AdminUsers />}
         {tab === 'admins' && (
           <section>
             <div className="flex items-center justify-between gap-3 mb-4">
@@ -156,7 +162,8 @@ export function AdminPortal({ account, onLogout, onAccessChanged, onChangePasswo
               <article key={entry.id} className="bg-card border border-line rounded-xl p-4">
                 <div className="flex justify-between flex-wrap gap-2"><p className="font-semibold">{actions[entry.action] || entry.action}</p><time className="text-xs text-ink-3">{date(entry.created_at)}</time></div>
                 <p className="text-sm text-ink-2 mt-2">Por {entry.actor_alias}{entry.details.alias ? ` · ${entry.details.alias}` : ''}</p>
-                {entry.details.before && entry.details.after && <p className="text-sm text-ink-3 mt-1">{statuses[entry.details.before as keyof typeof statuses] || entry.details.before} → {statuses[entry.details.after as keyof typeof statuses] || entry.details.after}</p>}
+                {!entry.action.startsWith('user.') && entry.details.before && entry.details.after && <p className="text-sm text-ink-3 mt-1">{statuses[entry.details.before as keyof typeof statuses] || entry.details.before} → {statuses[entry.details.after as keyof typeof statuses] || entry.details.after}</p>}
+                {entry.action.startsWith('user.') && <details className="text-sm mt-2"><summary>Usuario y cambios</summary><p className="break-all">{entry.target_user_id}</p><p>Antes</p><pre className="whitespace-pre-wrap break-words">{JSON.stringify(entry.details.before,null,2)}</pre><p>Después</p><pre className="whitespace-pre-wrap break-words">{JSON.stringify(entry.details.after,null,2)}</pre></details>}
                 {entry.details.reason && <p className="text-sm text-ink-3 mt-1">Motivo: {entry.details.reason}</p>}
               </article>
             ))}

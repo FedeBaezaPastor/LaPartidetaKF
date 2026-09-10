@@ -1,3 +1,4 @@
+import { WriteForm } from '../context/ReadOnlyContext';
 import React, { useState } from 'react';
 import { X } from 'lucide-react';
 
@@ -44,7 +45,7 @@ export const EditPlayerNameModal: React.FC<EditPlayerNameModalProps> = ({
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <WriteForm onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-semibold text-ink-2 mb-2">
               Nombre del Jugador
@@ -82,7 +83,7 @@ export const EditPlayerNameModal: React.FC<EditPlayerNameModalProps> = ({
               Guardar
             </button>
           </div>
-        </form>
+        </WriteForm>
       </div>
     </div>
   );

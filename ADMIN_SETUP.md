@@ -70,3 +70,25 @@ Las cuentas se desactivan en lugar de borrarse para conservar trazabilidad. Una 
 - Revisar eventos de alta, envío, entrada, cambio de contraseña y cambios de estado.
 
 No revertir borrando tablas de Auth ni datos de jugadores. Si una comprobación remota falla, conservar la cuenta inicial y revisar la configuración/migración antes de continuar. El antiguo acceso por PIN no se rehabilita automáticamente al volver a una versión anterior del frontend.
+
+## Segunda fase: gestión de usuarios
+
+Se añade Usuarios al panel: listado de 25 cuentas por página, búsqueda por correo/nombre/nick/UUID, filtros por plan efectivo y restricción, ficha y edición de nombre/nick/avatar/hándicap/tee. Los administradores (incluidas identidades administrativas incompletas) quedan excluidos. Los perfiles pendientes pueden consultarse y bloquearse, pero deben completar el registro antes de editar su perfil.
+
+Las operaciones requieren motivo y confirmación. La ficha incluye un control de concurrencia: si otro administrador o el jugador cambió sus datos, se rechaza el guardado y hay que actualizar la ficha. Cambio y auditoría se confirman en una transacción.
+
+Bloquear significa SOLO LECTURA de datos de negocio. Se permite consultar y recuperar/cambiar la contraseña. No se utiliza el bloqueo de Supabase Auth. Un trigger por sentencia protege las tablas públicas actuales contra INSERT, UPDATE, DELETE y TRUNCATE, incluso a través de RPC SECURITY DEFINER. Mantiene las políticas de lectura existentes. Las tablas nuevas que se incorporen en migraciones futuras también deberán instalar `app_user_write_guard`. La restricción comprueba el UUID de la sesión Auth, no identificadores locales de partidas; Express sin login mantiene su comportamiento.
+
+La interfaz comprueba restricciones antes de montar las pantallas, al recuperar foco y cada 30 segundos. Un fallo de verificación pasa a solo lectura. Las operaciones que ya habían comenzado antes de confirmar el bloqueo pueden terminar; solicitudes posteriores se rechazan en la base de datos. Los controles de escritura se deshabilitan y las puntuaciones usan el modo de consulta existente. No se elimina ni pausa una partida o grupo.
+
+Los planes pueden tener fecha/hora de fin (el formulario utiliza la zona horaria del navegador) o ser indefinidos. Al vencer, el plan efectivo es Express sin borrar grupos/resultados. La asignación propone un mes por defecto. El simulador conserva expresamente la capacidad de sustituir un plan administrativo cuando el usuario no está restringido; sus cambios mantienen el comportamiento anterior de un mes.
+
+### Publicación de la segunda fase
+
+1. Aplicar **solo** `supabase/migrations/20260911190000_app_user_management.sql` en SQL Editor del proyecto de pruebas/publicación correcto. No repetir la migración `20260910190000_create_app_administration.sql`, que ya está aplicada. No utilizar reset.
+2. Esta fase añade RPC de base de datos; **no requiere volver a desplegar las Edge Functions** admin-auth/admin-management ni recrear AdminF.
+3. Publicar frontend mediante el script habitual `local-deploy.ps1`, conservando las comprobaciones.
+4. Entrar como AdminF y abrir Usuarios. Utilizar una cuenta de jugador de pruebas separada en otro navegador: editar perfil, asignar plan con fecha e indefinido, bloquear durante consulta/partida, comprobar consulta y contraseña, desbloquear y comprobar conservación de datos.
+5. Revisar Actividad. Probar también que Express sin login, Player y Team sin bloqueo mantienen creación de partidas y navegación. No bloquear cuentas reales hasta completar estas comprobaciones.
+
+Pruebas locales: `npm run test:admin`, `npm run typecheck`, `npm run build`. Incluyen permisos, auditoría, restricciones de escritura mediante RPC elevada, lectura conservada, contraseña, cambios de planes, conflictos de ficha/nick y controles de formulario deshabilitados. No se han ejecutado escrituras ni bloqueos sobre cuentas remotas desde las pruebas.

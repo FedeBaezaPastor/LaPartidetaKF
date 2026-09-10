@@ -1,3 +1,4 @@
+import { WriteButton } from '../context/ReadOnlyContext';
 import { NavigationButton } from './NavigationButton';
 import React, { useEffect, useState } from 'react';
 import { Bell, Check, X, Users, Clock } from 'lucide-react';
@@ -96,22 +97,22 @@ export const NotificationsBell: React.FC<NotificationsBellProps> = ({ userId, on
                 </div>
 
                 <div className="flex gap-2">
-                  <button
+                  <WriteButton
                     onClick={() => handleRespond(inv.id, 'accepted')}
                     disabled={responding === inv.id}
                     className="flex-1 flex items-center justify-center gap-2 bg-accent hover:bg-accent-hover text-on-accent font-semibold py-2.5 rounded-xl transition-colors disabled:opacity-50"
                   >
                     <Check size={16} />
                     Aceptar
-                  </button>
-                  <button
+                  </WriteButton>
+                  <WriteButton
                     onClick={() => handleRespond(inv.id, 'rejected')}
                     disabled={responding === inv.id}
                     className="flex-1 flex items-center justify-center gap-2 bg-card-2 hover:bg-neutral-hover text-ink-2 font-semibold py-2.5 rounded-xl transition-colors disabled:opacity-50"
                   >
                     <X size={16} />
                     Rechazar
-                  </button>
+                  </WriteButton>
                 </div>
               </div>
             ))}

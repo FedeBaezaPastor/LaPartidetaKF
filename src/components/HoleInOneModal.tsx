@@ -1,3 +1,4 @@
+import { WriteButton } from '../context/ReadOnlyContext';
 import React from 'react';
 import { Trophy } from 'lucide-react';
 
@@ -33,13 +34,13 @@ export const HoleInOneModal: React.FC<HoleInOneModalProps> = ({
           >
             No, corregir
           </button>
-          <button
+          <WriteButton
             onClick={onConfirm}
             className="flex-1 bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-3 px-4 rounded-lg transition-colors flex items-center justify-center gap-2"
           >
             <Trophy size={20} />
             ¡Sí, hole-in-one!
-          </button>
+          </WriteButton>
         </div>
       </div>
     </div>

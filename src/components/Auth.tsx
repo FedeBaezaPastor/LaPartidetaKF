@@ -1,3 +1,4 @@
+import { getReadOnly } from '../services/userRestriction';
 import { adminService } from '../services/adminService';
 import { NavigationButton } from './NavigationButton';
 import React, { useState, useEffect } from 'react';
@@ -108,7 +109,7 @@ export default function Auth({ onAuthSuccess, recoveryRequested = false, onRecov
         if (await adminService.getAccount(signedInUser)) return;
 
         const { golfService } = await import('../services/golfService');
-        await golfService.linkGroupsToAuthUser();
+        if (!(await getReadOnly())) await golfService.linkGroupsToAuthUser();
         await onAuthSuccess(signedInUser.id);
       }
     } catch (err: any) {
@@ -168,7 +169,7 @@ export default function Auth({ onAuthSuccess, recoveryRequested = false, onRecov
       if (data.user && data.session) {
         const registeredUserId = data.user.id;
         const { golfService } = await import('../services/golfService');
-        await golfService.linkGroupsToAuthUser();
+        if (!(await getReadOnly())) await golfService.linkGroupsToAuthUser();
         setMessage('Cuenta creada exitosamente. Iniciando sesión...');
         setTimeout(() => {
           void onAuthSuccess(registeredUserId);

@@ -1,3 +1,4 @@
+import { useReadOnly } from './context/ReadOnlyContext';
 import React, { useState, useEffect } from 'react';
 import { AlertTriangle, CheckCircle2 } from 'lucide-react';
 import { GolfRound, GolfHole, GolfCourse, RoundPlayer, RoundScore, Group, GameMode, PlanType } from './types';
@@ -57,6 +58,7 @@ const GlobalThemeSwitch = () => (
 );
 
 function App() {
+  const readOnly = useReadOnly();
   const { user, logout } = useAuth(); // 👈 Usar el contexto global
   const [isIncognito, setIsIncognito] = useState(false);
   const [authUser, setAuthUser] = useState<any>(null);
@@ -111,11 +113,11 @@ function App() {
   }, [user?.id]);
 
   useEffect(() => {
-    if (currentView === 'my-groups' && !subscriptionLoading && activePlanType !== 'team') {
+    if (currentView === 'my-groups' && !subscriptionLoading && activePlanType !== 'team' && !readOnly) {
       setReturnToProfile(false);
       setCurrentView('main');
     }
-  }, [activePlanType, currentView, subscriptionLoading]);
+  }, [activePlanType, currentView, subscriptionLoading, readOnly]);
 
   useEffect(() => {
     if (!profileSaved) return;
@@ -143,6 +145,7 @@ function App() {
   };
 
   const handleToggleSimulator = () => {
+    if (readOnly) return;
     if (!user) {
       openAuth('main');
       return;
@@ -155,6 +158,7 @@ function App() {
   };
 
   const handleCycleSimulatorPlan = async () => {
+    if (readOnly) return;
     if (!user || simulatorUpdating) return;
 
     const currentPlan = simulatedPlan ?? planType;
@@ -1129,7 +1133,7 @@ function App() {
               holes={roundState.holes}
               onHolesUpdated={handleHolesUpdated}
               onClose={() => setShowHoleConfig(false)}
-              editable={roundState.isCreator}
+              editable={roundState.isCreator && !readOnly}
             />
           )}
           <PlayerSetup backDestination={currentGroup ? 'home' : 'back'}
@@ -1139,7 +1143,7 @@ function App() {
             numHoles={roundState.round.num_holes}
             courseId={roundState.round.course_id}
             accessCode={roundState.round.access_code}
-            hasEditAccess={roundState.hasEditAccess}
+            hasEditAccess={roundState.hasEditAccess && !readOnly}
             currentGroup={currentGroup}
             gameMode={roundState.round.game_mode}
             onPlayersUpdated={handlePlayersUpdated}
@@ -1172,7 +1176,7 @@ function App() {
           roundId={roundState.round.id}
           courseId={roundState.round.course_id}
           accessCode={roundState.round.access_code}
-          hasEditAccess={roundState.hasEditAccess}
+          hasEditAccess={roundState.hasEditAccess && !readOnly}
           courseName={roundState.courseName}
           groupCode={currentGroup?.group_code}
           gameMode={roundState.round.game_mode}
@@ -1246,6 +1250,7 @@ function App() {
       {showLeaveGroupConfirm && (
         <ConfirmModal
           message="¿Seguro que deseas salir del grupo? Tendrás que volver a unirte con el código del grupo."
+          readOnlySensitive={false}
           onConfirm={handleConfirmLeaveGroup}
           onCancel={handleCancelLeaveGroup}
         />

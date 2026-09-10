@@ -1,3 +1,4 @@
+import { WriteButton } from '../context/ReadOnlyContext';
 import React, { useState } from 'react';
 import { GolfHole } from '../types';
 import { golfService } from '../services/golfService';
@@ -223,13 +224,13 @@ export const HoleConfiguration: React.FC<HoleConfigurationProps> = ({
               >
                 Cancelar
               </button>
-              <button
+              <WriteButton
                 onClick={handleSave}
                 disabled={!hasChanges || saving}
                 className="flex-1 bg-accent hover:bg-accent-hover disabled:opacity-50 disabled:cursor-not-allowed text-on-accent font-bold py-3 rounded-lg transition-colors"
               >
                 {saving ? 'Guardando...' : hasChanges ? 'Guardar Cambios' : 'Sin cambios'}
-              </button>
+              </WriteButton>
             </div>
           )}
 

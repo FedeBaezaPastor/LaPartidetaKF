@@ -1,3 +1,5 @@
+import { effectivePlan } from '../utils/effectivePlan';
+import { getReadOnly } from './userRestriction';
 import { supabase } from './supabaseClient';
 import { UserProfile, GroupMember, GroupInvitation, PlanType } from '../types';
 import { normalizeAvatarUrl } from '../utils/avatarOptions';
@@ -15,6 +17,7 @@ export const userService = {
 
   async ensureProfileFromMetadata(userId: string, metadata: Record<string, unknown>): Promise<UserProfile | null> {
     const existing = await this.getProfile(userId);
+    if (await getReadOnly()) return existing;
     if (existing || metadata.registration_pending !== true || typeof metadata.nick !== 'string') {
       return existing;
     }
@@ -84,11 +87,7 @@ export const userService = {
       .eq('status', 'active')
       .maybeSingle();
     if (error) throw error;
-    if (!data) return 'express';
-    if (data.current_period_end && new Date(data.current_period_end) < new Date()) {
-      return 'express';
-    }
-    return (data.plan_type as PlanType) || 'express';
+    return effectivePlan(data);
   },
 
   async setPlanType(userId: string, planType: PlanType, paymentRef?: string): Promise<void> {

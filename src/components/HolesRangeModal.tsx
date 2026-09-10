@@ -1,3 +1,4 @@
+import { WriteButton } from '../context/ReadOnlyContext';
 import React, { useState } from 'react';
 import { X } from 'lucide-react';
 
@@ -60,12 +61,12 @@ export const HolesRangeModal: React.FC<HolesRangeModalProps> = ({ onConfirm, onC
           >
             Cancelar
           </button>
-          <button
+          <WriteButton
             onClick={handleConfirm}
             className="flex-1 px-4 py-3 bg-accent hover:bg-accent-hover text-on-accent font-bold rounded-lg transition-colors"
           >
             Confirmar
-          </button>
+          </WriteButton>
         </div>
       </div>
     </div>

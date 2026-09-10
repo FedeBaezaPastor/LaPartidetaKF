@@ -1,3 +1,4 @@
+import { WriteButton, WriteForm } from '../context/ReadOnlyContext';
 import { NavigationButton } from './NavigationButton';
 import React, { useState, useEffect } from 'react';
 import { RoundPlayer, Player, GameMode } from '../types';
@@ -480,7 +481,7 @@ export const PlayerSetup: React.FC<PlayerSetupProps> = ({
             </div>
           )}
 
-          <form onSubmit={handleAddPlayer} className="space-y-4 mb-8">
+          <WriteForm onSubmit={handleAddPlayer} className="space-y-4 mb-8">
             <div className="relative player-search-container">
               <label className="block text-sm font-semibold text-ink-2 mb-2">
                 Nombre del Jugador
@@ -524,14 +525,14 @@ export const PlayerSetup: React.FC<PlayerSetupProps> = ({
                               Hándicap ({numHoles} hoyos): {numHoles === 18 ? (player.exact_handicap_18 || player.exact_handicap) * 2 : (player.exact_handicap_18 || player.exact_handicap)}
                             </p>
                           </button>
-                          <button
+                          <WriteButton
                             type="button"
                             onClick={(e) => handleEditPlayerClick(player, e)}
                             className="px-3 py-3 text-ink-3 hover:text-emerald-600 transition-colors"
                             title="Editar nombre"
                           >
                             <Edit2 size={18} />
-                          </button>
+                          </WriteButton>
                         </div>
                       ))}
                     </div>
@@ -601,14 +602,14 @@ export const PlayerSetup: React.FC<PlayerSetupProps> = ({
                           Editar
                         </button>
                         {isManualSlope && (
-                          <button
+                          <WriteButton
                             type="button"
                             onClick={handleResetSlope}
                             disabled={loading}
                             className="text-xs px-2 py-1 bg-ink-3 hover:bg-gray-700 text-white rounded transition-colors disabled:opacity-50"
                           >
                             Restablecer
-                          </button>
+                          </WriteButton>
                         )}
                       </div>
                     </div>
@@ -624,13 +625,13 @@ export const PlayerSetup: React.FC<PlayerSetupProps> = ({
                           max="155"
                           className="flex-1 px-3 py-2 text-sm border-2 border-line-2 rounded-lg focus:outline-none focus:border-accent"
                         />
-                        <button
+                        <WriteButton
                           type="button"
                           onClick={handleSaveSlope}
                           className="px-3 py-2 text-sm bg-accent hover:bg-accent-hover text-on-accent rounded-lg transition-colors"
                         >
                           Guardar
-                        </button>
+                        </WriteButton>
                         <button
                           type="button"
                           onClick={handleCancelEditSlope}
@@ -662,7 +663,7 @@ export const PlayerSetup: React.FC<PlayerSetupProps> = ({
               <Plus size={20} />
               {adding ? 'Añadiendo...' : isNewPlayer ? 'Crear y Añadir Jugador' : 'Añadir Jugador'}
             </button>
-          </form>
+          </WriteForm>
 
           <div className="border-t pt-6 mb-6">
             <h2 className="text-lg font-semibold text-ink mb-4">
@@ -705,14 +706,14 @@ export const PlayerSetup: React.FC<PlayerSetupProps> = ({
                         </p>
                       </div>
                     </div>
-                    <button
+                    <WriteButton
                       onClick={() => handleRemovePlayer(player.id)}
                       disabled={loading}
                       className="ml-3 p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50"
                       aria-label="Eliminar jugador"
                     >
                       <Trash2 size={20} />
-                    </button>
+                    </WriteButton>
                   </div>
                   );
                 })}
@@ -721,14 +722,14 @@ export const PlayerSetup: React.FC<PlayerSetupProps> = ({
           </div>
 
           <div className="space-y-3">
-            <button
+            <WriteButton
               onClick={handleOpenHoleConfigClick}
               disabled={loading}
               className="w-full bg-amber-600 hover:bg-amber-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-lg transition-colors flex items-center justify-center gap-2"
             >
               <Settings size={20} />
               Configurar Hoyos
-            </button>
+            </WriteButton>
 
             {currentGroup ? (
               <NavigationButton
@@ -739,7 +740,7 @@ export const PlayerSetup: React.FC<PlayerSetupProps> = ({
                 disabled={!canStartRound || loading || !canStartWithMode}
                 className="bg-accent hover:bg-accent-hover text-on-accent py-3 px-3 disabled:bg-neutral-hover disabled:text-ink-3 disabled:cursor-not-allowed transition-colors"
               />
-            ) : <button
+            ) : <WriteButton
               onClick={onStartRound}
               disabled={!canStartRound || loading || !canStartWithMode}
               className={`w-full py-3 rounded-lg font-bold text-lg transition-all ${
@@ -749,7 +750,7 @@ export const PlayerSetup: React.FC<PlayerSetupProps> = ({
               }`
             }>
               Comenzar Partida
-            </button>}
+            </WriteButton>}
           </div>
         </div>
       </div>

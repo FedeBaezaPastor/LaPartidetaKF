@@ -1,3 +1,4 @@
+import { WriteButton } from '../context/ReadOnlyContext';
 import { NavigationButton } from './NavigationButton';
 import React, { useState, useEffect } from 'react';
 import { GolfRound, RoundPlayer, RoundScore, Group } from '../types';
@@ -470,7 +471,7 @@ export const ActiveRoundsViewer: React.FC<ActiveRoundsViewerProps> = ({
                       </button>
 
                       {currentGroup && hasCompletedRounds && (
-                        <button
+                        <WriteButton
                           onClick={handleUpdateHandicaps}
                           disabled={!allRoundsCompleted || updatingHandicaps || loading}
                           className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-2 px-4 rounded-lg flex items-center gap-2 transition-colors"
@@ -484,17 +485,17 @@ export const ActiveRoundsViewer: React.FC<ActiveRoundsViewerProps> = ({
                           <span className="hidden sm:inline">
                             {updatingHandicaps ? 'Actualizando...' : 'Actualizar HCP'}
                           </span>
-                        </button>
+                        </WriteButton>
                       )}
 
-                      <button
+                      <WriteButton
                         onClick={handleDeleteAllRounds}
                         disabled={loading || updatingHandicaps}
                         className="bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white font-bold py-2 px-4 rounded-lg flex items-center gap-2 transition-colors"
                       >
                         <Trash2 size={20} />
                         <span className="hidden sm:inline">{currentGroup ? 'Eliminar Todas' : 'Eliminar'}</span>
-                      </button>
+                      </WriteButton>
                     </>
                   )}
                 </div>
@@ -571,7 +572,7 @@ export const ActiveRoundsViewer: React.FC<ActiveRoundsViewerProps> = ({
                         </div>
                         <div className="flex items-center gap-1">
                           {isCompleted && (
-                            <button
+                            <WriteButton
                               onClick={(e) => {
                                 e.stopPropagation();
                                 handleArchiveRoundClick(roundStats.round.id);
@@ -581,9 +582,9 @@ export const ActiveRoundsViewer: React.FC<ActiveRoundsViewerProps> = ({
                             >
                               <Archive size={16} />
                               <span className="hidden sm:inline">Archivar</span>
-                            </button>
+                            </WriteButton>
                           )}
-                          <button
+                          <WriteButton
                             onClick={(e) => {
                               e.stopPropagation();
                               handleDeleteRoundClick(roundStats.round.id);
@@ -592,7 +593,7 @@ export const ActiveRoundsViewer: React.FC<ActiveRoundsViewerProps> = ({
                             title="Eliminar partida"
                           >
                             <Trash2 size={18} />
-                          </button>
+                          </WriteButton>
                         </div>
                       </div>
                       <div className="flex gap-2 text-sm text-ink-3 mt-1 flex-wrap">
@@ -656,7 +657,7 @@ export const ActiveRoundsViewer: React.FC<ActiveRoundsViewerProps> = ({
                                   {item.stats.totalPoints}
                                 </p>
                                 {!(roundStats.round.status === 'completed' && !roundStats.round.group_id) && (
-                                  <button
+                                  <WriteButton
                                     onClick={(e) => {
                                       e.stopPropagation();
                                       handleDeletePlayerClick(item.player.id, item.player.name);
@@ -665,7 +666,7 @@ export const ActiveRoundsViewer: React.FC<ActiveRoundsViewerProps> = ({
                                     title="Eliminar jugador"
                                   >
                                     <UserX size={20} />
-                                  </button>
+                                  </WriteButton>
                                 )}
                               </div>
                             ))}
@@ -688,7 +689,7 @@ export const ActiveRoundsViewer: React.FC<ActiveRoundsViewerProps> = ({
                         </button>
 
                         {roundStats.players.length < 4 && !(roundStats.round.status === 'completed' && !roundStats.round.group_id) && (
-                          <button
+                          <WriteButton
                             onClick={(e) => {
                               e.stopPropagation();
                               handleAddPlayerClick(roundStats.round.id);
@@ -697,7 +698,7 @@ export const ActiveRoundsViewer: React.FC<ActiveRoundsViewerProps> = ({
                           >
                             <UserPlus size={20} />
                             Añadir
-                          </button>
+                          </WriteButton>
                         )}
                       </div>
                     </div>
@@ -751,13 +752,13 @@ export const ActiveRoundsViewer: React.FC<ActiveRoundsViewerProps> = ({
                       </div>
 
                       <div className="flex gap-2">
-                        <button
+                        <WriteButton
                           onClick={() => handleArchiveRoundClick(roundStats.round.id)}
                           className="w-full sm:flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition-colors flex items-center justify-center gap-2"
                         >
                           <Archive size={20} />
                           Archivar Partida
-                        </button>
+                        </WriteButton>
                         <button
                           onClick={() => {
                             onJoinRound(roundStats.round.id);
@@ -845,13 +846,13 @@ export const ActiveRoundsViewer: React.FC<ActiveRoundsViewerProps> = ({
               >
                 Cancelar
               </button>
-              <button
+              <WriteButton
                 onClick={handleConfirmDeletePlayer}
                 disabled={!confirmDelete}
                 className="flex-1 bg-red-600 hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-lg transition-colors"
               >
                 Eliminar
-              </button>
+              </WriteButton>
             </div>
           </div>
         </div>
@@ -925,13 +926,13 @@ export const ActiveRoundsViewer: React.FC<ActiveRoundsViewerProps> = ({
               >
                 Cancelar
               </button>
-              <button
+              <WriteButton
                 onClick={handleConfirmAddPlayer}
                 disabled={!selectedPlayerId}
                 className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-lg transition-colors"
               >
                 Añadir
-              </button>
+              </WriteButton>
             </div>
           </div>
         </div>

@@ -1,3 +1,4 @@
+import { ReadOnlyProvider } from '../../context/ReadOnlyContext';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import App from '../../App';
 import Auth from '../Auth';
@@ -64,7 +65,7 @@ export function ApplicationGateway() {
     <p role="status" className="bg-card text-ink p-4 text-center">El enlace no ha iniciado una sesión. Solicita otro desde «¿Olvidaste tu contraseña?» usando tu correo o alias.</p>
     <Auth onAuthSuccess={() => {}} onBack={clearRecovery} backDestination="home" />
   </>;
-  if (!user) return <App />;
+  if (!user) return <ReadOnlyProvider><App /></ReadOnlyProvider>;
   if (access?.error || access?.account?.status === 'disabled') return (
     <main className="min-h-screen bg-app text-ink flex flex-col items-center justify-center gap-5 p-6">
       <h1 className="text-xl font-bold">Acceso administrativo no disponible</h1>
@@ -78,5 +79,5 @@ export function ApplicationGateway() {
     return <AdminPortal account={access.account} onLogout={signOut} onAccessChanged={refresh} onChangePassword={() => setRecovery(true)} />;
   }
   if (recovery) return <Auth recoveryRequested onRecoveryComplete={clearRecovery} onAuthSuccess={clearRecovery} onBack={clearRecovery} backDestination="home" />;
-  return <App />;
+  return <ReadOnlyProvider><App /></ReadOnlyProvider>;
 }

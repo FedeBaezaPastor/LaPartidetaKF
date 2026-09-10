@@ -63,7 +63,13 @@ export const useSubscription = (authenticatedUserId?: string | null): Subscripti
       }, 0);
     });
 
+    const check = () => { void refresh(); };
+    const timer = window.setInterval(check, 30000);
+    window.addEventListener('focus', check);
     return () => {
+      refreshVersion.current++;
+      window.clearInterval(timer);
+      window.removeEventListener('focus', check);
       authListener.subscription.unsubscribe();
     };
   }, [refresh]);
