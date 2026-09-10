@@ -113,3 +113,13 @@ Cada acción exige motivo de 3–500 caracteres y confirmación. La auditoría g
 4. Verificar con una sesión de jugador abierta que una retirada se refleja al volver a la ventana y no admite nuevas puntuaciones. Verificar que las acciones de grupos no aparecen ni se aceptan por RPC.
 
 Pruebas: `npm run test:admin`, `npm run typecheck`, `npm run build`. La prueba de partidas cubre permisos, transiciones, conflictos de estado, restauración con otra activa, conservación de puntuaciones, contador (incluidas eliminaciones del jugador), auditoría y compatibilidad con el reset Express. Las pruebas locales no envían correos ni modifican datos remotos.
+
+## Sesiones independientes por pestaña
+
+La autenticación utiliza sessionStorage con respaldo en memoria cuando el navegador no permite almacenamiento. Cada documento tiene un storageKey de Supabase distinto para aislar también su BroadcastChannel. El adaptador conserva claves estables dentro de la pestaña, incluidos los verificadores de recuperación, para mantener la sesión al recargar.
+
+Un canal separado intercambia únicamente identificadores de pestaña para detectar copias de sessionStorage en pestañas duplicadas; nunca transmite tokens. Las pestañas nuevas no importan la sesión compartida anterior de localStorage. Todos los cierres de sesión de la interfaz utilizan scope local de Supabase para no revocar las sesiones independientes de la misma cuenta.
+
+Publicar solo frontend; no requiere SQL, secretos ni Edge Functions. Después de actualizar, recargar todas las pestañas y volver a iniciar sesión en cada una. La sesión se mantiene al recargar la pestaña; al cerrarla, no se conserva como un acceso permanente (el navegador puede restaurar pestañas según sus propias opciones).
+
+Comprobar con dos pestañas: AdminF en una, jugador en otra; cerrar cualquiera y confirmar que la otra sigue operativa. La prueba `tests/admin-tab-auth.test.mjs` cubre aislamiento, recarga, duplicación, limpieza y almacenamiento no disponible.

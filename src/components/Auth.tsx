@@ -94,7 +94,7 @@ export default function Auth({ onAuthSuccess, recoveryRequested = false, onRecov
 
     try {
       await supabase.auth.signOut({ scope: 'local' });
-      clearStoredAuthSession();
+      await clearStoredAuthSession();
 
       const identifier = email.trim();
       let signedInUser;

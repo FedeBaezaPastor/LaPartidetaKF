@@ -118,7 +118,7 @@ export default function MyGroups({ onBack, backDestination = 'back', onGroupSele
   };
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
+    await supabase.auth.signOut({ scope: 'local' });
     onLogout();
   };
 
