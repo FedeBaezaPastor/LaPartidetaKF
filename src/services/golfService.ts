@@ -339,6 +339,12 @@ async deleteAllRounds(groupId?: string): Promise<void> {
   },
 
   // Round operations
+  async countQuickRounds(): Promise<number> {
+    const { data, error } = await supabase.rpc('count_available_quick_rounds', {p_owner: getUserId()});
+    if (error) throw error;
+    return Number(data);
+  },
+
   async createRound(
     courseId: string,
     numHoles: 9 | 18,
@@ -526,6 +532,7 @@ async getAvailableRoundsForStats(limit?: number): Promise<Array<{ id: string; cr
 
       if (!roundData.error && roundData.data) {
         const round = roundData.data;
+        if (round.admin_withdrawn_at) return null;
         const holes = await this.getCourseHoles(round.course_id, round.num_holes, round.holes_range);
 
         const [playersData, scoresData] = await Promise.all([

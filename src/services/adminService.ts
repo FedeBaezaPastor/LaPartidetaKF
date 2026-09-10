@@ -1,3 +1,4 @@
+import type { GolfRound, RoundPlayer, RoundScore } from '../types';
 import type { UserProfile, PlanType } from '../types';
 import type { User } from '@supabase/supabase-js';
 import { supabase } from './supabaseClient';
@@ -21,7 +22,7 @@ export interface AdminAuditEntry {
   actor_alias: string;
   action: string;
   target_user_id: string | null;
-  details: { alias?: string; before?: string; after?: string; reason?: string; activated?: boolean };
+  details: { round_id?: string; alias?: string; before?: string; after?: string; reason?: string; activated?: boolean };
   created_at: string;
 }
 
@@ -46,7 +47,21 @@ export interface ManagedUser {
  profile?: UserProfile | null;
  subscription?: {plan_type: PlanType; status: string; current_period_end: string | null} | null;
 }
+export interface ManagedRound extends Omit<GolfRound, 'status'> {
+ status: string; admin_withdrawn_at: string | null; admin_previous_status: string | null;
+ completed_at?: string | null; course_name?: string; players_count?: number;
+}
+export interface ManagedRoundDetail {round: ManagedRound; course_name: string; players: RoundPlayer[]; scores: RoundScore[];}
 export const adminService = {
+ async rounds(search = '', status = '', kind = '', page = 0): Promise<{rounds: ManagedRound[]; total: number}> {
+  const {data,error}=await supabase.rpc('admin_list_app_rounds',{p_search:search,p_status:status,p_kind:kind,p_page:page}); if(error) throw error; return data;
+ },
+ async round(id: string): Promise<ManagedRoundDetail> {
+  const {data,error}=await supabase.rpc('admin_get_app_round',{p_round_id:id}); if(error) throw error; return data;
+ },
+ async changeRound(round: ManagedRound, action: string, reason: string): Promise<ManagedRoundDetail> {
+  const {data,error}=await supabase.rpc('admin_change_app_round',{p_round_id:round.id,p_action:action,p_reason:reason,p_expected:round.updated_at}); if(error) throw error; return data;
+ },
  async users(search = '', plan = '', blocked: boolean | null = null, page = 0): Promise<{users: ManagedUser[]; total: number}> {
   const {data,error}=await supabase.rpc('admin_list_app_users',{p_search:search,p_plan:plan,p_blocked:blocked,p_page:page});
   if(error) throw error; return data;

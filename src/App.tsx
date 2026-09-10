@@ -374,6 +374,33 @@ function App() {
     };
   }, [roundState.round?.id, currentView]);
 
+  useEffect(() => {
+    const roundId = roundState.round?.id;
+    if (!roundId || roundState.round?.group_id) return;
+    let live = true;
+    const refreshRound = async () => {
+      try {
+        const { supabase } = await import('./services/supabaseClient');
+        const { data, error } = await supabase.from('golf_rounds').select('*').eq('id', roundId).maybeSingle();
+        if (!live || error) return;
+        if (!data || data.admin_withdrawn_at) {
+          storageUtils.clearActiveRound();
+          setRoundState(prev => prev.round?.id === roundId ? {...prev, round: null, players: [], scores: [], hasEditAccess: false} : prev);
+          setCurrentView('setup');
+          return;
+        }
+        const { getUserId } = await import('./utils/userId');
+        if (!live) return;
+        const edit = data.status === 'active' && (data.user_id === getUserId() || accessCodeStorage.getAccessCode(roundId) === data.access_code);
+        setRoundState(prev => prev.round?.id === roundId ? {...prev, round: data, hasEditAccess: edit} : prev);
+      } catch { /* Keep the existing view on a transient network failure. */ }
+    };
+    const check = () => { void refreshRound(); };
+    const timer = window.setInterval(check, 30000);
+    window.addEventListener('focus', check);
+    return () => { live = false; window.clearInterval(timer); window.removeEventListener('focus', check); };
+  }, [roundState.round?.id, roundState.round?.group_id]);
+
   const handleGroupCreated = async (group: Group) => {
     setCurrentGroup(group);
     setIsGroupCreator(true);

@@ -82,19 +82,18 @@ export const RoundSetup: React.FC<RoundSetupProps> = ({
     loadQuickPlayRoundsCount();
   }, []);
 
+  useEffect(() => {
+    const refreshCount = () => { void loadQuickPlayRoundsCount(); };
+    const timer = window.setInterval(refreshCount, 30000);
+    window.addEventListener('focus', refreshCount);
+    return () => { window.clearInterval(timer); window.removeEventListener('focus', refreshCount); };
+  }, [currentGroup]);
+
   const loadQuickPlayRoundsCount = async () => {
     if (!currentGroup) {
       try {
-        const userId = getUserId();
-        const { count, error } = await supabase
-          .from('golf_rounds')
-          .select('id', { count: 'exact', head: true })
-          .eq('user_id', userId)
-          .is('group_id', null);
-
-        if (!error && count !== null) {
-          setQuickPlayRoundsCount(count);
-        }
+        const count = await golfService.countQuickRounds();
+        setQuickPlayRoundsCount(count);
       } catch (err) {
         console.error('Error al contar partidas rápidas:', err);
       }
@@ -178,8 +177,8 @@ export const RoundSetup: React.FC<RoundSetupProps> = ({
         setLoading(true);
 
         if (isExpress) {
-          const existingRounds = await golfService.getAvailableRoundsForStats(MAX_EXPRESS_GAMES);
-          if (existingRounds.length >= MAX_EXPRESS_GAMES) {
+          const existingCount = await golfService.countQuickRounds();
+          if (existingCount >= MAX_EXPRESS_GAMES) {
             setError('Has alcanzado el límite máximo de 4 partidas del plan Express.');
             setShowUpgradeModal(true);
             return;

@@ -1,3 +1,4 @@
+import { AdminRounds } from './AdminRounds';
 import { AdminUsers } from './AdminUsers';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { History, Loader2, Plus, RefreshCw, ShieldCheck, Users } from 'lucide-react';
@@ -7,6 +8,10 @@ import { ThemeToggle } from '../ThemeToggle';
 
 const statuses = { active: 'Activo', invited: 'Pendiente de activar', disabled: 'Desactivado' };
 const actions: Record<string, string> = {
+  'round.complete': 'Partida finalizada',
+  'round.reopen': 'Partida reabierta',
+  'round.withdraw': 'Partida retirada',
+  'round.restore': 'Partida restaurada',
   'user.profile_changed': 'Perfil de jugador modificado',
   'user.plan_changed': 'Plan de jugador modificado',
   'user.restriction_changed': 'Bloqueo de jugador modificado',
@@ -27,7 +32,7 @@ export function AdminPortal({ account, onLogout, onAccessChanged, onChangePasswo
   onAccessChanged: () => Promise<void>;
   onChangePassword: () => void;
 }) {
-  const [tab, setTab] = useState<'admins' | 'audit' | 'users'>('admins');
+  const [tab, setTab] = useState<'admins' | 'audit' | 'users' | 'rounds'>('admins');
   const [admins, setAdmins] = useState<AdminDirectoryEntry[]>([]);
   const [audit, setAudit] = useState<AdminAuditEntry[]>([]);
   const [hasMore, setHasMore] = useState(false);
@@ -111,6 +116,7 @@ export function AdminPortal({ account, onLogout, onAccessChanged, onChangePasswo
 
         <div className="flex flex-wrap items-center gap-2 mb-5">
           <button onClick={() => setTab('admins')} aria-pressed={tab === 'admins'} className={`flex gap-2 items-center rounded-xl px-4 py-3 ${tab === 'admins' ? 'bg-accent text-on-accent' : 'bg-card border border-line'}`}><Users size={18} />Administradores</button>
+          <button onClick={() => setTab('rounds')} aria-pressed={tab === 'rounds'} className="bg-card border border-line rounded-xl px-4 py-3">Partidas</button>
           <button onClick={() => setTab('users')} aria-pressed={tab === 'users'} className="bg-card border border-line rounded-xl px-4 py-3">Usuarios</button>
           <button onClick={() => { setTab('audit'); void refresh(); }} aria-pressed={tab === 'audit'} className={`flex gap-2 items-center rounded-xl px-4 py-3 ${tab === 'audit' ? 'bg-accent text-on-accent' : 'bg-card border border-line'}`}><History size={18} />Actividad</button>
           <button onClick={onChangePassword} className="text-sm text-accent-ink px-3 py-3">Mi contraseña</button>
@@ -120,6 +126,7 @@ export function AdminPortal({ account, onLogout, onAccessChanged, onChangePasswo
         {error && <p role="alert" className="mb-4 bg-red-50 border border-red-200 text-red-700 p-4 rounded-xl">{error}</p>}
         {message && <p role="status" className="mb-4 bg-accent-soft text-accent-ink border border-accent-ring p-4 rounded-xl">{message}</p>}
 
+        {tab === 'rounds' && <AdminRounds />}
         {tab === 'users' && <AdminUsers />}
         {tab === 'admins' && (
           <section>
@@ -164,6 +171,7 @@ export function AdminPortal({ account, onLogout, onAccessChanged, onChangePasswo
                 <p className="text-sm text-ink-2 mt-2">Por {entry.actor_alias}{entry.details.alias ? ` · ${entry.details.alias}` : ''}</p>
                 {!entry.action.startsWith('user.') && entry.details.before && entry.details.after && <p className="text-sm text-ink-3 mt-1">{statuses[entry.details.before as keyof typeof statuses] || entry.details.before} → {statuses[entry.details.after as keyof typeof statuses] || entry.details.after}</p>}
                 {entry.action.startsWith('user.') && <details className="text-sm mt-2"><summary>Usuario y cambios</summary><p className="break-all">{entry.target_user_id}</p><p>Antes</p><pre className="whitespace-pre-wrap break-words">{JSON.stringify(entry.details.before,null,2)}</pre><p>Después</p><pre className="whitespace-pre-wrap break-words">{JSON.stringify(entry.details.after,null,2)}</pre></details>}
+                {entry.details.round_id && <p className="text-sm break-all">Partida: {entry.details.round_id}</p>}
                 {entry.details.reason && <p className="text-sm text-ink-3 mt-1">Motivo: {entry.details.reason}</p>}
               </article>
             ))}

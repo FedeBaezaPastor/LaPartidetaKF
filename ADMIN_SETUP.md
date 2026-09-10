@@ -92,3 +92,24 @@ Los planes pueden tener fecha/hora de fin (el formulario utiliza la zona horaria
 5. Revisar Actividad. Probar también que Express sin login, Player y Team sin bloqueo mantienen creación de partidas y navegación. No bloquear cuentas reales hasta completar estas comprobaciones.
 
 Pruebas locales: `npm run test:admin`, `npm run typecheck`, `npm run build`. Incluyen permisos, auditoría, restricciones de escritura mediante RPC elevada, lectura conservada, contraseña, cambios de planes, conflictos de ficha/nick y controles de formulario deshabilitados. No se han ejecutado escrituras ni bloqueos sobre cuentas remotas desde las pruebas.
+
+## Tercera fase: partidas
+
+La sección Partidas permite consultar todas las partidas con búsqueda por referencia, UUID, identificador de origen, campo o jugador; filtros por estado y tipo; y paginación de 25 resultados. La ficha muestra puntuaciones almacenadas por jugador y hoyo. No vincula identificadores de dispositivo a cuentas Auth ni modifica puntuaciones.
+
+Solo las partidas sin grupo admiten acciones: finalizar una activa (con los hoyos registrados, aunque esté incompleta), reabrir una finalizada/archivada, retirar y restaurar. Las partidas con grupo son exclusivamente de consulta, también en servidor. Finalizar utiliza el mismo cambio de estado/completed_at del flujo rápido existente; no genera los históricos de archivado de grupos ni recalcula resultados. Reabrir limpia completed_at y conserva todas las puntuaciones.
+
+La retirada administrativa guarda el estado previo y marca la partida como deleted sin borrar jugadores ni puntuaciones. El marcador solo puede cambiarse con permisos administrativos. Los usuarios no pueden reactivar ni escribir puntuaciones/jugadores de una partida retirada. La restauración vuelve al estado anterior y vuelve a consumir un hueco, incluso si el total supera cuatro. No permite reabrir/restaurar en curso mientras exista otra rápida activa para el mismo identificador. El reset Express completo existente sigue siendo una operación aparte y puede borrar físicamente los registros.
+
+El aviso y la comprobación de creación Express usan ahora el mismo RPC de recuento: todas las rápidas del identificador de origen, excepto las retiradas por administración. Una eliminación del jugador sigue contando; una retirada administrativa libera un hueco. Player/Team siguen sin límite. El contador se refresca al recuperar foco y cada 30 segundos; las pantallas de partida rápida también refrescan el estado administrativo. Las comprobaciones históricas de una partida activa/finalizada pendiente se mantienen.
+
+Cada acción exige motivo de 3–500 caracteres y confirmación. La auditoría guarda UUID de partida, administrador, estado anterior/nuevo y motivo en la misma transacción. La ficha usa updated_at para rechazar cambios administrativos sobre un estado desactualizado. Los triggers serializan escrituras de jugadores/puntuaciones con la retirada de la partida.
+
+### Publicar Partidas
+
+1. En Supabase SQL Editor aplicar **solo** `supabase/migrations/20260912190000_app_round_management.sql`. Requiere las dos fases anteriores ya aplicadas. No repetir migraciones anteriores ni usar reset.
+2. No hay Edge Functions nuevas ni cambios de secretos. Publicar la web con `local-deploy.ps1` y recargar con Ctrl+F5.
+3. AdminF → Partidas: comprobar consulta de una rápida y una de grupo. En una rápida de pruebas, finalizar/reabrir y comprobar las puntuaciones. Retirar, verificar hueco de Express desde el dispositivo de origen y restaurar para comprobar que vuelve a contar. Comprobar Actividad.
+4. Verificar con una sesión de jugador abierta que una retirada se refleja al volver a la ventana y no admite nuevas puntuaciones. Verificar que las acciones de grupos no aparecen ni se aceptan por RPC.
+
+Pruebas: `npm run test:admin`, `npm run typecheck`, `npm run build`. La prueba de partidas cubre permisos, transiciones, conflictos de estado, restauración con otra activa, conservación de puntuaciones, contador (incluidas eliminaciones del jugador), auditoría y compatibilidad con el reset Express. Las pruebas locales no envían correos ni modifican datos remotos.
