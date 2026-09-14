@@ -30,6 +30,8 @@ export function AdminRounds() {
   const [search, setSearch] = useState(""),
     [state, setState] = useState(""),
     [kind, setKind] = useState(""),
+    [mode, setMode] = useState(""),
+    [group, setGroup] = useState(""),
     [page, setPage] = useState(0),
     [revision, setRevision] = useState(0);
   const [rows, setRows] = useState<ManagedRound[]>([]),
@@ -43,7 +45,14 @@ export function AdminRounds() {
       setLoading(true);
       setError("");
       try {
-        const d = await adminService.rounds(search, state, kind, page);
+        const d = await adminService.rounds(
+          search,
+          state,
+          kind,
+          page,
+          mode,
+          group,
+        );
         if (live) {
           setRows(d.rounds);
           setTotal(d.total);
@@ -61,7 +70,7 @@ export function AdminRounds() {
       live = false;
       clearTimeout(timer);
     };
-  }, [search, state, kind, page, revision]);
+  }, [search, state, kind, page, mode, group, revision]);
   if (detail)
     return (
       <RoundDetail
@@ -115,6 +124,8 @@ export function AdminRounds() {
             value={kind}
             onChange={(e) => {
               setKind(e.target.value);
+              setMode("");
+              setGroup("");
               setPage(0);
             }}
           >
@@ -123,6 +134,40 @@ export function AdminRounds() {
             <option value="group">De grupo (consulta)</option>
           </select>
         </label>
+        {kind === "quick" && (
+          <label>
+            Modalidad
+            <select
+              className={input}
+              value={mode}
+              onChange={(e) => {
+                setMode(e.target.value);
+                setPage(0);
+              }}
+            >
+              <option value="">Todas las modalidades</option>
+              <option value="stableford">Stableford</option>
+              <option value="match">Match</option>
+              <option value="sindicato">Sindicato</option>
+              <option value="parejas">Parejas</option>
+            </select>
+          </label>
+        )}
+        {kind === "group" && (
+          <label>
+            Buscar grupo
+            <input
+              className={input}
+              maxLength={200}
+              value={group}
+              placeholder="Nombre, código o UUID del grupo"
+              onChange={(e) => {
+                setGroup(e.target.value);
+                setPage(0);
+              }}
+            />
+          </label>
+        )}
       </div>
       <button
         disabled={loading}
@@ -163,8 +208,10 @@ export function AdminRounds() {
               {r.players_count} jugadores
             </span>
             <span className="text-sm text-ink-3">
-              {r.group_id ? "Grupo" : "Rápida"} ·{" "}
-              {new Date(r.created_at).toLocaleString("es-ES")}
+              {r.group_id
+                ? `Grupo: ${r.group_name || r.group_code || r.group_id}`
+                : "Rápida"}{" "}
+              · {new Date(r.created_at).toLocaleString("es-ES")}
             </span>
           </button>
         ))

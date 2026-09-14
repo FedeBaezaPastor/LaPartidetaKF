@@ -123,3 +123,13 @@ Un canal separado intercambia únicamente identificadores de pestaña para detec
 Publicar solo frontend; no requiere SQL, secretos ni Edge Functions. Después de actualizar, recargar todas las pestañas y volver a iniciar sesión en cada una. La sesión se mantiene al recargar la pestaña; al cerrarla, no se conserva como un acceso permanente (el navegador puede restaurar pestañas según sus propias opciones).
 
 Comprobar con dos pestañas: AdminF en una, jugador en otra; cerrar cualquiera y confirmar que la otra sigue operativa. La prueba `tests/admin-tab-auth.test.mjs` cubre aislamiento, recarga, duplicación, limpieza y almacenamiento no disponible.
+
+## Ajustes del panel (14/09/2026)
+
+La búsqueda de Partidas utiliza palabras en cualquier orden, ignorando acentos, mayúsculas y signos como guiones. Todas las palabras deben coincidir; se admiten coincidencias parciales y una inserción, omisión o sustitución en palabras de cuatro o más caracteres. Ejemplos comprobados: `Costa Rojo`, `Cosa Azahar Rojo` y `ROJO costa` encuentran `Cosg Costa Ázahar - Rojo`.
+
+Al seleccionar Rápidas aparece el filtro Stableford/Match/Sindicato/Parejas; al seleccionar Grupo aparece búsqueda por nombre, código o UUID del grupo, que también se identifica en los resultados. Cambiar Tipo limpia los filtros dependientes y vuelve a la primera página. Todos los filtros se aplican en servidor antes de contar y paginar; no cambian el carácter de solo consulta de las partidas de grupo.
+
+La ficha de Usuarios presenta etiqueta y valor en una fila, y separa los datos de perfil. Los formularios de edición siguen la misma alineación. Mi contraseña incorpora Cancelar para volver al panel con la sesión abierta; las cuentas pendientes de activación siguen teniendo que establecer su contraseña antes de entrar.
+
+Publicación: aplicar únicamente `supabase/migrations/20260914190000_admin_round_search.sql` en SQL Editor, después publicar la web con el script habitual. No se necesitan Edge Functions ni cambios de secretos. La firma anterior del listado se conserva para la transición. Las pruebas de partidas verifican los ejemplos de búsqueda, acentos, modalidades, grupos, filtros inactivos y permisos.

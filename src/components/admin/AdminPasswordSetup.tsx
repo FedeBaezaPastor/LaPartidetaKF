@@ -4,8 +4,9 @@ import { LockKeyhole } from 'lucide-react';
 import { supabase } from '../../services/supabaseClient';
 import type { AdminAccount } from '../../services/adminService';
 
-export function AdminPasswordSetup({ account, onDone, onLogout }: {
+export function AdminPasswordSetup({ account, onDone, onLogout, onCancel }: {
   account: AdminAccount;
+  onCancel?: () => void;
   onDone: () => Promise<void>;
   onLogout: () => Promise<void>;
 }) {
@@ -59,6 +60,7 @@ export function AdminPasswordSetup({ account, onDone, onLogout }: {
             <button disabled={busy} className="w-full bg-accent text-on-accent rounded-xl py-3 disabled:opacity-50">{busy ? 'Guardando…' : 'Guardar contraseña'}</button>
           </form>
         )}
+        {onCancel && !saved && <button type="button" disabled={busy} onClick={onCancel} className="mt-5 mr-3 border border-line bg-card text-ink rounded-xl px-5 py-3 disabled:opacity-50">Cancelar</button>}
         <NavigationButton destination="logout" disabled={busy} onClick={() => void onLogout()} className="mt-5" />
       </main>
     </div>

@@ -34,6 +34,12 @@ test("round administration: transitions, audit, permissions, preserved scores an
  GRANT USAGE ON SCHEMA public,auth TO authenticated,anon;
  GRANT SELECT,INSERT,UPDATE,DELETE ON golf_rounds,round_players,round_scores TO authenticated,anon;`);
     await db.exec(migration);
+    await db.exec(`CREATE TABLE public.groups(id uuid PRIMARY KEY,name text,group_code text);
+      INSERT INTO public.groups VALUES('${G}','Los Amigos de Azahar','DIVEND');
+      INSERT INTO public.golf_courses VALUES('${G}','Cosg Costa Ázahar - Rojo');
+      UPDATE public.golf_rounds SET course_id='${G}' WHERE id IN ('${G}','${R}');`);
+    await db.exec(await readFile(new URL('../supabase/migrations/20260914190000_admin_round_search.sql',import.meta.url),'utf8'));
+
     const as = async (id) => {
       await db.exec("RESET ROLE");
       await db.query("SELECT set_config('request.uid',$1,false)", [id || ""]);
@@ -72,6 +78,24 @@ test("round administration: transitions, audit, permissions, preserved scores an
     );
     await as(A);
     assert.equal(Number(await count()), 4);
+    for (const search of ['Costa Rojo','Cosa Azahar Rojo','ROJO costa','costa - ázahar rojo']) {
+      const found=(await db.query('SELECT admin_list_app_rounds_v2($1) AS d',[search])).rows[0].d;
+      assert.equal(found.total,2,search);
+    }
+    assert.equal((await db.query("SELECT admin_list_app_rounds_v2('Costa Verde') AS d")).rows[0].d.total,0);
+    for (const mode of ['stableford','match','sindicato','parejas']) {
+      await db.query('UPDATE golf_rounds SET game_mode=$1 WHERE id=$2',[mode,R]);
+      assert.equal((await db.query("SELECT admin_list_app_rounds_v2('', '', 'quick',0,$1) AS d",[mode])).rows[0].d.total,1);
+    }
+    await db.query("UPDATE golf_rounds SET game_mode='stableford' WHERE id=$1",[R]);
+    for(const term of ['amigos','divend','amigos azahar']) {
+      assert.equal((await db.query("SELECT admin_list_app_rounds_v2('', '', 'group',0,'',$1) AS d",[term])).rows[0].d.total,1);
+    }
+    assert.equal((await db.query("SELECT admin_list_app_rounds_v2('', '', 'group',0,'','inexistente') AS d")).rows[0].d.total,0);
+    assert.equal((await db.query("SELECT admin_list_app_rounds_v2('', '', '',0,'match','inexistente') AS d")).rows[0].d.total,5);
+    await as(P);
+    await assert.rejects(db.query("SELECT admin_list_app_rounds_v2()"),/denegado/);
+    await as(A);
     const original = await detail(R);
     let d = await change("complete");
     assert.equal(d.round.status, "completed");

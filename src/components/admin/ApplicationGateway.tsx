@@ -75,7 +75,7 @@ export function ApplicationGateway() {
     </main>
   );
   if (access?.account) {
-    if (recovery || access.account.status === 'invited') return <AdminPasswordSetup account={access.account} onLogout={signOut} onDone={async () => { clearRecovery(); await refresh(); }} />;
+    if (recovery || access.account.status === 'invited') return <AdminPasswordSetup account={access.account} onCancel={access.account.status === 'active' ? clearRecovery : undefined} onLogout={signOut} onDone={async () => { clearRecovery(); await refresh(); }} />;
     return <AdminPortal account={access.account} onLogout={signOut} onAccessChanged={refresh} onChangePassword={() => setRecovery(true)} />;
   }
   if (recovery) return <Auth recoveryRequested onRecoveryComplete={clearRecovery} onAuthSuccess={clearRecovery} onBack={clearRecovery} backDestination="home" />;

@@ -49,12 +49,12 @@ export interface ManagedUser {
 }
 export interface ManagedRound extends Omit<GolfRound, 'status'> {
  status: string; admin_withdrawn_at: string | null; admin_previous_status: string | null;
- completed_at?: string | null; course_name?: string; players_count?: number;
+ completed_at?: string | null; course_name?: string; players_count?: number; group_name?: string; group_code?: string;
 }
 export interface ManagedRoundDetail {round: ManagedRound; course_name: string; players: RoundPlayer[]; scores: RoundScore[];}
 export const adminService = {
- async rounds(search = '', status = '', kind = '', page = 0): Promise<{rounds: ManagedRound[]; total: number}> {
-  const {data,error}=await supabase.rpc('admin_list_app_rounds',{p_search:search,p_status:status,p_kind:kind,p_page:page}); if(error) throw error; return data;
+ async rounds(search = '', status = '', kind = '', page = 0, mode = '', group = ''): Promise<{rounds: ManagedRound[]; total: number}> {
+  const {data,error}=await supabase.rpc('admin_list_app_rounds_v2',{p_search:search,p_status:status,p_kind:kind,p_page:page,p_mode:mode,p_group:group}); if(error) throw error; return data;
  },
  async round(id: string): Promise<ManagedRoundDetail> {
   const {data,error}=await supabase.rpc('admin_get_app_round',{p_round_id:id}); if(error) throw error; return data;

@@ -1,6 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { adminService, type ManagedUser } from "../../services/adminService";
-import { AVATAR_OPTIONS, DEFAULT_AVATAR_URL, normalizeAvatarUrl } from "../../utils/avatarOptions";
+import {
+  AVATAR_OPTIONS,
+  DEFAULT_AVATAR_URL,
+  normalizeAvatarUrl,
+} from "../../utils/avatarOptions";
 import { NavigationButton } from "../NavigationButton";
 const input = "w-full bg-card border border-line rounded-xl p-3";
 const errorText = (e: unknown) =>
@@ -207,7 +211,14 @@ function UserDetail({
     setMessage("");
     setReason("");
     setConfirm(false);
-    setProfile(user.profile ? {...user.profile, avatar_url: normalizeAvatarUrl(user.profile.avatar_url)} : null);
+    setProfile(
+      user.profile
+        ? {
+            ...user.profile,
+            avatar_url: normalizeAvatarUrl(user.profile.avatar_url),
+          }
+        : null,
+    );
     setPlan(user.plan);
     const d = new Date();
     d.setMonth(d.getMonth() + 1);
@@ -261,18 +272,19 @@ function UserDetail({
       <h2 className="text-xl font-bold">
         {user.profile?.nick || "Registro pendiente"}
       </h2>
-      <dl className="bg-card border border-line rounded-xl p-4 space-y-2 break-words">
+      <dl className="bg-card border border-line rounded-xl p-4 grid grid-cols-[minmax(6rem,0.4fr)_minmax(0,1fr)] gap-x-4 gap-y-3 items-baseline [&>dt]:text-ink-3 [&>dd]:break-words [&>dd]:min-w-0">
         <dt>Correo</dt>
         <dd>{user.email}</dd>
         <dt>UUID</dt>
-        <dd>{user.user_id}</dd>
+        <dd className="break-all">{user.user_id}</dd>
         <dt>Alta</dt>
         <dd>{showDate(user.created_at)}</dd>
         <dt>Plan efectivo</dt>
+        <dd>{user.plan}</dd>
+        <dt>Caducidad</dt>
         <dd>
-          {user.plan} ·{" "}
           {user.subscription?.current_period_end
-            ? `Fin: ${showDate(user.subscription.current_period_end)}`
+            ? showDate(user.subscription.current_period_end)
             : user.plan === "express"
               ? "Sin caducidad"
               : "Indefinido"}
@@ -283,11 +295,22 @@ function UserDetail({
         <dd>{user.profile?.accepted_terms ? "Sí" : "No"}</dd>
         {user.profile && (
           <>
-            <dt>Perfil</dt>
+            <dt>Nombre</dt>
+            <dd>{user.profile.display_name || "—"}</dd>
+            <dt>Nick</dt>
+            <dd>{user.profile.nick}</dd>
+            <dt>Avatar</dt>
             <dd>
-              {user.profile.display_name} · Hándicap{" "}
-              {user.profile.exact_handicap} · Barras {user.profile.default_tee}
+              <img
+                src={normalizeAvatarUrl(user.profile.avatar_url)}
+                alt="Avatar del jugador"
+                className="w-12 h-12 rounded-full"
+              />
             </dd>
+            <dt>Hándicap</dt>
+            <dd>{user.profile.exact_handicap}</dd>
+            <dt>Barras</dt>
+            <dd className="capitalize">{user.profile.default_tee}</dd>
           </>
         )}
       </dl>
@@ -358,7 +381,7 @@ function UserDetail({
           <fieldset disabled={busy || confirm} className="space-y-4">
             {action === "profile" && profile && (
               <>
-                <label className="block">
+                <label className="grid grid-cols-[minmax(6rem,0.4fr)_minmax(0,1fr)] gap-4 items-center">
                   Nombre
                   <input
                     className={input}
@@ -370,7 +393,7 @@ function UserDetail({
                     }
                   />
                 </label>
-                <label className="block">
+                <label className="grid grid-cols-[minmax(6rem,0.4fr)_minmax(0,1fr)] gap-4 items-center">
                   Nick
                   <input
                     className={input}
@@ -383,7 +406,7 @@ function UserDetail({
                     }
                   />
                 </label>
-                <label className="block">
+                <label className="grid grid-cols-[minmax(6rem,0.4fr)_minmax(0,1fr)] gap-4 items-center">
                   Avatar
                   <select
                     className={input}
@@ -399,7 +422,7 @@ function UserDetail({
                     ))}
                   </select>
                 </label>
-                <label className="block">
+                <label className="grid grid-cols-[minmax(6rem,0.4fr)_minmax(0,1fr)] gap-4 items-center">
                   Hándicap
                   <input
                     className={input}
@@ -415,7 +438,7 @@ function UserDetail({
                     }
                   />
                 </label>
-                <label className="block">
+                <label className="grid grid-cols-[minmax(6rem,0.4fr)_minmax(0,1fr)] gap-4 items-center">
                   Barras
                   <select
                     className={input}
@@ -433,7 +456,7 @@ function UserDetail({
             )}
             {action === "plan" && (
               <>
-                <label className="block">
+                <label className="grid grid-cols-[minmax(6rem,0.4fr)_minmax(0,1fr)] gap-4 items-center">
                   Plan
                   <select
                     className={input}
@@ -456,7 +479,7 @@ function UserDetail({
                       Sin caducidad
                     </label>
                     {!indefinite && (
-                      <label className="block">
+                      <label className="grid grid-cols-[minmax(6rem,0.4fr)_minmax(0,1fr)] gap-4 items-center">
                         Fecha y hora de fin (hora local)
                         <input
                           className={input}
@@ -482,7 +505,7 @@ function UserDetail({
                   : "Podrá consultar y recuperar su contraseña, pero no modificar datos ni jugar. Se conservarán sus partidas y grupos; la caducidad del plan seguirá contando."}
               </p>
             )}
-            <label className="block">
+            <label className="grid grid-cols-[minmax(6rem,0.4fr)_minmax(0,1fr)] gap-4 items-center">
               Motivo
               <textarea
                 className={input}
