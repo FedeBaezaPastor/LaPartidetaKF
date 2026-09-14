@@ -72,7 +72,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
               <Share2 size={20} className="text-ink-2" />
             </button>
 
-            {isAuthenticated && (
+            <>
               <button
                 type="button"
                 onClick={onShowNotifications}
@@ -87,7 +87,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                   </span>
                 )}
               </button>
-            )}
+            </>
 
             <ThemeToggle />
           </div>

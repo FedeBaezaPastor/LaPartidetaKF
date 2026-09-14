@@ -1,3 +1,4 @@
+import { useNotificationCount } from './hooks/useNotificationCount';
 import { useReadOnly } from './context/ReadOnlyContext';
 import React, { useState, useEffect } from 'react';
 import { AlertTriangle, CheckCircle2 } from 'lucide-react';
@@ -89,7 +90,7 @@ function App() {
   const [accessCodeError, setAccessCodeError] = useState('');
   const [showLeaveGroupConfirm, setShowLeaveGroupConfirm] = useState(false);
   const { planType, profile, loading: subscriptionLoading, refresh: refreshSubscription } = useSubscription(user?.id ?? null);
-  const [pendingInvitations, setPendingInvitations] = useState(0);
+  const {count: pendingInvitations, refresh: refreshNotifications} = useNotificationCount(user?.id ?? null, currentView);
   const [showShareModal, setShowShareModal] = useState(false);
   const [showPayment, setShowPayment] = useState(false);
   const [paymentAmount, setPaymentAmount] = useState(0);
@@ -186,13 +187,6 @@ function App() {
     url.searchParams.delete('email-confirmed');
     window.history.replaceState({}, document.title, `${url.pathname}${url.search}${url.hash}`);
   }, [emailConfirmed]);
-
-  useEffect(() => {
-    if (user) {
-      userService.getInvitationCount(user.id).then(setPendingInvitations).catch(() => {});
-    }
-  }, [user, currentView]);
-
   useEffect(() => {
     const checkIncognito = () => {
       try {
@@ -969,17 +963,18 @@ function App() {
     );
   }
 
-  if (currentView === 'notifications' && user) {
+  if (currentView === 'notifications') {
     return (
       <>
         <IncognitoWarning />
         <GlobalThemeSwitch />
         <div className={isIncognito ? 'pt-10' : ''}>
           <NotificationsBell
-            userId={user.id}
+            key={user?.id || 'express'}
+            userId={user?.id ?? null}
             onBack={() => setCurrentView('main')}
             onInvitationResolved={() => {
-              setPendingInvitations(Math.max(0, pendingInvitations - 1));
+              void refreshNotifications();
             }}
           />
         </div>
@@ -1116,6 +1111,8 @@ function App() {
       <div className={isIncognito ? 'pt-10' : ''}>
       {currentView === 'main' && currentGroup && (
         <RoundSetup
+          onShowNotifications={() => setCurrentView('notifications')}
+          notificationCount={pendingInvitations}
           onRoundCreated={handleRoundCreated}
           onViewActiveRounds={() => setCurrentView('active-rounds')}
           onViewGamePoints={() => setCurrentView('game-points')}
@@ -1136,6 +1133,8 @@ function App() {
 
       {currentView === 'setup' && !currentGroup && (
         <RoundSetup
+          onShowNotifications={() => setCurrentView('notifications')}
+          notificationCount={pendingInvitations}
           onRoundCreated={handleRoundCreated}
           onViewActiveRounds={() => setCurrentView('active-rounds')}
           onViewGamePoints={() => setCurrentView('game-points')}

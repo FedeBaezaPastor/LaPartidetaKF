@@ -1,13 +1,13 @@
+import { MessageInbox } from './MessageInbox';
 import { WriteButton } from '../context/ReadOnlyContext';
 import { NavigationButton } from './NavigationButton';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Bell, Check, X, Users, Clock } from 'lucide-react';
 import { userService } from '../services/userService';
-import { supabase } from '../services/supabaseClient';
 import { GroupInvitation } from '../types';
 
 interface NotificationsBellProps {
-  userId: string;
+  userId: string | null;
   onBack: () => void;
   onInvitationResolved: () => void;
 }
@@ -17,25 +17,25 @@ export const NotificationsBell: React.FC<NotificationsBellProps> = ({ userId, on
   const [loading, setLoading] = useState(true);
   const [responding, setResponding] = useState<string | null>(null);
 
-  const load = async () => {
+  const load = useCallback(async () => {
     try {
-      const data = await userService.getPendingInvitations(userId);
+      const data = userId ? await userService.getPendingInvitations(userId) : [];
       setInvitations(data);
     } catch {
       setInvitations([]);
     } finally {
       setLoading(false);
     }
-  };
+  }, [userId]);
 
-  useEffect(() => { load(); }, [userId]);
+  useEffect(() => { void load(); const tick = () => void load(); const timer = window.setInterval(tick, 30000); window.addEventListener('focus', tick); return () => { window.clearInterval(timer); window.removeEventListener('focus', tick); }; }, [load]);
 
   const handleRespond = async (invitationId: string, status: 'accepted' | 'rejected') => {
     setResponding(invitationId);
     try {
       await userService.respondToInvitation(invitationId, status);
 
-      if (status === 'accepted') {
+      if (status === 'accepted' && userId) {
         const invitation = invitations.find(i => i.id === invitationId);
         if (invitation) {
           await userService.addGroupMember(invitation.group_id, userId, 'member', invitation.invited_by);
@@ -64,7 +64,9 @@ export const NotificationsBell: React.FC<NotificationsBellProps> = ({ userId, on
           <h1 className="text-2xl font-bold text-ink">Notificaciones</h1>
         </div>
 
-        {loading ? (
+        <MessageInbox key={userId || 'express'} userId={userId} onRead={onInvitationResolved} />
+        {userId && <h2 className="font-bold text-lg text-ink mb-3">Invitaciones a grupos</h2>}
+        {userId && (loading ? (
           <div className="text-center py-12">
             <div className="w-8 h-8 border-2 border-line-2 border-t-accent rounded-full animate-spin mx-auto mb-3" />
             <p className="text-ink-3 text-sm">Cargando...</p>
@@ -72,7 +74,7 @@ export const NotificationsBell: React.FC<NotificationsBellProps> = ({ userId, on
         ) : invitations.length === 0 ? (
           <div className="bg-card rounded-2xl shadow-card p-8 text-center">
             <Bell size={32} className="text-ink-4 mx-auto mb-3" />
-            <p className="text-ink-3">No tienes notificaciones pendientes</p>
+            <p className="text-ink-3">No tienes invitaciones pendientes</p>
           </div>
         ) : (
           <div className="space-y-3">
@@ -117,7 +119,7 @@ export const NotificationsBell: React.FC<NotificationsBellProps> = ({ userId, on
               </div>
             ))}
           </div>
-        )}
+        ))}
       </div>
     </div>
   );

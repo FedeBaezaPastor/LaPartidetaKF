@@ -133,3 +133,36 @@ Al seleccionar Rápidas aparece el filtro Stableford/Match/Sindicato/Parejas; al
 La ficha de Usuarios presenta etiqueta y valor en una fila, y separa los datos de perfil. Los formularios de edición siguen la misma alineación. Mi contraseña incorpora Cancelar para volver al panel con la sesión abierta; las cuentas pendientes de activación siguen teniendo que establecer su contraseña antes de entrar.
 
 Publicación: aplicar únicamente `supabase/migrations/20260914190000_admin_round_search.sql` en SQL Editor, después publicar la web con el script habitual. No se necesitan Edge Functions ni cambios de secretos. La firma anterior del listado se conserva para la transición. Las pruebas de partidas verifican los ejemplos de búsqueda, acentos, modalidades, grupos, filtros inactivos y permisos.
+
+## Mensajes in-app (15/09/2026)
+
+Administración → Mensajes permite buscar cuentas por correo, nick o UUID, y buzones Express por UUID exacto; seleccionar hasta 100 destinatarios; guardar borradores; revisar y confirmar el envío. El contenido se muestra como texto plano, conservando saltos de línea. Cada entrega guarda su fecha de lectura. Los mensajes enviados no se pueden editar. El historial y Actividad identifican al administrador que envió el mensaje; el receptor solo ve «Administración».
+
+La nueva migración separa mensajes, entregas y buzones Express. Las tablas no admiten acceso directo de clientes: los RPC validan permisos y propiedad. `admin_send_message` publica y registra la auditoría en una transacción, bloquea el borrador y valida su revisión y todos los destinatarios antes de entregar. Repetir el envío del mismo UUID no duplica entregas ni auditoría. Si falla un destinatario, el borrador se conserva entero para corregirlo. `scheduled_at` queda reservado y sin interfaz ni proceso ejecutor: no hay envíos automáticos.
+
+Notificaciones conserva las invitaciones y añade mensajes; el contador suma ambos. Refresca al entrar, recuperar foco y cada 30 segundos. Cada cuenta utiliza su sesión de pestaña y UUID Auth; no se importan mensajes anónimos al iniciar sesión. Las cuentas bloqueadas pueden consultar y marcar sus propios mensajes como leídos mediante RPC específicos. Las protecciones sobre partidas, perfiles y grupos siguen vigentes.
+
+Express crea un buzón independiente al abrir la aplicación sin login. Genera una clave aleatoria de 256 bits, persistida antes de registrar el buzón, y usa un bloqueo del navegador para coordinar pestañas cuando está disponible. La clave se guarda en almacenamiento local (respaldo temporal en memoria si no está disponible); perder ese almacenamiento supone perder el acceso. Notificaciones muestra solo el UUID copiable, nunca la clave. La Edge Function recibe la clave en el cuerpo HTTPS, calcula SHA-256 y verifica el hash en servidor. No usa identificadores públicos de partidas, URLs ni auditorías para guardar credenciales.
+
+La función aplica límites en servidor: 100 solicitudes/minuto por credencial y 1.000/minuto globales; altas, además, 100/minuto y 1.000/hora globales. Reutiliza el limitador protegido existente. Los límites globales también acotan intentos con claves aleatorias y pueden ajustarse si crece el tráfico. El origen permitido sigue siendo `APP_ORIGIN`; con el valor de producción, las llamadas Express desde localhost no estarán permitidas.
+
+### Publicación paso a paso
+
+1. En Supabase → SQL Editor, ejecutar **solo** `supabase/migrations/20260915190000_inapp_messages.sql`. Requiere las migraciones administrativas ya aplicadas. No repetirlas ni utilizar reset.
+2. En PowerShell, desde la carpeta del proyecto, desplegar el servicio nuevo:
+
+   ```powershell
+   npx supabase functions deploy express-messages --project-ref sjzivdhzlptxveygmpys
+   ```
+
+   No hacen falta secretos nuevos. Se reutilizan `APP_ORIGIN=https://golf.arinsaldev.com` y las variables Supabase automáticas. El `verify_jwt=false` de esta función es intencional: Express no tiene sesión Auth y se autentica con la clave privada del buzón.
+3. Publicar el frontend con el script habitual, que incluye los cambios pendientes:
+
+   ```powershell
+   .\local-deploy.ps1 -CommitMessage "Añadir mensajes in-app desde administración"
+   ```
+
+4. Recargar las pestañas. En una pestaña sin login, abrir Notificaciones y copiar el UUID del buzón Express. En otra, entrar con una **cuenta registrada de pruebas**. Desde AdminF, seleccionar esa cuenta y ese buzón, guardar un borrador, reabrirlo, revisar y confirmar un aviso de prueba. Verificar contenido, contador y lectura en ambos, y las fechas individuales en Administración → Mensajes.
+5. Conservar las sesiones abiertas y comprobar otra cuenta sin acceso al mensaje, recuperación al volver al foco, invitaciones y una partida en curso sin interrupción. Probar una cuenta de pruebas bloqueada: debe leer mensajes y seguir sin poder modificar perfil, partidas ni grupos. No utilizar otros destinatarios hasta completar estas comprobaciones.
+
+Validación local: `npm run test:admin`, `npm run typecheck`, `npm run build` y `npx deno check supabase/functions/express-messages/index.ts`. Las pruebas de mensajes utilizan una base PostgreSQL local en memoria y servicios simulados: no envían avisos ni modifican cuentas remotas. Cubren permisos, administradores desactivados, aislamiento, claves Express, límites del servicio, borradores, revisión, duplicados, reintentos, 100 destinatarios, rechazo completo de destinatarios inválidos, paginación, cambios de nick y lectura bajo bloqueo. La comprobación real en la aplicación publicada queda para los pasos 4 y 5.

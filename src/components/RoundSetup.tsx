@@ -3,7 +3,7 @@ import { NavigationButton } from './NavigationButton';
 import React, { useState, useEffect } from 'react';
 import { GolfCourse, GolfHole, Group, Tee, GameMode } from '../types';
 import { golfService } from '../services/golfService';
-import { ChevronRight, Copy, Check, LogOut, Info, Lock } from 'lucide-react';
+import { Bell, ChevronRight, Copy, Check, LogOut, Info, Lock } from 'lucide-react';
 import { HolesRangeModal } from './HolesRangeModal';
 import { AdminPinModal } from './AdminPinModal';
 import { adminPinUtils } from '../utils/adminPin';
@@ -27,6 +27,8 @@ interface RoundSetupProps {
   hasLimitedAccess?: boolean;
   planType?: 'express' | 'player' | 'team';
   onShowPlans?: () => void;
+  onShowNotifications?: () => void;
+  notificationCount?: number;
 }
 
 export const RoundSetup: React.FC<RoundSetupProps> = ({
@@ -42,6 +44,8 @@ export const RoundSetup: React.FC<RoundSetupProps> = ({
   hasLimitedAccess = false,
   planType = 'express',
   onShowPlans,
+  onShowNotifications,
+  notificationCount = 0,
 }) => {
   const isExpress = planType === 'express';
   const handleGameModeClick = (mode: GameMode) => {
@@ -312,6 +316,10 @@ export const RoundSetup: React.FC<RoundSetupProps> = ({
     <div className="min-h-screen bg-app p-4 md:p-8">
       <div className="max-w-2xl mx-auto space-y-6">
         {/* Header */}
+        {onShowNotifications && <div className="flex justify-start"><button type="button" onClick={onShowNotifications} title="Notificaciones" aria-label={`Notificaciones: ${notificationCount} pendientes`} className="relative w-11 h-11 rounded-full border border-line bg-card shadow-soft flex items-center justify-center text-accent-ink">
+          <Bell size={22} />
+          {notificationCount > 0 && <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold min-w-5 h-5 px-1 rounded-full">{notificationCount}</span>}
+        </button></div>}
         <div className="text-center relative">
           {!currentGroup && onBack && (
             <NavigationButton destination="home"

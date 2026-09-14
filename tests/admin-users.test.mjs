@@ -40,6 +40,7 @@ test("user management: permissions, filters, atomic audit, plans and read-only w
       A,
     ]);
     await db.exec(sql);
+    await db.exec(await readFile(new URL('../supabase/migrations/20260915190000_inapp_messages.sql', import.meta.url), 'utf8'));
     const as = async (id, role = "authenticated") => {
       await db.exec("RESET ROLE");
       await db.query("SELECT set_config('request.jwt.claims',$1,false)", [
@@ -115,12 +116,19 @@ test("user management: permissions, filters, atomic audit, plans and read-only w
       /uso/,
     );
     await change(P, "restriction", { read_only: true });
+    const messageId = '00000000-0000-4000-8000-000000000099';
+    await db.query('SELECT admin_save_message($1,$2,$3,$4,0)', [messageId, 'Aviso', 'Puedes leer este aviso.', JSON.stringify([{kind:'user',id:P}])]);
+    await db.query('SELECT admin_send_message($1,1)', [messageId]);
     assert.equal(
       (await db.query("SELECT admin_list_app_users('', '',true) AS d")).rows[0]
         .d.total,
       1,
     );
     await as(P);
+    const inbox = (await db.query('SELECT my_message_inbox() AS d')).rows[0].d;
+    assert.equal(inbox.unread, 1);
+    await db.query('SELECT my_message_open($1)', [inbox.messages[0].id]);
+    assert.equal((await db.query('SELECT my_message_inbox() AS d')).rows[0].d.unread, 0);
     assert.equal(
       (await db.query("SELECT is_app_user_read_only() AS b")).rows[0].b,
       true,

@@ -4,3 +4,6 @@ verify_jwt = false
 
 [functions.admin-management]
 verify_jwt = false
+
+[functions.express-messages]
+verify_jwt = false
