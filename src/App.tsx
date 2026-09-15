@@ -1245,7 +1245,7 @@ function App() {
       )}
 
       {currentView === 'game-points' && (
-        <GamePoints onBack={() => setCurrentView('main')} />
+        <GamePoints groupId={currentGroup?.id} onBack={() => setCurrentView('main')} />
       )}
 
       {currentView === 'statistics' && currentGroup && (

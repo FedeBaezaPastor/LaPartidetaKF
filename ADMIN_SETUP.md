@@ -209,3 +209,11 @@ Publicación:
 3. Recargar con Ctrl+F5 la pestaña de Fede → Notificaciones → Actualizar invitaciones. Comprobar que aparece la invitación de La Partideta y aceptarla. Al regresar a inicio debe descontarse esa invitación del badge; después comprobar Fede entre los destinatarios reales del grupo.
 
 Pruebas: consulta sin relación REST al perfil, perfil ausente, errores de carga, aceptación y rechazo, reintentos, roles conservados, rechazo de otras cuentas, cuentas bloqueadas y rollback ante fallo de alta de miembro. DIVEND queda fuera de esta corrección.
+
+## Mostrar miembros aceptados en Puntos de Juego
+
+La sección antigua «Jugadores Registrados» consultaba `players`, el registro de fichas de juego e históricos; aceptar una invitación crea una fila en `group_members`. Ahora Puntos de Juego incluye **Miembros del grupo**, con nick/nombre, rol y UUID de las cuentas incorporadas. Refresca al entrar, recuperar foco, cada 30 segundos y con Actualizar miembros. La lista anterior se llama **Jugadores de partidas** y explica su función. No se crean fichas de juego ni se vinculan historiales por coincidencias de nombre.
+
+La consulta de miembros obtiene los perfiles por separado: `group_members.user_id` referencia Auth, no directamente `user_profiles`. La ausencia de un perfil no oculta al miembro y los errores de carga se muestran con opción de reintento. Se mantienen las políticas de lectura existentes; no hay cambios de permisos ni escrituras al consultar.
+
+Publicación: solo frontend, mediante `.\local-deploy.ps1 -CommitMessage "Mostrar miembros del grupo en Puntos de Juego"`. No necesita migración ni Edge Functions. Recargar la pestaña de FedeTeam, entrar en La Partideta → Puntos de Juego y comprobar Fede en Miembros del grupo. DIVEND sigue pendiente y fuera de este cambio.

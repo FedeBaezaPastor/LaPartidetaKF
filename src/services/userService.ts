@@ -111,14 +111,22 @@ export const userService = {
   async getGroupMembers(groupId: string): Promise<GroupMember[]> {
     const { data, error } = await supabase
       .from('group_members')
-      .select(`
-        *,
-        profile:user_profiles!user_id(*)
-      `)
+      .select('*')
       .eq('group_id', groupId)
       .order('joined_at', { ascending: true });
     if (error) throw error;
-    return (data || []) as unknown as GroupMember[];
+    const members = (data || []) as GroupMember[];
+    if (!members.length) return members;
+    // Membership points to Auth; there is no direct FK to user_profiles.
+    const { data: profiles, error: profileError } = await supabase
+      .from('user_profiles')
+      .select('*')
+      .in('user_id', [...new Set(members.map(member => member.user_id))]);
+    if (profileError) return members;
+    return members.map(member => ({
+      ...member,
+      profile: profiles?.find(profile => profile.user_id === member.user_id),
+    })) as GroupMember[];
   },
 
   async addGroupMember(groupId: string, userId: string, role: 'admin' | 'member' = 'member', invitedBy?: string): Promise<void> {

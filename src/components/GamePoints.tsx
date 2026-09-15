@@ -7,6 +7,7 @@ import { Player } from '../types';
 import { EditPlayerNameModal } from './EditPlayerNameModal';
 import { AdminPinModal } from './AdminPinModal';
 import { adminPinUtils } from '../utils/adminPin';
+import { GroupMemberList } from './GroupMemberList';
 
 interface DailyStanding {
   playerId: string;
@@ -24,9 +25,10 @@ interface DailyRanking {
 
 interface GamePointsProps {
   onBack: () => void;
+  groupId?: string | null;
 }
 
-export function GamePoints({ onBack }: GamePointsProps) {
+export function GamePoints({ onBack, groupId }: GamePointsProps) {
   const [players, setPlayers] = useState<Player[]>([]);
   const [dailyRankings, setDailyRankings] = useState<DailyRanking[]>([]);
   const [handicapHistory, setHandicapHistory] = useState<any[]>([]);
@@ -567,6 +569,7 @@ export function GamePoints({ onBack }: GamePointsProps) {
               </div>
             )}
 
+            {groupId && <GroupMemberList key={groupId} groupId={groupId} />}
             <div>
               <button
                 onClick={() => setShowPlayers(!showPlayers)}
@@ -575,7 +578,7 @@ export function GamePoints({ onBack }: GamePointsProps) {
                 <div className="flex items-center">
                   <Users className="w-6 h-6 mr-2 text-accent-ink" />
                   <h2 className="text-2xl font-semibold text-title">
-                    Jugadores Registrados
+                    Jugadores de partidas
                   </h2>
                   <span className="ml-3 text-sm text-accent-ink font-medium">
                     ({players.length})
@@ -589,9 +592,10 @@ export function GamePoints({ onBack }: GamePointsProps) {
               </button>
               {showPlayers && (
                 <div className="overflow-x-hidden pr-1">
+                  <p className="text-sm text-ink-3 mb-3">Estas fichas se utilizan para jugar y guardar hándicaps e históricos. Aceptar una invitación al grupo no crea una ficha de juego.</p>
                   {players.length === 0 ? (
                     <p className="text-ink-3 text-center py-4">
-                      No hay jugadores registrados
+                      Todavía no hay fichas de jugadores para las partidas
                     </p>
                   ) : (
                     <div className="grid gap-3">
