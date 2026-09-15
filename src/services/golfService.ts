@@ -24,6 +24,7 @@ export const golfService = {
     const { data, error } = await supabase
       .from('players')
       .select('id, name, exact_handicap, exact_handicap_18, playing_handicap')
+      .is('auth_user_id', null)
       .not('playing_handicap', 'is', null)
       .order('name');
     if (error) throw error;
@@ -926,8 +927,14 @@ async getAvailableRoundsForStats(limit?: number): Promise<Array<{ id: string; cr
   },
 
   // Player database operations
-  async getAllPlayers(): Promise<Player[]> {
-    const groupId = storageUtils.getCurrentGroupId();
+  async getAllPlayers(groupOverride?: string): Promise<Player[]> {
+    const groupId = groupOverride ?? storageUtils.getCurrentGroupId();
+
+    if (groupId) {
+      const { data, error } = await supabase.rpc('list_group_game_players', { p_group: groupId });
+      if (error) throw error;
+      return data || [];
+    }
 
     let query = supabase
       .from('players')
@@ -1028,6 +1035,7 @@ async getAvailableRoundsForStats(limit?: number): Promise<Array<{ id: string; cr
     let query = supabase
       .from('players')
       .select('*')
+      .is('auth_user_id', null)
       .eq('name', name);
 
     if (groupId) {
@@ -1537,7 +1545,7 @@ async getAvailableRoundsForStats(limit?: number): Promise<Array<{ id: string; cr
             exact_handicap: newHandicap,
             exact_handicap_18: newHandicap,
           })
-          .eq('id', player.playerId);
+          .eq('id', player.playerId).is('auth_user_id', null);
 
         if (error) {
           console.error(`Error updating handicap for player ${player.playerName}:`, error);
@@ -1604,7 +1612,7 @@ async getAvailableRoundsForStats(limit?: number): Promise<Array<{ id: string; cr
             exact_handicap: newHandicap,
             exact_handicap_18: newHandicap,
           })
-          .eq('id', player.playerDbId);
+          .eq('id', player.playerDbId).is('auth_user_id', null);
 
         if (error) {
           console.error(`Error updating handicap for player ${player.playerName}:`, error);
@@ -1629,12 +1637,19 @@ async getAvailableRoundsForStats(limit?: number): Promise<Array<{ id: string; cr
           await this.archiveRound(round.id);
         } catch (err) {
           console.error(`Error archiving round ${round.id}:`, err);
+          throw err;
         }
       }
     }
   },
 
   async archiveRound(roundId: string): Promise<void> {
+    const { data: previousArchive, error: archiveLookupError } = await supabase.from('archived_rounds').select('id').eq('source_round_id', roundId).maybeSingle();
+    if (archiveLookupError) throw archiveLookupError;
+    if (previousArchive) {
+      await this.deleteRound(roundId);
+      return;
+    }
     const roundDetails = await this.getRoundWithDetails(roundId, 3);
     if (!roundDetails) throw new Error('No se pudo cargar la partida. Revisa tu conexión e inténtalo de nuevo.');
 
@@ -1687,6 +1702,7 @@ async getAvailableRoundsForStats(limit?: number): Promise<Array<{ id: string; cr
 
       return {
         playerId: player.id,
+        playerDbId: player.player_id,
         playerName: player.name,
         playingHandicap: player.playing_handicap,
         exactHandicap: player.exact_handicap,
@@ -1727,6 +1743,7 @@ async getAvailableRoundsForStats(limit?: number): Promise<Array<{ id: string; cr
       position: index + 1,
       player_name: player.playerName,
       player_id: player.playerId,
+      player_db_id: player.playerDbId,
       points: player.totalPoints,
       hcp_juego: player.playingHandicap,
       handicap: player.exactHandicap,
@@ -1745,6 +1762,7 @@ async getAvailableRoundsForStats(limit?: number): Promise<Array<{ id: string; cr
       return {
         player_name: player.playerName,
         player_id: player.playerId,
+      player_db_id: player.playerDbId,
         playingHandicap: player.playingHandicap,
         handicap: player.exactHandicap,
         no_paso_rojas_count: player.noPasoRojasCount,
@@ -1792,6 +1810,7 @@ async getAvailableRoundsForStats(limit?: number): Promise<Array<{ id: string; cr
       .insert([
         {
           group_id: round.group_id,
+          source_round_id: round.id,
           course_name: course.name,
           played_at: round.created_at,
           final_ranking: finalRanking,

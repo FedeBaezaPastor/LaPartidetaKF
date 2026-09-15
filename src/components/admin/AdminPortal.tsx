@@ -9,6 +9,10 @@ import { ThemeToggle } from '../ThemeToggle';
 
 const statuses = { active: 'Activo', invited: 'Pendiente de activar', disabled: 'Desactivado' };
 const actions: Record<string, string> = {
+  'group.member.handicap': 'Hándicap del grupo modificado',
+  'group.member.remove': 'Miembro retirado del grupo',
+  'group.member.results': 'Hándicap ajustado por resultados',
+  'group.member.results_reverted': 'Ajuste de resultados revertido',
   'message.sent': 'Mensaje enviado',
   'group.message.sent': 'Mensaje enviado por un administrador de grupo',
   'round.complete': 'Partida finalizada',
@@ -177,6 +181,7 @@ export function AdminPortal({ account, onLogout, onAccessChanged, onChangePasswo
                 {!entry.action.startsWith('user.') && entry.details.before && entry.details.after && <p className="text-sm text-ink-3 mt-1">{statuses[entry.details.before as keyof typeof statuses] || entry.details.before} → {statuses[entry.details.after as keyof typeof statuses] || entry.details.after}</p>}
                 {entry.action.startsWith('user.') && <details className="text-sm mt-2"><summary>Usuario y cambios</summary><p className="break-all">{entry.target_user_id}</p><p>Antes</p><pre className="whitespace-pre-wrap break-words">{JSON.stringify(entry.details.before,null,2)}</pre><p>Después</p><pre className="whitespace-pre-wrap break-words">{JSON.stringify(entry.details.after,null,2)}</pre></details>}
                 {entry.details.message_id && <p className="text-sm break-words">{entry.details.title} · {entry.details.recipient_count} destinatarios · {entry.details.message_id}</p>}
+                {entry.action.startsWith('group.member.') && <details className="text-sm mt-2"><summary>Grupo y cuentas</summary><p className="break-all">Grupo: {entry.details.group_id}</p><p className="break-all">Actor: {entry.actor_user_id}</p><p className="break-all">Jugador: {entry.target_user_id}</p></details>}
                 {entry.details.round_id && <p className="text-sm break-all">Partida: {entry.details.round_id}</p>}
                 {entry.details.reason && <p className="text-sm text-ink-3 mt-1">Motivo: {entry.details.reason}</p>}
               </article>

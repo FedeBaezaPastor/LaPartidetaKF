@@ -74,7 +74,13 @@ export interface GroupMember {
   role: 'admin' | 'member';
   invited_by?: string;
   joined_at: string;
-  profile?: UserProfile;
+  profile?: Pick<UserProfile, 'nick' | 'display_name' | 'avatar_url'>;
+  member_revision: number;
+  player_id: string;
+  player_revision: number;
+  handicap_18: number | null;
+  can_manage: boolean;
+  can_remove: boolean;
 }
 
 export interface GroupInvitation {
@@ -104,6 +110,9 @@ export interface ProShopPurchase {
 }
 
 export interface Player {
+  auth_user_id?: string | null;
+  handicap_pending?: boolean;
+  member_revision?: number;
   id: string;
   name: string;
   exact_handicap: number;

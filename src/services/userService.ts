@@ -109,24 +109,18 @@ export const userService = {
   },
 
   async getGroupMembers(groupId: string): Promise<GroupMember[]> {
-    const { data, error } = await supabase
-      .from('group_members')
-      .select('*')
-      .eq('group_id', groupId)
-      .order('joined_at', { ascending: true });
+    const { data, error } = await supabase.rpc('list_identified_group_members', { p_group: groupId });
     if (error) throw error;
-    const members = (data || []) as GroupMember[];
-    if (!members.length) return members;
-    // Membership points to Auth; there is no direct FK to user_profiles.
-    const { data: profiles, error: profileError } = await supabase
-      .from('user_profiles')
-      .select('*')
-      .in('user_id', [...new Set(members.map(member => member.user_id))]);
-    if (profileError) return members;
-    return members.map(member => ({
-      ...member,
-      profile: profiles?.find(profile => profile.user_id === member.user_id),
-    })) as GroupMember[];
+    return data || [];
+  },
+
+  async manageGroupMember(member: GroupMember, action: 'handicap' | 'remove', handicap18?: number): Promise<void> {
+    const { error } = await supabase.rpc('manage_group_member', {
+      p_group: member.group_id, p_user: member.user_id,
+      p_member_revision: member.member_revision, p_player_revision: member.player_revision,
+      p_action: action, p_handicap_18: handicap18 ?? null,
+    });
+    if (error) throw error;
   },
 
   async addGroupMember(groupId: string, userId: string, role: 'admin' | 'member' = 'member', invitedBy?: string): Promise<void> {

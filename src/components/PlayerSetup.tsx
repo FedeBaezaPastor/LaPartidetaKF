@@ -1,8 +1,9 @@
 import { WriteButton, WriteForm } from '../context/ReadOnlyContext';
 import { NavigationButton } from './NavigationButton';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { RoundPlayer, Player, GameMode } from '../types';
 import { calculatePlayingHandicap } from '../utils/calculations';
+import { useAuth } from '../context/AuthContext';
 import { golfService } from '../services/golfService';
 import { Trash2, Plus, Settings, ChevronDown, Lock, Eye, EyeOff, CreditCard as Edit2 } from 'lucide-react';
 import { HolesRangeModal } from './HolesRangeModal';
@@ -46,9 +47,12 @@ export const PlayerSetup: React.FC<PlayerSetupProps> = ({
   onBack, backDestination = 'back',
   loading = false,
 }) => {
+  const { user } = useAuth();
+  const playerLoadVersion = useRef(0);
   const [allPlayers, setAllPlayers] = useState<Player[]>([]);
   const [playersInActiveRounds, setPlayersInActiveRounds] = useState<string[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [creatingUnlinked, setCreatingUnlinked] = useState(false);
   const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null);
   const [handicap, setHandicap] = useState('');
   const [error, setError] = useState('');
@@ -70,9 +74,14 @@ export const PlayerSetup: React.FC<PlayerSetupProps> = ({
   const [showEditPlayerModal, setShowEditPlayerModal] = useState(false);
 
   useEffect(() => {
-    loadPlayers();
-    loadSlope();
-  }, []);
+    let active = true;
+    const refresh = () => { if (active) void loadPlayers(); };
+    refresh();
+    void loadSlope();
+    const timer = window.setInterval(refresh, 30000);
+    window.addEventListener('focus', refresh);
+    return () => { active = false; playerLoadVersion.current++; window.clearInterval(timer); window.removeEventListener('focus', refresh); };
+  }, [roundId, currentGroup?.id, user?.id]);
 
   useEffect(() => {
     const loadCourseDetails = async () => {
@@ -106,11 +115,12 @@ export const PlayerSetup: React.FC<PlayerSetupProps> = ({
   }, []);
 
   const loadPlayers = async () => {
+    const request = ++playerLoadVersion.current;
     try {
       let allPlayersData: Player[] = [];
 
       if (currentGroup) {
-        allPlayersData = await golfService.getAllPlayers();
+        allPlayersData = await golfService.getAllPlayers(currentGroup.id);
       } else {
         const localPlayers = localStorage.getItem('quickPlayPlayers');
         if (localPlayers) {
@@ -119,6 +129,7 @@ export const PlayerSetup: React.FC<PlayerSetupProps> = ({
       }
 
       const playersInRounds = await golfService.getPlayersInActiveRounds(roundId);
+      if (request !== playerLoadVersion.current) return;
       setAllPlayers(allPlayersData);
       setPlayersInActiveRounds(playersInRounds);
     } catch (err) {
@@ -193,15 +204,17 @@ export const PlayerSetup: React.FC<PlayerSetupProps> = ({
   });
 
   const handleSelectPlayer = (player: Player) => {
+    setCreatingUnlinked(false);
     setSelectedPlayer(player);
     setSearchTerm(player.name);
-    const baseHandicap = player.exact_handicap_18 || player.exact_handicap;
+    const baseHandicap = player.exact_handicap_18 ?? player.exact_handicap;
     const displayHandicap = numHoles === 18 ? baseHandicap * 2 : baseHandicap;
-    setHandicap(displayHandicap.toString());
+    setHandicap(player.handicap_pending ? '' : displayHandicap.toString());
     setShowDropdown(false);
   };
 
   const handleSearchChange = (value: string) => {
+    setCreatingUnlinked(false);
     setSearchTerm(value);
     setSelectedPlayer(null);
     setShowDropdown(true);
@@ -216,6 +229,11 @@ export const PlayerSetup: React.FC<PlayerSetupProps> = ({
       return;
     }
 
+    if (currentGroup && !selectedPlayer && !creatingUnlinked && allPlayers.some(player => player.auth_user_id && player.name.toLowerCase() === searchTerm.trim().toLowerCase())) {
+      setError('Selecciona al miembro de la lista. Para otro jugador sin cuenta, elige expresamente Crear ficha sin cuenta vinculada.');
+      setShowDropdown(true);
+      return;
+    }
     const handicapNum = parseFloat(handicap);
     if (isNaN(handicapNum)) {
       setError('El hándicap debe ser un número válido');
@@ -230,7 +248,9 @@ export const PlayerSetup: React.FC<PlayerSetupProps> = ({
       const playerName = searchTerm.trim();
 
       if (currentGroup) {
-        const player = await golfService.getOrCreatePlayer(playerName, handicapFor9Holes);
+        const player = selectedPlayer
+          ? selectedPlayer.auth_user_id ? selectedPlayer : await golfService.updatePlayer(selectedPlayer.id, playerName, handicapFor9Holes)
+          : await golfService.getOrCreatePlayer(playerName, handicapFor9Holes);
         playerId = player.id;
       } else {
         const localPlayers = localStorage.getItem('quickPlayPlayers');
@@ -267,11 +287,12 @@ export const PlayerSetup: React.FC<PlayerSetupProps> = ({
       await loadPlayers();
 
       setSearchTerm('');
+      setCreatingUnlinked(false);
       setHandicap('');
       setSelectedPlayer(null);
       setShowDropdown(false);
     } catch (err) {
-      setError('Error añadiendo jugador');
+      setError(err && typeof err === 'object' && 'message' in err ? String(err.message) : 'Error añadiendo jugador');
       console.error(err);
     } finally {
       setAdding(false);
@@ -404,7 +425,7 @@ export const PlayerSetup: React.FC<PlayerSetupProps> = ({
   const canStartWithMode = players.length === requiredPlayers || gameMode === 'stableford';
 
   const isNewPlayer = searchTerm && !allPlayers.find(
-    (p) => p.name.toLowerCase() === searchTerm.toLowerCase()
+    (p) => !p.auth_user_id && p.name.toLowerCase() === searchTerm.toLowerCase()
   );
 
   return (
@@ -518,15 +539,18 @@ export const PlayerSetup: React.FC<PlayerSetupProps> = ({
                           <button
                             type="button"
                             onClick={() => handleSelectPlayer(player)}
+                            disabled={player.handicap_pending}
                             className="flex-1 px-4 py-3 text-left"
                           >
                             <p className="font-semibold text-ink">{player.name}</p>
+                            <p className="text-xs text-ink-3">{player.auth_user_id ? "Miembro registrado" : "Ficha sin cuenta vinculada"}{player.handicap_pending && " · Hándicap pendiente"}</p>
                             <p className="text-sm text-ink-3">
-                              Hándicap ({numHoles} hoyos): {numHoles === 18 ? (player.exact_handicap_18 || player.exact_handicap) * 2 : (player.exact_handicap_18 || player.exact_handicap)}
+                              Hándicap ({numHoles} hoyos): {player.handicap_pending ? "Pendiente" : numHoles === 18 ? (player.exact_handicap_18 ?? player.exact_handicap) * 2 : (player.exact_handicap_18 ?? player.exact_handicap)}
                             </p>
                           </button>
                           <WriteButton
                             type="button"
+                            disabled={!!player.auth_user_id}
                             onClick={(e) => handleEditPlayerClick(player, e)}
                             className="px-3 py-3 text-ink-3 hover:text-emerald-600 transition-colors"
                             title="Editar nombre"
@@ -542,14 +566,14 @@ export const PlayerSetup: React.FC<PlayerSetupProps> = ({
                     </div>
                   ) : null}
 
-                  {isNewPlayer && searchTerm && (
+                  {isNewPlayer && searchTerm && !selectedPlayer && (
                     <button
                       type="button"
-                      onClick={() => setShowDropdown(false)}
+                      onClick={() => { setCreatingUnlinked(true); setSelectedPlayer(null); setShowDropdown(false); }}
                       className="w-full"
                     >
                       <div className="px-3 py-2 text-xs font-semibold text-ink-3 bg-card-2 border-b">
-                        CREAR NUEVO JUGADOR
+                        CREAR FICHA SIN CUENTA VINCULADA
                       </div>
                       <div className="px-4 py-3 bg-accent-soft hover:bg-accent-soft transition-colors">
                         <p className="font-semibold text-accent-ink">
@@ -572,6 +596,7 @@ export const PlayerSetup: React.FC<PlayerSetupProps> = ({
               <input
                 type="number"
                 step="0.1"
+                readOnly={!!selectedPlayer?.auth_user_id}
                 value={handicap}
                 onChange={(e) => setHandicap(e.target.value)}
                 placeholder={numHoles === 9 ? "Ej: 7.0 (para 9 hoyos)" : "Ej: 14.0 (para 18 hoyos)"}
@@ -661,7 +686,7 @@ export const PlayerSetup: React.FC<PlayerSetupProps> = ({
               className="w-full bg-accent hover:bg-accent-hover disabled:opacity-50 disabled:cursor-not-allowed text-on-accent font-semibold py-3 rounded-lg transition-colors flex items-center justify-center gap-2"
             >
               <Plus size={20} />
-              {adding ? 'Añadiendo...' : isNewPlayer ? 'Crear y Añadir Jugador' : 'Añadir Jugador'}
+              {adding ? 'Añadiendo...' : isNewPlayer && !selectedPlayer ? 'Crear y Añadir Jugador' : 'Añadir Jugador'}
             </button>
           </WriteForm>
 
@@ -693,6 +718,7 @@ export const PlayerSetup: React.FC<PlayerSetupProps> = ({
                     <div className="flex-1">
                       <div className="flex items-center gap-2">
                         <p className="font-semibold text-ink">{player.name}</p>
+                            <p className="text-xs text-ink-3">{player.user_id ? "Cuenta registrada" : "Jugador sin cuenta vinculada"}</p>
                         {teamIdx >= 0 && (
                           <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${teamIdx === 0 ? 'bg-blue-200 text-blue-800' : 'bg-orange-200 text-orange-800'}`}>
                             P{teamIdx + 1}
@@ -700,7 +726,7 @@ export const PlayerSetup: React.FC<PlayerSetupProps> = ({
                         )}
                       </div>
                       <div className="text-sm text-ink-3 space-y-0.5">
-                        <p>Hándicap Exacto ({numHoles} hoyos): {numHoles === 18 ? (player.exact_handicap_18 || player.exact_handicap) * 2 : (player.exact_handicap_18 || player.exact_handicap)}</p>
+                        <p>Hándicap Exacto ({numHoles} hoyos): {numHoles === 18 ? (player.exact_handicap_18 ?? player.exact_handicap) * 2 : (player.exact_handicap_18 ?? player.exact_handicap)}</p>
                         <p className="font-medium text-accent-ink">
                           Hándicap de Juego: {player.playing_handicap}{useSlope ? ' (con Slope)' : ''}
                         </p>

@@ -61,7 +61,7 @@ export function GamePoints({ onBack, groupId }: GamePointsProps) {
         golfService.getDailyRankings(),
         golfService.getHandicapHistory(),
       ]);
-      setPlayers(playersData);
+      setPlayers(playersData.filter(player => !player.auth_user_id));
       setDailyRankings(rankingsData);
       setHandicapHistory(historyData);
     } catch (error) {
@@ -578,7 +578,7 @@ export function GamePoints({ onBack, groupId }: GamePointsProps) {
                 <div className="flex items-center">
                   <Users className="w-6 h-6 mr-2 text-accent-ink" />
                   <h2 className="text-2xl font-semibold text-title">
-                    Jugadores de partidas
+                    Fichas sin cuenta vinculada
                   </h2>
                   <span className="ml-3 text-sm text-accent-ink font-medium">
                     ({players.length})

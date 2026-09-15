@@ -22,7 +22,7 @@ export interface AdminAuditEntry {
   actor_alias: string;
   action: string;
   target_user_id: string | null;
-  details: { message_id?: string; title?: string; recipient_count?: number; round_id?: string; alias?: string; before?: string; after?: string; reason?: string; activated?: boolean };
+  details: { group_id?: string; message_id?: string; title?: string; recipient_count?: number; round_id?: string; alias?: string; before?: string; after?: string; reason?: string; activated?: boolean };
   created_at: string;
 }
 

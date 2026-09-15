@@ -99,7 +99,6 @@ export const TeamCreation: React.FC<TeamCreationProps> = ({ userId, onBack, onTe
       if (groupError) throw groupError;
       setCreatedGroupId(groupData.id);
 
-      await userService.addGroupMember(groupData.id, userId, 'admin');
 
       if (addPlayersNow && selectedPlayers.length > 0) {
         for (const player of selectedPlayers) {
