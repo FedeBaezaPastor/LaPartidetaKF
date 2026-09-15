@@ -15,12 +15,16 @@ test("messages: transactional publishing, authorization, private Express boxes a
     await db.exec(`CREATE ROLE anon; CREATE ROLE authenticated; CREATE ROLE service_role; CREATE SCHEMA auth;
    CREATE FUNCTION auth.uid() RETURNS uuid LANGUAGE sql AS $$SELECT nullif(current_setting('request.uid',true),'')::uuid$$;
    CREATE TABLE auth.users(id uuid PRIMARY KEY,email text,raw_app_meta_data jsonb DEFAULT '{}');
-   CREATE TABLE user_profiles(user_id uuid PRIMARY KEY,nick text);
+   CREATE TABLE user_profiles(user_id uuid PRIMARY KEY,nick text,display_name text);
+   CREATE TABLE groups(id uuid PRIMARY KEY,name text,group_code text,user_auth_id uuid);
+   CREATE TABLE group_members(group_id uuid,user_id uuid,role text);
+   CREATE FUNCTION auth.jwt() RETURNS jsonb LANGUAGE sql AS $$SELECT '{}'::jsonb$$;
+   CREATE FUNCTION is_app_user_read_only() RETURNS boolean LANGUAGE sql AS $$SELECT auth.uid()='${U}'::uuid$$;
    CREATE TABLE app_administrators(user_id uuid PRIMARY KEY,alias text,status text);
    CREATE FUNCTION is_app_administrator() RETURNS boolean LANGUAGE sql SECURITY DEFINER AS $$SELECT EXISTS(SELECT 1 FROM public.app_administrators WHERE user_id=auth.uid() AND status='active')$$;
    CREATE TABLE app_admin_audit(id bigint GENERATED ALWAYS AS IDENTITY,actor_user_id uuid,actor_alias text,action text,details jsonb);
    INSERT INTO auth.users(id,email) VALUES('${A}','private-admin@example.test'),('${B}','disabled@example.test'),('${U}','player@example.test'),('${V}','other@example.test'),('${W}','pending@example.test');
-   INSERT INTO user_profiles VALUES('${U}','PlayerNick');
+   INSERT INTO user_profiles(user_id,nick) VALUES('${U}','PlayerNick');
    INSERT INTO app_administrators VALUES('${A}','AdminF','active'),('${B}','AdminK','disabled');
    CREATE TABLE business_scores(score integer);
    CREATE FUNCTION business_guard() RETURNS trigger LANGUAGE plpgsql AS $$BEGIN IF auth.uid()='${U}'::uuid THEN RAISE EXCEPTION 'Solo lectura'; END IF; RETURN NEW; END$$;
@@ -31,6 +35,15 @@ test("messages: transactional publishing, authorization, private Express boxes a
       await readFile(
         new URL(
           "../supabase/migrations/20260915190000_inapp_messages.sql",
+          import.meta.url,
+        ),
+        "utf8",
+      ),
+    );
+    await db.exec(
+      await readFile(
+        new URL(
+          "../supabase/migrations/20260915210000_group_messages.sql",
           import.meta.url,
         ),
         "utf8",

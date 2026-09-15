@@ -5,7 +5,23 @@ export interface Recipient {
   id: string;
   label: string;
 }
+export interface MessageGroup {
+  id: string;
+  name: string;
+  group_code: string;
+  member_count: number;
+  admin_count: number;
+}
+export interface MessageTarget {
+  kind: "user" | "express" | "group" | "group_admins";
+  id: string;
+  label: string;
+}
 export interface MessageDraft {
+  recipient_selection?: MessageTarget[];
+  sender_kind?: "app" | "group";
+  source_group_id?: string | null;
+  sender_label?: string;
   id: string;
   title: string;
   body: string;
@@ -25,6 +41,9 @@ export interface MessageDraft {
   }[];
 }
 export interface MessageSummary {
+  sender_kind?: "app" | "group";
+  source_group_id?: string | null;
+  sender_label?: string;
   id: string;
   title: string;
   status: "draft" | "sent";
@@ -36,6 +55,7 @@ export interface MessageSummary {
   read_count: number;
 }
 export interface InboxItem {
+  sender_label?: string;
   id: string;
   title: string;
   sent_at: string;
@@ -118,6 +138,11 @@ async function assertIdentity(userId: string | null) {
     throw new Error("La sesión ha cambiado. Actualiza la pantalla.");
 }
 export const messageService = {
+  groups: (search = "", managedOnly = false) =>
+    rpc<MessageGroup[]>("message_groups", {
+      p_search: search,
+      p_managed_only: managedOnly,
+    }),
   recipients: (search: string) =>
     rpc<Recipient[]>("admin_message_recipients", { p_search: search }),
   list: (page = 0) =>
@@ -125,21 +150,31 @@ export const messageService = {
       p_page: page,
     }),
   detail: (id: string) => rpc<MessageDraft>("admin_get_message", { p_id: id }),
-  save: (
-    draft: Pick<
-      MessageDraft,
-      "id" | "title" | "body" | "recipients" | "revision"
-    >,
-  ) =>
-    rpc<MessageDraft>("admin_save_message", {
+  save: (draft: MessageDraft, groupId: string | null = null) =>
+    rpc<MessageDraft>("save_message_v2", {
       p_id: draft.id,
       p_title: draft.title,
       p_body: draft.body,
-      p_recipients: draft.recipients.map(({ kind, id }) => ({ kind, id })),
+      p_selection: (draft.recipient_selection ?? draft.recipients).map(
+        ({ kind, id }) => ({ kind, id }),
+      ),
       p_revision: draft.revision,
+      p_group: groupId,
     }),
   send: (id: string, revision: number) =>
-    rpc<MessageDraft>("admin_send_message", { p_id: id, p_revision: revision }),
+    rpc<MessageDraft>("send_message_v2", { p_id: id, p_revision: revision }),
+  groupList: (groupId: string, page = 0) =>
+    rpc<{ messages: MessageSummary[]; total: number }>("list_group_messages", {
+      p_group: groupId,
+      p_page: page,
+    }),
+  groupDetail: (id: string) =>
+    rpc<MessageDraft>("get_group_message", { p_id: id }),
+  groupRecipients: (groupId: string, search: string) =>
+    rpc<Recipient[]>("group_message_recipients", {
+      p_group: groupId,
+      p_search: search,
+    }),
   async inbox(
     userId: string | null,
     page = 0,

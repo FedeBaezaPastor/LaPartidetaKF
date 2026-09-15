@@ -29,6 +29,56 @@ function service(mock, storage = new Map()) {
   );
   return exports.messageService;
 }
+
+test("group composer keeps group selection and sender scope separate from resolved recipients", async () => {
+  const calls = [];
+  const api = service({
+    rpc: async (name, args) => {
+      calls.push({ name, args });
+      return { data: {} };
+    },
+  });
+  const draft = {
+    id: "message",
+    title: "Aviso",
+    body: "Texto",
+    revision: 2,
+    recipient_selection: [
+      { kind: "group_admins", id: "group", label: "Admins" },
+    ],
+    recipients: [{ kind: "user", id: "member", label: "Member" }],
+  };
+  await api.save(draft, "group");
+  assert.deepEqual(calls[0], {
+    name: "save_message_v2",
+    args: {
+      p_id: "message",
+      p_title: "Aviso",
+      p_body: "Texto",
+      p_revision: 2,
+      p_group: "group",
+      p_selection: [{ kind: "group_admins", id: "group" }],
+    },
+  });
+  await api.save(draft);
+  assert.equal(calls[1].args.p_group, null);
+  await api.groups("AMIGOS", true);
+  await api.groupRecipients("group", "nick");
+  await api.groupList("group", 1);
+  await api.groupDetail("message");
+  assert.deepEqual(calls.slice(2), [
+    {
+      name: "message_groups",
+      args: { p_search: "AMIGOS", p_managed_only: true },
+    },
+    {
+      name: "group_message_recipients",
+      args: { p_group: "group", p_search: "nick" },
+    },
+    { name: "list_group_messages", args: { p_group: "group", p_page: 1 } },
+    { name: "get_group_message", args: { p_id: "message" } },
+  ]);
+});
 test("message requests use only the expected tab identity, never fall back to Express on account errors", async () => {
   let identity = "player",
     fail = false;

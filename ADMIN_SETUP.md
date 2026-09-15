@@ -166,3 +166,32 @@ La función aplica límites en servidor: 100 solicitudes/minuto por credencial y
 5. Conservar las sesiones abiertas y comprobar otra cuenta sin acceso al mensaje, recuperación al volver al foco, invitaciones y una partida en curso sin interrupción. Probar una cuenta de pruebas bloqueada: debe leer mensajes y seguir sin poder modificar perfil, partidas ni grupos. No utilizar otros destinatarios hasta completar estas comprobaciones.
 
 Validación local: `npm run test:admin`, `npm run typecheck`, `npm run build` y `npx deno check supabase/functions/express-messages/index.ts`. Las pruebas de mensajes utilizan una base PostgreSQL local en memoria y servicios simulados: no envían avisos ni modifican cuentas remotas. Cubren permisos, administradores desactivados, aislamiento, claves Express, límites del servicio, borradores, revisión, duplicados, reintentos, 100 destinatarios, rechazo completo de destinatarios inválidos, paginación, cambios de nick y lectura bajo bloqueo. La comprobación real en la aplicación publicada queda para los pasos 4 y 5.
+
+## Mensajes a grupos y desde grupos (15/09/2026)
+
+En Administración → Mensajes → Nuevo mensaje se pueden buscar grupos por nombre, código o UUID y elegir **Todo el grupo** o **Solo administradores**. Se pueden combinar grupos y cuentas individuales. El límite de 100 se aplica a las cuentas únicas resultantes, no al número de grupos seleccionados. Un grupo sin cuentas registradas no es un destinatario válido. Las invitaciones pendientes, los nombres de jugadores y los dispositivos Express no se convierten automáticamente en miembros registrados.
+
+Los usuarios registrados que sean propietarios (`groups.user_auth_id`) o tengan el rol `admin` en `group_members` disponen de **Notificaciones → Mensajes de mis grupos**. Pueden seleccionar únicamente sus grupos, escribir a todos sus miembros, solo a sus administradores o a miembros concretos. Esta gestión no depende del PIN local ni del indicador de creador guardado en el dispositivo. No permite acceder al panel administrativo de la aplicación ni buscar usuarios ajenos al grupo. Los resultados y las entregas de esta gestión muestran nick/nombre/UUID, sin exponer correos privados.
+
+Los receptores ven **Grupo · nombre del grupo** para los avisos de un administrador de grupo, y **Administración** para los enviados desde el panel de la aplicación. No hay respuestas. Cada administrador de grupo conserva sus propios borradores; los administradores actuales del grupo pueden consultar su historial de mensajes enviados y lecturas. El administrador de la aplicación puede consultar estos mensajes en su panel, pero no editar ni publicar los borradores ajenos del grupo. Actividad registra `group.message.sent` con el UUID y nick del autor y el grupo de origen.
+
+La selección (cuentas/grupos/administradores de grupo) se guarda separada de la lista concreta de destinatarios. Al guardar/revisar se resuelven los miembros actuales, incluidos el propietario registrado y los miembros con rol admin. Antes del envío se resuelve de nuevo: si cambia la lista de UUID, el envío se rechaza completo y es necesario volver a editar/revisar. Una cuenta elegida individualmente por un administrador de grupo también debe seguir perteneciendo al grupo al enviar. Los reintentos del mismo mensaje enviado siguen siendo idempotentes.
+
+Los RPC validan la autoría del borrador, el rol actual y el bloqueo en cada escritura. La interfaz vuelve a comprobar los grupos administrados al recuperar foco y cada 30 segundos. Un administrador de grupo bloqueado conserva la consulta y lectura, pero no puede crear, guardar ni enviar mensajes. Al eliminar un grupo, los mensajes entregados conservan contenido, remitente y lecturas; el vínculo de gestión queda vacío y recrear un grupo con el mismo UUID no recupera su historial.
+
+La migración añade dos protecciones de identidad necesarias porque las políticas heredadas de grupos permiten actualizaciones públicas: un usuario no puede cambiar el propietario de un grupo ajeno ni trasladar una membresía a otro UUID de usuario/grupo. Se conserva la vinculación automática de un grupo anónimo sin miembros registrados ni historial de mensajes. Reclamar un grupo sin propietario que ya tenga miembros registrados exige ser administrador de ese grupo; los casos históricos sin administrador deben revisarse desde servidor. No se modifican puntuaciones, partidas, planes ni las migraciones ya aplicadas.
+
+### Publicar la ampliación de grupos
+
+1. En Supabase → SQL Editor, ejecutar **solo** `supabase/migrations/20260915210000_group_messages.sql`, después de la migración de mensajes ya aplicada.
+2. No hay Edge Functions ni secretos nuevos: `express-messages` no cambia. Publicar el frontend con el script habitual:
+
+   ```powershell
+   .\local-deploy.ps1 -CommitMessage "Añadir mensajes a grupos y gestión por administradores de grupo"
+   ```
+
+3. Recargar las pestañas. Desde AdminF, buscar un grupo de pruebas, guardar/revisar **Solo administradores** y verificar la lista antes de confirmar. Repetir **Todo el grupo**, comprobando que miembros compartidos con otras selecciones no aparecen duplicados.
+4. En otra pestaña, entrar con un administrador registrado del grupo de pruebas. Abrir Notificaciones → Mensajes de mis grupos, seleccionar el grupo y guardar/revisar/enviar un aviso de prueba. El receptor debe ver «Grupo · nombre», y Administración → Actividad debe identificar al autor real. Un miembro corriente no debe ver esta entrada.
+5. Verificar en pruebas la pérdida de rol y el bloqueo con el formulario abierto, además de un cambio de miembros entre revisión y envío. No utilizar grupos reales antes de esta comprobación.
+
+Pruebas locales: `npm run test:admin`, `npm run typecheck`, `npm run build` y ESLint sobre los componentes/servicios de mensajes. La prueba de grupos ejecuta las migraciones reales de administración, restricciones y mensajes en PostgreSQL local e incluye pérdida de rol, suplantación de propietario/membresía, bloqueo, destinatarios fuera de ámbito, confidencialidad de borradores, grupos combinados, límite de 100, cambios de miembros, auditoría y conservación de entregas tras eliminar el grupo. La regresión de mensajes individuales y Express también se ejecuta con esta nueva migración.

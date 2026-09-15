@@ -10,6 +10,7 @@ import { ThemeToggle } from '../ThemeToggle';
 const statuses = { active: 'Activo', invited: 'Pendiente de activar', disabled: 'Desactivado' };
 const actions: Record<string, string> = {
   'message.sent': 'Mensaje enviado',
+  'group.message.sent': 'Mensaje enviado por un administrador de grupo',
   'round.complete': 'Partida finalizada',
   'round.reopen': 'Partida reabierta',
   'round.withdraw': 'Partida retirada',

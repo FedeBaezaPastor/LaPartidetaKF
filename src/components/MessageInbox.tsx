@@ -62,7 +62,7 @@ export function MessageInbox({
   }, [load]);
   return (
     <section className="space-y-3 mb-7 text-ink">
-      <h2 className="font-bold text-lg">Mensajes de Administración</h2>
+      <h2 className="font-bold text-lg">Mensajes</h2>
       {!userId && boxId && (
         <div className="bg-card border border-line rounded-xl p-3">
           <p className="text-sm">Identificador de este buzón Express</p>
@@ -114,7 +114,7 @@ export function MessageInbox({
         <article className="bg-card border border-line rounded-xl p-4">
           <NavigationButton onClick={() => setOpened(null)} />
           <p className="text-sm text-ink-3 mt-3">
-            Administración · {new Date(opened.sent_at).toLocaleString("es-ES")}
+            {opened.sender_label || "Administración"} · {new Date(opened.sent_at).toLocaleString("es-ES")}
           </p>
           <h3 className="font-bold text-lg break-words">{opened.title}</h3>
           <p className="whitespace-pre-wrap break-words mt-3">{opened.body}</p>
@@ -152,7 +152,7 @@ export function MessageInbox({
                 }}
               >
                 <span className="block text-xs text-ink-3">
-                  Administración · {new Date(m.sent_at).toLocaleString("es-ES")}
+                  {m.sender_label || "Administración"} · {new Date(m.sent_at).toLocaleString("es-ES")}
                 </span>
                 <span className="block font-semibold break-words">
                   {!m.read_at ? "● " : ""}

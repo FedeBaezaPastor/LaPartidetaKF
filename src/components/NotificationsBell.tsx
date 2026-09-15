@@ -1,4 +1,6 @@
 import { MessageInbox } from './MessageInbox';
+import { GroupMessages } from './messages/GroupMessages';
+import { messageService } from '../services/messageService';
 import { WriteButton } from '../context/ReadOnlyContext';
 import { NavigationButton } from './NavigationButton';
 import React, { useCallback, useEffect, useState } from 'react';
@@ -16,6 +18,19 @@ export const NotificationsBell: React.FC<NotificationsBellProps> = ({ userId, on
   const [invitations, setInvitations] = useState<GroupInvitation[]>([]);
   const [loading, setLoading] = useState(true);
   const [responding, setResponding] = useState<string | null>(null);
+  const [managesGroups, setManagesGroups] = useState(false);
+  const [showGroupMessages, setShowGroupMessages] = useState(false);
+
+  useEffect(() => {
+    if (!userId) return;
+    let active = true;
+    const check = async () => {
+      try { const groups = await messageService.groups('', true); if (active) setManagesGroups(groups.length > 0); }
+      catch { if (active) setManagesGroups(false); }
+    };
+    void check(); const timer = window.setInterval(() => void check(), 30000); const focus = () => void check(); window.addEventListener('focus', focus);
+    return () => { active = false; window.clearInterval(timer); window.removeEventListener('focus', focus); };
+  }, [userId]);
 
   const load = useCallback(async () => {
     try {
@@ -64,6 +79,8 @@ export const NotificationsBell: React.FC<NotificationsBellProps> = ({ userId, on
           <h1 className="text-2xl font-bold text-ink">Notificaciones</h1>
         </div>
 
+        {showGroupMessages && userId ? <GroupMessages onBack={() => setShowGroupMessages(false)} /> : <>
+        {managesGroups && <button className="w-full bg-card border border-line rounded-xl p-3 text-ink mb-5" onClick={() => setShowGroupMessages(true)}>Mensajes de mis grupos</button>}
         <MessageInbox key={userId || 'express'} userId={userId} onRead={onInvitationResolved} />
         {userId && <h2 className="font-bold text-lg text-ink mb-3">Invitaciones a grupos</h2>}
         {userId && (loading ? (
@@ -120,6 +137,7 @@ export const NotificationsBell: React.FC<NotificationsBellProps> = ({ userId, on
             ))}
           </div>
         ))}
+        </>}
       </div>
     </div>
   );
