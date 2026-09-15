@@ -3,7 +3,7 @@ import { GroupMessages } from './messages/GroupMessages';
 import { messageService } from '../services/messageService';
 import { WriteButton } from '../context/ReadOnlyContext';
 import { NavigationButton } from './NavigationButton';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Bell, Check, X, Users, Clock } from 'lucide-react';
 import { userService } from '../services/userService';
 import { GroupInvitation } from '../types';
@@ -20,6 +20,10 @@ export const NotificationsBell: React.FC<NotificationsBellProps> = ({ userId, on
   const [responding, setResponding] = useState<string | null>(null);
   const [managesGroups, setManagesGroups] = useState(false);
   const [showGroupMessages, setShowGroupMessages] = useState(false);
+  const [invitationError, setInvitationError] = useState('');
+  const [responseError, setResponseError] = useState('');
+  const invitationRequest = useRef(0);
+  const responseRunning = useRef(false);
 
   useEffect(() => {
     if (!userId) return;
@@ -33,35 +37,42 @@ export const NotificationsBell: React.FC<NotificationsBellProps> = ({ userId, on
   }, [userId]);
 
   const load = useCallback(async () => {
+    const request = ++invitationRequest.current;
     try {
       const data = userId ? await userService.getPendingInvitations(userId) : [];
-      setInvitations(data);
+      if (request === invitationRequest.current) { setInvitations(data); setInvitationError(''); }
     } catch {
-      setInvitations([]);
+      if (request === invitationRequest.current) setInvitationError('No se pudieron cargar las invitaciones. Pulsa Actualizar invitaciones para reintentarlo.');
     } finally {
-      setLoading(false);
+      if (request === invitationRequest.current) setLoading(false);
     }
   }, [userId]);
 
-  useEffect(() => { void load(); const tick = () => void load(); const timer = window.setInterval(tick, 30000); window.addEventListener('focus', tick); return () => { window.clearInterval(timer); window.removeEventListener('focus', tick); }; }, [load]);
+  useEffect(() => {
+    void load(); const tick = () => void load(); const timer = window.setInterval(tick, 30000); window.addEventListener('focus', tick);
+    return () => {
+      // A request generation counter, not a DOM ref.
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      invitationRequest.current++;
+      window.clearInterval(timer); window.removeEventListener('focus', tick);
+    };
+  }, [load]);
 
   const handleRespond = async (invitationId: string, status: 'accepted' | 'rejected') => {
+    if (responseRunning.current) return;
+    responseRunning.current = true;
     setResponding(invitationId);
+    setResponseError('');
     try {
       await userService.respondToInvitation(invitationId, status);
-
-      if (status === 'accepted' && userId) {
-        const invitation = invitations.find(i => i.id === invitationId);
-        if (invitation) {
-          await userService.addGroupMember(invitation.group_id, userId, 'member', invitation.invited_by);
-        }
-      }
-
-      setInvitations(invitations.filter(i => i.id !== invitationId));
+      invitationRequest.current++;
+      setLoading(false);
+      setInvitations(current => current.filter(i => i.id !== invitationId));
       onInvitationResolved();
     } catch {
-      // ignore
+      setResponseError('No se pudo guardar la respuesta. Actualiza las invitaciones y vuelve a intentarlo.');
     } finally {
+      responseRunning.current = false;
       setResponding(null);
     }
   };
@@ -83,17 +94,20 @@ export const NotificationsBell: React.FC<NotificationsBellProps> = ({ userId, on
         {managesGroups && <button className="w-full bg-card border border-line rounded-xl p-3 text-ink mb-5" onClick={() => setShowGroupMessages(true)}>Mensajes de mis grupos</button>}
         <MessageInbox key={userId || 'express'} userId={userId} onRead={onInvitationResolved} />
         {userId && <h2 className="font-bold text-lg text-ink mb-3">Invitaciones a grupos</h2>}
+        {userId && <button disabled={responding !== null} className="border border-line rounded-xl p-2 text-ink mb-3" onClick={() => { void load(); onInvitationResolved(); }}>Actualizar invitaciones</button>}
+        {invitationError && <p role="alert" className="text-red-600 mb-3">{invitationError}</p>}
+        {responseError && <p role="alert" className="text-red-600 mb-3">{responseError}</p>}
         {userId && (loading ? (
           <div className="text-center py-12">
             <div className="w-8 h-8 border-2 border-line-2 border-t-accent rounded-full animate-spin mx-auto mb-3" />
             <p className="text-ink-3 text-sm">Cargando...</p>
           </div>
-        ) : invitations.length === 0 ? (
+        ) : invitations.length === 0 ? (invitationError ? null : (
           <div className="bg-card rounded-2xl shadow-card p-8 text-center">
             <Bell size={32} className="text-ink-4 mx-auto mb-3" />
             <p className="text-ink-3">No tienes invitaciones pendientes</p>
           </div>
-        ) : (
+        )) : (
           <div className="space-y-3">
             {invitations.map(inv => (
               <div key={inv.id} className="bg-card rounded-2xl shadow-card p-5">
@@ -118,7 +132,7 @@ export const NotificationsBell: React.FC<NotificationsBellProps> = ({ userId, on
                 <div className="flex gap-2">
                   <WriteButton
                     onClick={() => handleRespond(inv.id, 'accepted')}
-                    disabled={responding === inv.id}
+                    disabled={responding !== null}
                     className="flex-1 flex items-center justify-center gap-2 bg-accent hover:bg-accent-hover text-on-accent font-semibold py-2.5 rounded-xl transition-colors disabled:opacity-50"
                   >
                     <Check size={16} />
@@ -126,7 +140,7 @@ export const NotificationsBell: React.FC<NotificationsBellProps> = ({ userId, on
                   </WriteButton>
                   <WriteButton
                     onClick={() => handleRespond(inv.id, 'rejected')}
-                    disabled={responding === inv.id}
+                    disabled={responding !== null}
                     className="flex-1 flex items-center justify-center gap-2 bg-card-2 hover:bg-neutral-hover text-ink-2 font-semibold py-2.5 rounded-xl transition-colors disabled:opacity-50"
                   >
                     <X size={16} />

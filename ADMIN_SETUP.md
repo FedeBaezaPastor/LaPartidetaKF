@@ -195,3 +195,17 @@ La migración añade dos protecciones de identidad necesarias porque las políti
 5. Verificar en pruebas la pérdida de rol y el bloqueo con el formulario abierto, además de un cambio de miembros entre revisión y envío. No utilizar grupos reales antes de esta comprobación.
 
 Pruebas locales: `npm run test:admin`, `npm run typecheck`, `npm run build` y ESLint sobre los componentes/servicios de mensajes. La prueba de grupos ejecuta las migraciones reales de administración, restricciones y mensajes en PostgreSQL local e incluye pérdida de rol, suplantación de propietario/membresía, bloqueo, destinatarios fuera de ámbito, confidencialidad de borradores, grupos combinados, límite de 100, cambios de miembros, auditoría y conservación de entregas tras eliminar el grupo. La regresión de mensajes individuales y Express también se ejecuta con esta nueva migración.
+
+## Invitaciones ocultas y aceptación atómica
+
+El contador contaba correctamente las invitaciones pendientes, pero la lista intentaba incluir `user_profiles!invited_by` mediante una relación REST inexistente: `invited_by` referencia `auth.users`. La consulta fallaba y la interfaz ocultaba el error mostrando «No tienes invitaciones pendientes». Ahora el perfil del remitente se obtiene por separado; si no está disponible, la invitación se sigue mostrando. Los errores de carga se muestran como errores, con un botón para reintentar, sin afirmar que el buzón esté vacío.
+
+Aceptar utiliza `respond_to_group_invitation`: comprueba propietario de la invitación y bloqueo, e inserta la membresía y actualiza la respuesta en una única transacción. Los reintentos no duplican miembros ni cambian un rol administrativo existente. Un fallo de inserción conserva la invitación pendiente. No se aceptan invitaciones ni se reparan membresías remotas automáticamente.
+
+Publicación:
+
+1. Ejecutar solo `supabase/migrations/20260916100000_atomic_group_invitation_response.sql` en Supabase → SQL Editor.
+2. Publicar frontend con `.\local-deploy.ps1 -CommitMessage "Corregir invitaciones ocultas y aceptación de miembros"`. No hay cambios en Edge Functions ni secretos.
+3. Recargar con Ctrl+F5 la pestaña de Fede → Notificaciones → Actualizar invitaciones. Comprobar que aparece la invitación de La Partideta y aceptarla. Al regresar a inicio debe descontarse esa invitación del badge; después comprobar Fede entre los destinatarios reales del grupo.
+
+Pruebas: consulta sin relación REST al perfil, perfil ausente, errores de carga, aceptación y rechazo, reintentos, roles conservados, rechazo de otras cuentas, cuentas bloqueadas y rollback ante fallo de alta de miembro. DIVEND queda fuera de esta corrección.

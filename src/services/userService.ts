@@ -156,14 +156,25 @@ export const userService = {
       .from('group_invitations')
       .select(`
         *,
-        group:groups!group_id(*),
-        inviter_profile:user_profiles!invited_by(nick, display_name, avatar_url)
+        group:groups!group_id(*)
       `)
       .eq('invited_user_id', userId)
       .eq('status', 'pending')
       .order('created_at', { ascending: false });
     if (error) throw error;
-    return (data || []) as unknown as GroupInvitation[];
+    const invitations = (data || []) as unknown as GroupInvitation[];
+    if (!invitations.length) return invitations;
+    // invited_by references Auth, not user_profiles. Fetch optional display
+    // details separately so a missing/inaccessible profile cannot hide an invite.
+    const { data: profiles, error: profileError } = await supabase
+      .from('user_profiles')
+      .select('user_id, nick, display_name, avatar_url')
+      .in('user_id', [...new Set(invitations.map(inv => inv.invited_by))]);
+    if (profileError) return invitations;
+    return invitations.map(inv => ({
+      ...inv,
+      inviter_profile: profiles?.find(profile => profile.user_id === inv.invited_by),
+    })) as GroupInvitation[];
   },
 
   async sendInvitation(groupId: string, invitedUserId: string, invitedBy: string, message?: string): Promise<void> {
@@ -180,13 +191,10 @@ export const userService = {
   },
 
   async respondToInvitation(invitationId: string, status: 'accepted' | 'rejected'): Promise<void> {
-    const { error } = await supabase
-      .from('group_invitations')
-      .update({
-        status,
-        responded_at: new Date().toISOString(),
-      })
-      .eq('id', invitationId);
+    const { error } = await supabase.rpc('respond_to_group_invitation', {
+      p_invitation: invitationId,
+      p_status: status,
+    });
     if (error) throw error;
   },
 
