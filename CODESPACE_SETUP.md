@@ -1,22 +1,22 @@
-# Continuar desde el PC o el portátil
+# Codespaces — entorno alternativo
 
-**Preferencia actual del 16/09/2026:** mantener Codespaces por ahora y ampliar el timeout a cuatro horas. El entorno actual sigue en 30 minutos; el cambio no está realizado. La alternativa local está preparada en [LOCAL_SETUP.md](LOCAL_SETUP.md).
+**Decisión actual del 16/09/2026:** trabajar principalmente en el ordenador local Windows según [LOCAL_SETUP.md](LOCAL_SETUP.md). Codespaces queda como alternativa. La copia local, la web de desarrollo y los accesos a Supabase y al VPS ya están comprobados. Las migraciones de invitados están aplicadas y la tarea publicada; no repetirlas ni desplegar para cambiar de entorno.
 
 ## Suspensión e historial
 
-El Codespace actual tiene un timeout de **30 minutos**. La API pública de actualización no permite cambiar ese campo; no se ha aumentado. GitHub permite configurar entre 5 y 240 minutos para Codespaces nuevos, pero mantiene la suspensión por inactividad: no ofrece aquí una configuración para funcionar siempre sin «Start».
+El Codespace tenía un timeout de **30 minutos** en la última comprobación del 16/09/2026. La petición anterior de ampliarlo a cuatro horas queda como contexto histórico; no es un paso pendiente para continuar en local. La API pública de actualización no permite cambiar ese campo; no se ha aumentado. GitHub permite configurar entre 5 y 240 minutos para Codespaces nuevos, pero mantiene la suspensión por inactividad: no ofrece aquí una configuración para funcionar siempre sin «Start».
 
 Las cinco conversaciones recuperadas el 16/09/2026 siguen en `~/.codex`. La desconexión no borró esos archivos; no se ha podido reproducir por qué la interfaz no abrió el chat anterior.
 
 `npm run history:backup` inicia una copia silenciosa cada 60 segundos en `/workspaces/.lapartideta-codex-history`, fuera del repositorio, con la última copia y la anterior. SQLite se copia con su API de backup para incluir escrituras confirmadas en WAL. No se copian `auth.json`, configuración de autenticación ni claves SSH. Este proceso no evita la suspensión del Codespace.
 
-La configuración de Dev Container instala Codex y arranca la copia al iniciar el entorno. Si, tras reconstruirlo, el directorio del historial está vacío y conserva la misma ruta, restaura la copia antes de arrancar el proceso. La recuperación manual (`npm run history:restore`) rechaza sobrescribir un historial existente. Cerrar Codex antes de una recuperación manual. No se ha reiniciado ni reconstruido este Codespace para evitar interrumpir la conversación actual.
+La configuración de Dev Container instala Codex y arranca la copia al iniciar el entorno. Si, tras reconstruirlo, el directorio del historial está vacío y conserva la misma ruta, restaura la copia antes de arrancar el proceso. La recuperación manual (`npm run history:restore`) rechaza sobrescribir un historial existente. Cerrar Codex antes de una recuperación manual. Durante la recuperación del 16/09/2026 no se reinició ni reconstruyó el Codespace para evitar interrumpir la sesión remota.
 
 La copia reside en el mismo disco persistente del Codespace: descargarla antes de eliminarlo. Las credenciales deberán configurarse por separado tras una reconstrucción.
 
 Referencias: [timeout de Codespaces](https://docs.github.com/en/codespaces/setting-your-user-preferences/setting-your-timeout-period-for-github-codespaces), [archivos persistentes durante una reconstrucción](https://docs.github.com/en/codespaces/developing-in-a-codespace/rebuilding-the-container-in-a-codespace), [reanudar una sesión de Codex](https://learn.chatgpt.com/docs/developer-commands?surface=cli).
 
-Abrir en VS Code el Codespace existente **glowing-space-system-rpw7rr56pv3xq4q**. Ambos equipos acceden a la misma carpeta y a las herramientas de ese entorno.
+Si se necesita la alternativa remota, abrir en VS Code el Codespace existente **glowing-space-system-rpw7rr56pv3xq4q**. La carpeta remota es `/workspaces/LaPartidetaKF` y la terminal es Linux/Bash. Los equipos conectados a ese Codespace acceden a la misma carpeta y herramientas.
 
 ## Abrir la web de desarrollo
 
@@ -28,11 +28,11 @@ npm run dev:codespace
 
 En la pestaña **Puertos / Ports** de VS Code, abrir el puerto **5173** en el navegador. Mantener su visibilidad privada. Si no aparece, añadir el puerto 5173 desde esa pestaña. Si ya hay un servidor escuchando, abrir su puerto en lugar de iniciar otro.
 
-La configuración está en `.env.local` y usa la URL y la clave pública del mismo proyecto Supabase que producción. La base de datos es compartida: los cambios hechos desde la web local afectan a los datos reales. Los inicios de sesión del navegador de cada equipo siguen siendo independientes.
+La configuración está en `.env.local` y usa la URL y la clave pública del mismo proyecto Supabase que producción. La base de datos es compartida: los cambios hechos desde la web de desarrollo afectan a los datos reales. Los inicios de sesión del navegador de cada equipo siguen siendo independientes.
 
 ## GitHub
 
-Repositorio: `FedeBaezaPastor/LaPartidetaKF`. Los archivos del Codespace se comparten inmediatamente entre ambos equipos. GitHub guarda los commits que se suben; no sustituye guardar y confirmar el trabajo.
+Repositorio: `FedeBaezaPastor/LaPartidetaKF`. Los archivos del Codespace se comparten entre los equipos conectados a ese mismo entorno. La copia local es independiente: sincronizar los commits mediante Git antes de cambiar de entorno y conservar cualquier trabajo pendiente. GitHub guarda los commits que se suben; no sustituye guardar y confirmar el trabajo.
 
 Antes de traer cambios de otras herramientas:
 
@@ -45,7 +45,7 @@ Con la copia limpia y sin commits divergentes, `git merge --ff-only origin/main`
 
 ## Migraciones de Supabase
 
-Supabase CLI está fijado en `package.json` y `package-lock.json`. El Codespace ya está autenticado y vinculado a **La Partideta K&F_01**, referencia `sjzivdhzlptxveygmpys`.
+Supabase CLI está fijado en `package.json` y `package-lock.json`. En la última comprobación, el Codespace estaba autenticado y vinculado a **La Partideta K&F_01**, referencia `sjzivdhzlptxveygmpys`.
 
 ```bash
 npm run db:status
@@ -56,6 +56,8 @@ npm run db:migrate -- supabase/migrations/AAAAMMDDHHMMSS_descripcion.sql --apply
 ```
 
 Las versiones nuevas deben ser únicas y posteriores a `20260917100000` y al historial remoto. Se procesan en orden. El comando rechaza repetir una versión registrada o ejecutar archivos históricos; sin `--apply` solo simula. Usa el CLI oficial para aplicar y registrar la migración seleccionada. No es un servicio automático que ejecute SQL al guardar archivos o al subir commits.
+
+Las migraciones de invitados `20260918100000_group_guest_players.sql` y `20260919100000_guest_creation_choices.sql` ya están aplicadas y registradas. La comprobación desde local del 16/09/2026 confirma 46 versiones remotas y 0 migraciones nuevas pendientes. Cambiar de entorno no requiere aplicar SQL.
 
 ### Auditoría de partida (15/09/2026)
 
@@ -76,7 +78,7 @@ ssh lapartideta-vps
 
 Alias: `root@169.58.89.28`; carpeta `/var/www/miapp`; contenedor `lapartideta-app`. El Codespace tiene su propia clave SSH autorizada. La clave privada permanece en `~/.ssh/`, fuera de Git.
 
-El despliegue remoto existente es `/var/www/miapp/deploy.sh`: descarga `main`, compila y reinicia el contenedor. Codex puede ejecutarlo cuando la tarea sea publicar una versión, desde la terminal Linux del Codespace.
+El despliegue remoto existente es `/var/www/miapp/deploy.sh`: descarga `main`, compila y reinicia el contenedor. Solo ejecutarlo cuando la tarea incluya publicar una versión validada y subida a `main`; el flujo principal documentado es `npm run deploy -- --apply`. Para comprobar acceso basta consultar `docker ps` por SSH. Cambiar de entorno no requiere desplegar.
 
 ## Pruebas
 
@@ -91,6 +93,6 @@ Las pruebas administrativas usan PostgreSQL embebido (PGlite) y no escriben en S
 
 ## Si se crea o reconstruye otro entorno
 
-Las credenciales no viajan por Git. Ejecutar `npm ci`, volver a iniciar sesión con `npx supabase login`, vincular con `npx supabase link --project-ref sjzivdhzlptxveygmpys`, configurar `.env.local` y autorizar una clave SSH propia. Los accesos descritos aquí ya están preparados en el Codespace actual.
+Las credenciales no viajan por Git. Ejecutar `npm ci`, volver a iniciar sesión con `npx supabase login`, vincular con `npx supabase link --project-ref sjzivdhzlptxveygmpys`, configurar `.env.local` y autorizar una clave SSH propia. Los accesos descritos aquí estaban preparados en el Codespace existente en la última comprobación; verificarlos al retomarlo. Cada entorno conserva sus propios secretos y claves.
 
 Documentación oficial: [historial de migraciones de Supabase](https://supabase.com/docs/guides/deployment/database-migrations), [referencia de db push](https://supabase.com/docs/reference/cli/supabase-db-push).

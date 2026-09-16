@@ -1,14 +1,15 @@
 # Entorno de trabajo
 
-- Proyecto: `/workspaces/LaPartidetaKF`, en el Codespace compartido `glowing-space-system-rpw7rr56pv3xq4q`. La terminal es Linux/Bash.
-- Guía de configuración y comprobaciones: `CODESPACE_SETUP.md`.
-- Instalar las dependencias fijadas con `npm ci`. Arrancar con `npm run dev:codespace`.
+- Entorno principal: ordenador local Windows, proyecto `C:\Users\VORPC\OneDrive\Escritorio\Fede\00-LaPartideta_Test\project`. La terminal es PowerShell.
+- Guía principal: `LOCAL_SETUP.md`. Codespaces es una alternativa; consultar `CODESPACE_SETUP.md` si se trabaja allí.
+- Usar Node.js 24, instalar las dependencias fijadas con `npm ci` y arrancar con `npm run dev` (normalmente `http://localhost:5173`). En Codespaces usar `npm run dev:codespace`.
 - Las variables públicas de la web están en `.env.local`, excluido de Git. Mantener credenciales, claves SSH y copias de seguridad fuera del repositorio.
 - GitHub: `FedeBaezaPastor/LaPartidetaKF`, rama habitual `main`. Comprobar cambios locales y remotos antes de sincronizar; conservar el trabajo del usuario.
 
 ## Supabase
 
-- Destino existente: `sjzivdhzlptxveygmpys` (La Partideta K&F_01).
+- Destino existente: `sjzivdhzlptxveygmpys` (La Partideta K&F_01). La CLI local está autenticada y enlazada; comprobación del 16/09/2026: 46 versiones remotas y 0 migraciones nuevas pendientes.
+- Jugadores invitados ya publicados: migraciones `20260918100000_group_guest_players.sql` y `20260919100000_guest_creation_choices.sql` aplicadas y registradas. No repetirlas.
 - `npm run db:status` consulta las migraciones nuevas. `npm run db:migrate -- supabase/migrations/ARCHIVO.sql` muestra una simulación; añadir `--apply` aplica ese archivo y registra la versión.
 - Revisar y probar el SQL antes de aplicar. Una migración nueva debe tener una versión única posterior a `20260917100000` y a las versiones remotas.
 - El historial antiguo contiene ejecuciones manuales, importaciones duplicadas y versiones repetidas. Los archivos hasta `20260917100000` se conservan como referencia histórica y quedan fuera del flujo nuevo. Su exclusión no afirma que cada archivo se ejecutara literalmente.
@@ -18,11 +19,11 @@
 
 ## VPS
 
-- Alias SSH disponible en este Codespace: `lapartideta-vps` (`root@169.58.89.28`). Clave propia en `~/.ssh/id_ed25519_lapartideta_vps`.
+- Alias SSH local: `lapartideta-vps` (`root@169.58.89.28`), configurado en `C:\Users\VORPC\.ssh\config` con la clave propia `~/.ssh/id_ed25519`. Acceso comprobado el 16/09/2026: contenedor activo. Codespaces usa su propia clave `~/.ssh/id_ed25519_lapartideta_vps`.
 - Aplicación en `/var/www/miapp`, contenedor `lapartideta-app`, web `https://golf.arinsaldev.com`.
 - Consultar estado: `ssh -o BatchMode=yes lapartideta-vps 'docker ps --filter name=lapartideta-app'`.
-- Para una tarea de publicación, validar el código, subir los commits destinados a producción y ejecutar por SSH `cd /var/www/miapp && ./deploy.sh`; después verificar el contenedor y la web. El script remoto descarga `main` y reinicia el contenedor.
-- `local-deploy.ps1` pertenece al flujo de Windows. En el Codespace utilizar Bash y SSH.
+- Solo cuando la tarea incluya publicar: validar el código, confirmar y subir los commits destinados a producción, y ejecutar `npm run deploy -- --apply`. `npm run deploy:check` valida sin publicar. El script remoto `/var/www/miapp/deploy.sh` descarga `main` y reinicia el contenedor.
+- Para comprobar accesos o continuar en local no aplicar migraciones ni desplegar. No usar `local-deploy.ps1` como flujo principal; usar los scripts npm del repositorio.
 
 ## Validación
 

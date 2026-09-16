@@ -1,12 +1,14 @@
-# Volver a trabajar en local
+# Trabajar en local — entorno principal
 
-Alternativa preparada el 16/09/2026 porque la suspensión automática de Codespaces interrumpe el trabajo. La preferencia posterior del usuario es mantener Codespaces por ahora y ampliar el timeout a cuatro horas. La aplicación publicada y Supabase siguen siendo los mismos.
+Desde el 16/09/2026 el ordenador local Windows es el entorno principal. Proyecto: `C:\Users\VORPC\OneDrive\Escritorio\Fede\00-LaPartideta_Test\project`; terminal PowerShell. Codespaces queda como alternativa, descrita en [CODESPACE_SETUP.md](CODESPACE_SETUP.md). La aplicación publicada y Supabase siguen siendo los mismos.
+
+La copia local está sincronizada con `origin/main`. `npm ci` y `npm run build` terminaron correctamente; `.env.local` está configurado y excluido de Git. La web funciona en `http://localhost:5173` y se ha comprobado el inicio de sesión y acceso al grupo.
 
 ## Abrir la copia local
 
 Abrir la carpeta local de `LaPartidetaKF` en una ventana normal de VS Code, sin conexión remota a Codespaces. Antes de actualizar una copia existente:
 
-```bash
+```powershell
 git status
 git fetch origin
 ```
@@ -15,7 +17,7 @@ Conservar cualquier cambio local. Si la copia está limpia y no hay commits dive
 
 Instalar Node.js 24 y ejecutar:
 
-```bash
+```powershell
 npm ci
 npm run dev
 ```
@@ -24,10 +26,20 @@ Abrir la dirección que muestra Vite, normalmente `http://localhost:5173`. En lo
 
 ## Configuración y accesos
 
-- Recuperar `.env.local` mediante la descarga privada del archivo desde el explorador de VS Code del Codespace. Guardarlo en la carpeta local y comprobar que Git lo excluye. No pegar su contenido en el chat ni subirlo al repositorio.
-- Supabase sigue siendo `sjzivdhzlptxveygmpys`. Para consultas de migraciones desde el ordenador: `npx supabase login` y `npx supabase link --project-ref sjzivdhzlptxveygmpys`, después `npm run db:status`. Las migraciones de invitados ya aplicadas no se repiten.
-- Mantener la clave SSH propia del ordenador y configurar el alias `lapartideta-vps` para `root@169.58.89.28`. No copiar la clave privada del Codespace al repositorio. La publicación desde terminal usa `npm run deploy -- --apply`, con el commit validado y subido a `main`.
+- `.env.local` ya está configurado en este ordenador. Si se prepara otra copia, transferir el archivo de forma privada desde un entorno ya configurado. Guardarlo en la carpeta local y comprobar que Git lo excluye. No pegar su contenido en el chat ni subirlo al repositorio.
+- Acceso comprobado el 16/09/2026: la CLI local ya está autenticada y enlazada; `npm run db:status` devuelve 46 versiones remotas y 0 migraciones nuevas pendientes. No hace falta repetir login ni link en este ordenador.
+- Para configurar otro ordenador, Supabase sigue siendo `sjzivdhzlptxveygmpys`. Para consultas de migraciones desde el ordenador: `npx supabase login` y `npx supabase link --project-ref sjzivdhzlptxveygmpys`, después `npm run db:status`. Las migraciones de invitados ya aplicadas no se repiten.
+- El alias local `lapartideta-vps` está configurado en `C:\Users\VORPC\.ssh\config` para `root@169.58.89.28`, con la clave propia `~/.ssh/id_ed25519`. El acceso SSH y el contenedor activo se comprobaron el 16/09/2026. No copiar la clave privada del Codespace al repositorio. Solo si la tarea pide publicar, la publicación desde terminal usa `npm run deploy -- --apply`, con el commit validado y subido a `main`.
 - La web de desarrollo utiliza la base real compartida; las pruebas de escritura deben usar PGlite o datos de prueba adecuados.
+
+Para comprobar los accesos sin aplicar migraciones ni publicar:
+
+```powershell
+npm run db:status
+ssh -o BatchMode=yes -o StrictHostKeyChecking=yes -o ConnectTimeout=10 lapartideta-vps 'docker ps --filter name=lapartideta-app'
+```
+
+Las migraciones de invitados `20260918100000` y `20260919100000` ya están aplicadas y registradas; no repetirlas.
 
 ## Continuidad de la tarea y del chat
 

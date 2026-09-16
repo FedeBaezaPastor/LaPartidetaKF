@@ -2,7 +2,7 @@
 
 ## Decisiones y alcance recuperado
 
-El usuario pidió terminar y desplegar los jugadores invitados. Tras preparar la vuelta a local, decidió mantener Codespaces por ahora y pidió ampliar el timeout a cuatro horas. Se recuperó el chat original desde el historial del Codespace; su título antiguo es «Corrige controles de locución VR», identificador `01a0aaf7-7d05-7be0-a18b-417d97b9e2d8`.
+El usuario pidió terminar y desplegar los jugadores invitados. Tras considerar mantener Codespaces y ampliar su timeout, el 16/09/2026 decidió continuar en el ordenador local como entorno principal; Codespaces queda como alternativa. Se recuperó el chat original desde el historial del Codespace; su título antiguo es «Corrige controles de locución VR», identificador `01a0aaf7-7d05-7be0-a18b-417d97b9e2d8`.
 
 La casilla «Invitado: solo juega esta partida» debe empezar desmarcada. Sin marcar crea una ficha habitual sin cuenta; marcada crea una ficha reutilizable de invitado. Solo un administrador puede elegir «Incorporar al grupo» para convertir un invitado existente. La incorporación afecta a participaciones futuras, no al historial. Las fichas no crean cuentas ni conceden acceso.
 
@@ -16,9 +16,17 @@ La casilla «Invitado: solo juega esta partida» debe empezar desmarcada. Sin ma
 - Primera publicación verificada: commit `7fa0144`, contenedor activo, HTML y JavaScript HTTP 200. Corrección de la casilla e incorporación explícita publicada en el commit `4ded669`: contenedor activo sin reinicios, HTML y JavaScript HTTP 200, textos y RPC nuevos verificados en el JavaScript servido.
 - Detalles en `GUEST_PLAYERS_SETUP.md`.
 
-## Entorno y vuelta a local
+## Entorno principal local y alternativa Codespaces
 
-Este Codespace tiene timeout de 30 minutos. GitHub permite hasta cuatro horas para entornos nuevos, pero seguirá pudiendo suspenderlos. La preferencia actual es mantener Codespaces por ahora y ampliar el timeout a cuatro horas. La API consultada sigue mostrando 30 minutos; el cambio no está realizado. GitHub documenta la preferencia de 240 minutos para entornos nuevos. No se ha reiniciado ni reconstruido este entorno durante la recuperación.
+Proyecto local: `C:\Users\VORPC\OneDrive\Escritorio\Fede\00-LaPartideta_Test\project`, Windows/PowerShell, Node.js `v24.11.0`. Copia sincronizada con `origin/main`; `npm ci` y `npm run build` correctos. `.env.local` configurado y excluido de Git. La web funciona en `http://localhost:5173`, con inicio de sesión y acceso al grupo comprobados por el usuario.
+
+Accesos locales comprobados el 16/09/2026:
+
+- Supabase CLI autenticada y enlazada a `sjzivdhzlptxveygmpys`. `npm run db:status`: 46 versiones remotas, 0 migraciones nuevas pendientes. El enlace en `supabase/.temp/` está excluido de Git.
+- SSH con clave propia del ordenador `~/.ssh/id_ed25519`; alias `lapartideta-vps` en `C:\Users\VORPC\.ssh\config`, destino `root@169.58.89.28`. Consulta de Docker correcta y contenedor `lapartideta-app` activo.
+- No se aplicaron migraciones ni se desplegó durante estas comprobaciones. El árbol de Git estaba limpio antes de esta actualización documental.
+
+Como alternativa, el Codespace `glowing-space-system-rpw7rr56pv3xq4q` en `/workspaces/LaPartidetaKF` tenía timeout de 30 minutos en la última comprobación. GitHub permite hasta cuatro horas para entornos nuevos, pero seguirá pudiendo suspenderlos. La petición anterior de ampliar el timeout a cuatro horas queda como contexto histórico, no como siguiente paso de la sesión local. La API consultada entonces mostraba 30 minutos; el cambio no está realizado. GitHub documenta la preferencia de 240 minutos para entornos nuevos. No se ha reiniciado ni reconstruido este entorno durante la recuperación.
 
 Se localizaron cinco conversaciones guardadas en `~/.codex`; el chat anterior no se había borrado del disco. No se reprodujo el fallo por el que la interfaz abrió otra conversación.
 
@@ -28,4 +36,4 @@ La configuración del entorno, scripts de migración y despliegue, dependencias 
 
 ## Siguiente paso
 
-Mantener este Codespace por ahora. La tarea de invitados está terminada y publicada. Pendiente: establecer 240 minutos en las preferencias de GitHub y resolver la transición a un entorno que use ese valor; no se ha creado ni eliminado ningún Codespace. Antes de actualizar la copia local, comprobar sus cambios y preservar cualquier trabajo pendiente. Configurar `.env.local` y accesos privados por separado; las migraciones ya aplicadas no se repiten.
+Continuar el trabajo desde el ordenador local siguiendo `AGENTS.md` y `LOCAL_SETUP.md`. La tarea de invitados está terminada y publicada, y los accesos locales ya están preparados. No quedan migraciones nuevas pendientes en la última comprobación. No repetir las migraciones de invitados ni desplegar salvo que una tarea posterior lo requiera explícitamente. Codespaces queda disponible como alternativa según `CODESPACE_SETUP.md`; no se ha creado, eliminado ni reconfigurado ningún Codespace durante la transición local.
