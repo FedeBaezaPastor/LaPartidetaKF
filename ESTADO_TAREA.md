@@ -13,7 +13,7 @@ La casilla «Invitado: solo juega esta partida» debe empezar desmarcada. Sin ma
 - Los resultados archivados conservan identidad y condición de invitado; la vista estadística recalcula posiciones entre los habituales. Se soportan partidas y días con solo invitados.
 - Migraciones `20260918100000_group_guest_players.sql` y `20260919100000_guest_creation_choices.sql` aplicadas y registradas. La segunda conserva el permiso habitual de alta para usuarios que pueden registrar resultados; incorporar una ficha existente sigue requiriendo administrador. El historial remoto tiene 46 versiones. No se ha reproducido ni modificado el historial SQL antiguo.
 - Validación: TypeScript, 22 pruebas administrativas con PGlite, 5 pruebas del flujo e historial, compilación y `git diff --check`. No se escribieron datos de prueba en Supabase.
-- Primera publicación verificada: commit `7fa0144`, contenedor activo, HTML y JavaScript HTTP 200. Corrección de la casilla e incorporación explícita validada y lista para publicar.
+- Primera publicación verificada: commit `7fa0144`, contenedor activo, HTML y JavaScript HTTP 200. Corrección de la casilla e incorporación explícita publicada en el commit `4ded669`: contenedor activo sin reinicios, HTML y JavaScript HTTP 200, textos y RPC nuevos verificados en el JavaScript servido.
 - Detalles en `GUEST_PLAYERS_SETUP.md`.
 
 ## Entorno y vuelta a local
@@ -28,4 +28,4 @@ La configuración del entorno, scripts de migración y despliegue, dependencias 
 
 ## Siguiente paso
 
-Completar la publicación de la corrección y abrir la carpeta local en VS Code. Antes de actualizar la copia local, comprobar sus cambios y preservar cualquier trabajo pendiente. Configurar `.env.local` y accesos privados por separado; las migraciones ya aplicadas no se repiten.
+Abrir la carpeta local en VS Code. La tarea de invitados está terminada y publicada. Antes de actualizar la copia local, comprobar sus cambios y preservar cualquier trabajo pendiente. Configurar `.env.local` y accesos privados por separado; las migraciones ya aplicadas no se repiten.

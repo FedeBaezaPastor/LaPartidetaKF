@@ -16,7 +16,7 @@ npm run db:migrate -- supabase/migrations/20260918100000_group_guest_players.sql
 npm run db:migrate -- supabase/migrations/20260918100000_group_guest_players.sql --apply
 ```
 
-Consultar el historial remoto y revisar la simulación antes de aplicar. El frontend actualizado requiere esta migración. La migración se aplicó y registró el 16/09/2026. La corrección `20260919100000` también se aplicó y registró el 16/09/2026. El historial remoto tiene 46 versiones; no se deben repetir esas migraciones. El frontend del commit `7fa0144` se publicó el 16/09/2026 en https://golf.arinsaldev.com. Se verificaron el contenedor activo y las respuestas HTTP 200 del HTML y del JavaScript actualizado.
+Consultar el historial remoto y revisar la simulación antes de aplicar. El frontend actualizado requiere esta migración. La migración se aplicó y registró el 16/09/2026. La corrección `20260919100000` también se aplicó y registró el 16/09/2026. El historial remoto tiene 46 versiones; no se deben repetir esas migraciones. El frontend del commit `7fa0144` se publicó el 16/09/2026 en https://golf.arinsaldev.com. La corrección del comportamiento acordado se publicó también el 16/09/2026, commit `4ded669`. Se verificaron el contenedor activo sin reinicios y las respuestas HTTP 200 del HTML y del JavaScript actualizado, incluidos los textos de alta e incorporación.
 
 `players.is_guest` describe la ficha reutilizable y `round_players.is_guest` guarda la condición de cada participación. Al archivar, el servidor obtiene el ranking de los resultados de la partida y guarda la condición en ranking, estadísticas y golpes. La vista `group_statistics_rounds` excluye invitados y recalcula posiciones y cervezas entre los miembros; el historial lee `archived_rounds` completo.
 
