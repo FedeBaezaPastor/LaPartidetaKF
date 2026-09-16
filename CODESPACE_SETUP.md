@@ -1,6 +1,6 @@
 # Continuar desde el PC o el portátil
 
-**Decisión del 16/09/2026:** volver a local al terminar la tarea actual. Pasos en [LOCAL_SETUP.md](LOCAL_SETUP.md). Este documento conserva el funcionamiento del Codespace mientras se realiza la transición.
+**Preferencia actual del 16/09/2026:** mantener Codespaces por ahora y ampliar el timeout a cuatro horas. El entorno actual sigue en 30 minutos; el cambio no está realizado. La alternativa local está preparada en [LOCAL_SETUP.md](LOCAL_SETUP.md).
 
 ## Suspensión e historial
 

@@ -2,7 +2,7 @@
 
 ## Decisiones y alcance recuperado
 
-El usuario pidió terminar y desplegar los jugadores invitados, y después volver al ordenador local. Se recuperó el chat original desde el historial del Codespace; su título antiguo es «Corrige controles de locución VR», identificador `01a0aaf7-7d05-7be0-a18b-417d97b9e2d8`.
+El usuario pidió terminar y desplegar los jugadores invitados. Tras preparar la vuelta a local, decidió mantener Codespaces por ahora y pidió ampliar el timeout a cuatro horas. Se recuperó el chat original desde el historial del Codespace; su título antiguo es «Corrige controles de locución VR», identificador `01a0aaf7-7d05-7be0-a18b-417d97b9e2d8`.
 
 La casilla «Invitado: solo juega esta partida» debe empezar desmarcada. Sin marcar crea una ficha habitual sin cuenta; marcada crea una ficha reutilizable de invitado. Solo un administrador puede elegir «Incorporar al grupo» para convertir un invitado existente. La incorporación afecta a participaciones futuras, no al historial. Las fichas no crean cuentas ni conceden acceso.
 
@@ -18,7 +18,7 @@ La casilla «Invitado: solo juega esta partida» debe empezar desmarcada. Sin ma
 
 ## Entorno y vuelta a local
 
-Este Codespace tiene timeout de 30 minutos. GitHub permite hasta cuatro horas para entornos nuevos, pero seguirá pudiendo suspenderlos. El usuario eligió volver a local al acabar. No se ha reiniciado ni reconstruido este entorno durante la recuperación.
+Este Codespace tiene timeout de 30 minutos. GitHub permite hasta cuatro horas para entornos nuevos, pero seguirá pudiendo suspenderlos. La preferencia actual es mantener Codespaces por ahora y ampliar el timeout a cuatro horas. La API consultada sigue mostrando 30 minutos; el cambio no está realizado. GitHub documenta la preferencia de 240 minutos para entornos nuevos. No se ha reiniciado ni reconstruido este entorno durante la recuperación.
 
 Se localizaron cinco conversaciones guardadas en `~/.codex`; el chat anterior no se había borrado del disco. No se reprodujo el fallo por el que la interfaz abrió otra conversación.
 
@@ -28,4 +28,4 @@ La configuración del entorno, scripts de migración y despliegue, dependencias 
 
 ## Siguiente paso
 
-Abrir la carpeta local en VS Code. La tarea de invitados está terminada y publicada. Antes de actualizar la copia local, comprobar sus cambios y preservar cualquier trabajo pendiente. Configurar `.env.local` y accesos privados por separado; las migraciones ya aplicadas no se repiten.
+Mantener este Codespace por ahora. La tarea de invitados está terminada y publicada. Pendiente: establecer 240 minutos en las preferencias de GitHub y resolver la transición a un entorno que use ese valor; no se ha creado ni eliminado ningún Codespace. Antes de actualizar la copia local, comprobar sus cambios y preservar cualquier trabajo pendiente. Configurar `.env.local` y accesos privados por separado; las migraciones ya aplicadas no se repiten.

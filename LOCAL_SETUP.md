@@ -1,6 +1,6 @@
 # Volver a trabajar en local
 
-Decisión del 16/09/2026: continuar en el ordenador local porque la suspensión automática de Codespaces interrumpe el trabajo. La aplicación publicada y Supabase siguen siendo los mismos.
+Alternativa preparada el 16/09/2026 porque la suspensión automática de Codespaces interrumpe el trabajo. La preferencia posterior del usuario es mantener Codespaces por ahora y ampliar el timeout a cuatro horas. La aplicación publicada y Supabase siguen siendo los mismos.
 
 ## Abrir la copia local
 
