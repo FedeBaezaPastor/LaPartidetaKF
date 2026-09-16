@@ -1,45 +1,31 @@
-# Recuperación tras desconexión — 16/09/2026
+# Estado para continuar — 16/09/2026
 
-Este documento recoge evidencias del disco; no sustituye las instrucciones del chat anterior, que no están disponibles en la conversación actual.
+## Decisiones y alcance recuperado
 
-## Estado recuperado
+El usuario pidió terminar y desplegar los jugadores invitados, y después volver al ordenador local. Se recuperó el chat original desde el historial del Codespace; su título antiguo es «Corrige controles de locución VR», identificador `01a0aaf7-7d05-7be0-a18b-417d97b9e2d8`.
 
-- Rama `main`, commit `4e7d393` (miembros y hándicaps por grupo). Tras `git fetch origin`, coincide con `origin/main`.
-- Trabajo sin commit: configuración del Codespace, Node, dependencias del CLI Supabase, documentación, scripts de migración y despliegue, pruebas del flujo y exclusiones de archivos locales.
-- Existe una migración nueva de 406 líneas: `supabase/migrations/20260918100000_group_guest_players.sql`. Añade tratamiento de invitados en grupos y participaciones. Debe tratarse como trabajo pendiente de revisión: no hay cambios de interfaz ni pruebas específicas de invitados en el árbol recuperado.
-- No se puede confirmar si esa migración está aplicada: `npm run db:status` falló con `Supabase command failed (1)`.
+La casilla «Invitado: solo juega esta partida» debe empezar desmarcada. Sin marcar crea una ficha habitual sin cuenta; marcada crea una ficha reutilizable de invitado. Solo un administrador puede elegir «Incorporar al grupo» para convertir un invitado existente. La incorporación afecta a participaciones futuras, no al historial. Las fichas no crean cuentas ni conceden acceso.
 
-## Comprobaciones realizadas en la recuperación
+## Jugadores invitados
 
-- `npm run typecheck`: correcto.
-- `npm run test:admin`: 18 pruebas correctas.
-- `npm run test:workflow`: 4 pruebas correctas.
-- `npm run build`: correcto, con advertencias de imports estáticos/dinámicos.
-- `git diff --check`: correcto.
-- `.env.local`, `.local/` y archivos de `supabase/.temp/`: excluidos de Git.
-- En esta recuperación no se ha aplicado SQL, publicado código ni ejecutado un despliegue.
+- Implementados alta y selección mediante RPC atómico, etiquetas de invitados y archivo completo de las partidas.
+- Los invitados juegan y aparecen en la clasificación de la partida y en el historial. Se excluyen de estadísticas, premios, cervezas y ajustes automáticos de hándicap del grupo.
+- Los resultados archivados conservan identidad y condición de invitado; la vista estadística recalcula posiciones entre los habituales. Se soportan partidas y días con solo invitados.
+- Migraciones `20260918100000_group_guest_players.sql` y `20260919100000_guest_creation_choices.sql` aplicadas y registradas. La segunda conserva el permiso habitual de alta para usuarios que pueden registrar resultados; incorporar una ficha existente sigue requiriendo administrador. El historial remoto tiene 46 versiones. No se ha reproducido ni modificado el historial SQL antiguo.
+- Validación: TypeScript, 22 pruebas administrativas con PGlite, 5 pruebas del flujo e historial, compilación y `git diff --check`. No se escribieron datos de prueba en Supabase.
+- Primera publicación verificada: commit `7fa0144`, contenedor activo, HTML y JavaScript HTTP 200. Corrección de la casilla e incorporación explícita validada y lista para publicar.
+- Detalles en `GUEST_PLAYERS_SETUP.md`.
 
-## Para retomar
+## Entorno y vuelta a local
 
-1. Recuperar o confirmar el alcance funcional original antes de completar la función de invitados.
-2. Resolver la consulta del historial remoto de Supabase y comprobar la versión `20260918100000`.
-3. Revisar la migración y preparar pruebas locales con PGlite antes de cualquier aplicación.
-4. Completar interfaz y servicios según el alcance confirmado; validar y guardar los cambios en commits.
+Este Codespace tiene timeout de 30 minutos. GitHub permite hasta cuatro horas para entornos nuevos, pero seguirá pudiendo suspenderlos. El usuario eligió volver a local al acabar. No se ha reiniciado ni reconstruido este entorno durante la recuperación.
 
-Actualizar este archivo cuando cambie el estado o antes de interrumpir una tarea larga.
+Se localizaron cinco conversaciones guardadas en `~/.codex`; el chat anterior no se había borrado del disco. No se reprodujo el fallo por el que la interfaz abrió otra conversación.
 
-## Avance de jugadores invitados — 16/09/2026
+Se inició una copia privada del historial cada 60 segundos en `/workspaces/.lapartideta-codex-history`, fuera del repositorio. Se conservan dos copias, con backup consistente de SQLite, conversaciones e índices. No se copian archivos de autenticación ni claves SSH. Descargar la copia antes de eliminar el Codespace: reside en su mismo disco.
 
-El usuario confirmó que la tarea interrumpida era la función de invitados y pidió terminarla antes de revisar Codespaces/local.
+La configuración del entorno, scripts de migración y despliegue, dependencias fijadas y documentación recuperados se conservaron. Los secretos siguen fuera de Git. Pasos para continuar en el ordenador en `LOCAL_SETUP.md`; funcionamiento remoto en `CODESPACE_SETUP.md`.
 
-- Implementados alta y selección mediante RPC atómico en configuración y visor de partidas; invitados nuevos por defecto y conversión a miembro sin cuenta por administradores al añadir una ficha existente.
-- Identificación de invitados en tarjetas, clasificaciones, estadísticas de la partida y Puntos de Juego.
-- Estadísticas de grupo/campo, premios, cervezas y ajustes leen la proyección sin invitados; el historial conserva todos los participantes y distingue nombres coincidentes por UUID.
-- Archivo de partidas de grupo desde el visor y soporte de días con solo invitados.
-- Migración revisada y ejecutada en PGlite; guardas de permisos, duplicados, límites, condición inmutable y resultados calculados en servidor. Compatible con esquemas sin el RPC antiguo de cervezas.
-- Validación final: TypeScript, 22 pruebas administrativas (4 nuevas de invitados), 4 del flujo y compilación. También se ejecutaron en PGlite las 12 funciones estadísticas recuperadas del esquema remoto actual; no se escribieron datos de prueba en Supabase.
-- Documentación: `GUEST_PLAYERS_SETUP.md`.
-- El acceso al CLI se recuperó. Historial consultado y simulación revisada: solo la migración nueva de invitados. Se aplicó y registró `20260918100000`; el historial remoto pasó de 44 a 45 versiones y quedan cero migraciones nuevas pendientes. Verificadas las dos columnas con default false, las tres guardas activas y la vista con `security_invoker=true`. No se cambió la condición de fichas históricas (cero invitados al aplicar).
-- Publicación autorizada expresamente por el usuario y completada el 16/09/2026: commit `7fa0144` subido a `main`, ejecución de `/var/www/miapp/deploy.sh`, compilación remota correcta y nuevo contenedor activo sin reinicios. Verificados HTML y JavaScript actualizados con HTTP 200; el JavaScript contiene el alta de invitados y la proyección de estadísticas.
-- Función de invitados implementada, migración aplicada y frontend publicado. Pendiente de conversación: revisar Codespaces y local, según pidió el usuario.
-- La configuración previa del Codespace y sus scripts se han conservado para revisarlos después, según pidió el usuario.
+## Siguiente paso
+
+Completar la publicación de la corrección y abrir la carpeta local en VS Code. Antes de actualizar la copia local, comprobar sus cambios y preservar cualquier trabajo pendiente. Configurar `.env.local` y accesos privados por separado; las migraciones ya aplicadas no se repiten.

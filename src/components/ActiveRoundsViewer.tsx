@@ -49,7 +49,7 @@ export const ActiveRoundsViewer: React.FC<ActiveRoundsViewerProps> = ({
   const [selectedPlayerId, setSelectedPlayerId] = useState<string>('');
   const [newPlayerName, setNewPlayerName] = useState('');
   const [newPlayerHandicap, setNewPlayerHandicap] = useState('');
-  const [newPlayerIsGuest, setNewPlayerIsGuest] = useState(true);
+  const [newPlayerIsGuest, setNewPlayerIsGuest] = useState(false);
   const [canManagePlayers, setCanManagePlayers] = useState(false);
   const [showAdminPinModal, setShowAdminPinModal] = useState(false);
   const [pinError, setPinError] = useState('');
@@ -244,7 +244,7 @@ export const ActiveRoundsViewer: React.FC<ActiveRoundsViewerProps> = ({
       const target = rounds.find(item => item.round.id === roundId);
       const players = await golfService.getAllPlayers(target?.round.group_id || undefined);
       setCanManagePlayers(players.some(player => player.can_manage));
-      setNewPlayerIsGuest(true);
+      setNewPlayerIsGuest(false);
       const roundPlayers = await golfService.getRoundPlayers(roundId);
       const roundPlayerIds = roundPlayers.map(p => p.player_id).filter(Boolean);
       const busy = await golfService.getPlayersInActiveRounds(roundId);
@@ -290,7 +290,7 @@ export const ActiveRoundsViewer: React.FC<ActiveRoundsViewerProps> = ({
       } else if (selectedPlayerId) {
         const player = availablePlayers.find(p => p.id === selectedPlayerId);
         if (!player) return;
-        if (round.round.group_id) await golfService.addGroupRoundPlayer(round.round.group_id, roundId, player.name, player.exact_handicap, !!player.is_guest, player.id);
+        if (round.round.group_id) await golfService.addGroupRoundPlayer(round.round.group_id, roundId, player.name, player.exact_handicap, player.is_guest ? newPlayerIsGuest : false, player.id);
         else await golfService.addPlayerToRound(roundId, player.name, player.exact_handicap, round.round.use_slope, player.id);
       } else {
         setError('Por favor selecciona o crea un jugador');
@@ -892,7 +892,7 @@ export const ActiveRoundsViewer: React.FC<ActiveRoundsViewerProps> = ({
               </label>
               <select
                 value={selectedPlayerId}
-                onChange={(e) => setSelectedPlayerId(e.target.value)}
+                onChange={(e) => { setSelectedPlayerId(e.target.value); setNewPlayerIsGuest(!!availablePlayers.find(player => player.id === e.target.value)?.is_guest); }}
                 className="w-full px-3 py-2 border border-line-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               >
                 <option value="">-- Selecciona --</option>
@@ -905,14 +905,21 @@ export const ActiveRoundsViewer: React.FC<ActiveRoundsViewerProps> = ({
               </select>
             </div>
 
+            {availablePlayers.find(player => player.id === selectedPlayerId)?.is_guest && canManagePlayers && <div className="mb-4">
+              <WriteButton type="button" onClick={() => setNewPlayerIsGuest(!newPlayerIsGuest)} className="text-sm text-accent-ink underline">
+                {newPlayerIsGuest ? 'Incorporar al grupo' : 'Mantener como invitado'}
+              </WriteButton>
+              {!newPlayerIsGuest && <p className="text-xs text-ink-3 mt-1">Se incorporará al añadirlo. Las partidas anteriores conservan su condición de invitado.</p>}
+            </div>}
+
             {selectedPlayerId === 'new' && (
               <div className="space-y-3 mb-4 p-3 bg-card-2 rounded-lg">
                 {currentGroup && <div>
                   <label className="flex items-center gap-2 text-sm font-semibold text-ink-2">
-                    <input type="checkbox" checked={newPlayerIsGuest} disabled={!canManagePlayers} onChange={event => setNewPlayerIsGuest(event.target.checked)} />
-                    Jugador invitado
+                    <input type="checkbox" checked={newPlayerIsGuest} onChange={event => setNewPlayerIsGuest(event.target.checked)} />
+                    Invitado: solo juega esta partida
                   </label>
-                  <p className="text-xs text-ink-3 mt-1">{newPlayerIsGuest ? 'Queda en el historial sin contar en estadísticas, cervezas ni ajustes de hándicap.' : 'Cuenta como miembro del grupo.'}</p>
+                  <p className="text-xs text-ink-3 mt-1">No contará en las estadísticas ni en los ajustes automáticos del grupo si marcas Invitado.</p>
                 </div>}
 
                 <div>

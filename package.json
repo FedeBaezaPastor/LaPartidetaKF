@@ -9,7 +9,16 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit -p tsconfig.app.json",
-    "test:admin": "node --test tests/admin-*.test.mjs"
+    "test:admin": "node --test tests/admin-*.test.mjs",
+    "dev:codespace": "vite --host 0.0.0.0 --port 5173 --strictPort",
+    "db:status": "node scripts/supabase-migrate.mjs --status",
+    "db:migrate": "node scripts/supabase-migrate.mjs",
+    "test:workflow": "node --test tests/migration-workflow.test.mjs tests/codex-history.test.mjs",
+    "deploy:check": "node scripts/deploy.mjs",
+    "deploy": "node scripts/deploy.mjs",
+    "check": "npm run typecheck && npm run test:admin && npm run test:workflow && npm run build",
+    "history:backup": "node scripts/codex-history.mjs --start",
+    "history:restore": "node scripts/codex-history.mjs --restore"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.57.4",
@@ -32,9 +41,13 @@
     "eslint-plugin-react-refresh": "^0.4.11",
     "globals": "^15.9.0",
     "postcss": "^8.4.35",
+    "supabase": "2.117.0",
     "tailwindcss": "^3.4.1",
     "typescript": "^5.5.3",
     "typescript-eslint": "^8.3.0",
     "vite": "^5.4.2"
+  },
+  "engines": {
+    "node": "24.x"
   }
 }

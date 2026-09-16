@@ -20,7 +20,7 @@ async function setup(withBeer=true) {
  for (const file of ['20260103144321_fix_beer_stats_player_id_reference.sql','20260703215241_20260703_restore_missing_ranking_functions.sql']) {
   if (withBeer || !file.includes('beer_stats')) await db.exec(await readFile(new URL(`../supabase/migrations/${file}`,import.meta.url),'utf8'));
  }
- for (const file of ['20260917100000_group_member_players.sql','20260918100000_group_guest_players.sql']) {
+ for (const file of ['20260917100000_group_member_players.sql','20260918100000_group_guest_players.sql','20260919100000_guest_creation_choices.sql']) {
   await db.exec(await readFile(new URL(`../supabase/migrations/${file}`,import.meta.url),'utf8'));
  }
  const as = async id => {
@@ -103,8 +103,13 @@ test('guest operations enforce group scope, permissions, limits, and all-guest r
   await as(outsider);const id=await round();await assert.rejects(add(id),/permiso/);
   await as(null);await assert.rejects(add(id),/permission denied/);
   await as(member);
-  await assert.rejects(add(id,'Member',false),/administrar/);
-  await assert.rejects(db.query("INSERT INTO players(group_id,name,is_guest) VALUES($1,'Forged member',false)",[group]),/administrar/);
+  const regularRound=await round();
+  const regular=await add(regularRound,'Member',false);
+  assert.equal(regular.is_guest,false,'new records count normally unless guest is explicitly selected');
+  await db.query("UPDATE golf_rounds SET status='completed' WHERE id=$1",[regularRound]);
+  await as(outsider);
+  await assert.rejects(db.query("INSERT INTO players(group_id,name,is_guest) VALUES($1,'Forged member',false)",[group]),/permiso/);
+  await as(member);
   await assert.rejects(add(id,'Invalid',true,null,28),/válido/);
   await assert.rejects(db.query('SELECT add_group_round_player($1,$2,$3,$4,$5)',[otherGroup,id,'Cross',9,true]),/permiso/);
   await db.query('INSERT INTO app_user_restrictions VALUES($1,true)',[member]);await assert.rejects(add(id),/permiso/);

@@ -53,7 +53,7 @@ export const PlayerSetup: React.FC<PlayerSetupProps> = ({
   const [playersInActiveRounds, setPlayersInActiveRounds] = useState<string[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [creatingUnlinked, setCreatingUnlinked] = useState(false);
-  const [isGuest, setIsGuest] = useState(true);
+  const [isGuest, setIsGuest] = useState(false);
   const [canManage, setCanManage] = useState(false);
   const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null);
   const [handicap, setHandicap] = useState('');
@@ -218,7 +218,7 @@ export const PlayerSetup: React.FC<PlayerSetupProps> = ({
   };
 
   const handleSearchChange = (value: string) => {
-    setIsGuest(true);
+    setIsGuest(false);
     setCreatingUnlinked(false);
     setSearchTerm(value);
     setSelectedPlayer(null);
@@ -283,7 +283,7 @@ export const PlayerSetup: React.FC<PlayerSetupProps> = ({
 
       setSearchTerm('');
       setCreatingUnlinked(false);
-      setIsGuest(true);
+      setIsGuest(false);
       setHandicap('');
       setSelectedPlayer(null);
       setShowDropdown(false);
@@ -589,14 +589,19 @@ export const PlayerSetup: React.FC<PlayerSetupProps> = ({
               <div className="rounded-lg border border-line p-3">
                 <label className="flex items-center gap-2 text-sm font-semibold text-ink-2">
                   <input type="checkbox" checked={isGuest}
-                    disabled={adding || loading || !canAddMorePlayers || (!!selectedPlayer && !selectedPlayer.is_guest) || !canManage}
+                    disabled={adding || loading || !canAddMorePlayers || !!selectedPlayer}
                     onChange={event => setIsGuest(event.target.checked)} />
-                  Jugador invitado
+                  Invitado: solo juega esta partida
                 </label>
                 <p className="text-xs text-ink-3 mt-2">
-                  {isGuest ? 'Juega y queda en el historial, sin contar en estadísticas, cervezas ni ajustes de hándicap del grupo.' : 'Cuenta como miembro del grupo en estadísticas, cervezas y ajustes de hándicap.'}
+                  {isGuest || !selectedPlayer ? 'No contará en las estadísticas ni en los ajustes automáticos del grupo si marcas Invitado.' : 'Cuenta como miembro del grupo en estadísticas, cervezas y ajustes de hándicap.'}
                 </p>
-                {selectedPlayer?.is_guest && canManage && <p className="text-xs text-ink-3 mt-1">Desmarca para convertir su ficha en miembro al añadirlo. Las partidas anteriores conservan su condición de invitado.</p>}
+                {selectedPlayer?.is_guest && canManage && <div className="mt-2">
+                  <WriteButton type="button" disabled={adding} onClick={() => setIsGuest(!isGuest)} className="text-sm text-accent-ink underline">
+                    {isGuest ? 'Incorporar al grupo' : 'Mantener como invitado'}
+                  </WriteButton>
+                  {!isGuest && <p className="text-xs text-ink-3 mt-1">Se incorporará al añadirlo. Las partidas anteriores conservan su condición de invitado.</p>}
+                </div>}
               </div>
             )}
 
