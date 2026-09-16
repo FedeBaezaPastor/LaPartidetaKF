@@ -390,7 +390,7 @@ export const Scorecard: React.FC<ScorecardProps> = ({
                                 {players.indexOf(player) < 2 ? 'P1' : 'P2'}
                               </span>
                             )}
-                            <span className="truncate">{player.name}</span>
+                            <span className="truncate">{player.name}{player.is_guest && <span className="ml-1 text-xs font-normal text-ink-3">(Invitado)</span>}</span>
                           </div>
                         </td>
                         {playableHoles.map((h) => {
@@ -635,7 +635,7 @@ export const Scorecard: React.FC<ScorecardProps> = ({
                           {players.indexOf(player) < 2 ? 'P1' : 'P2'}
                         </span>
                       )}
-                      <p className="text-sm font-semibold text-ink truncate">{player.name}</p>
+                      <p className="text-sm font-semibold text-ink truncate">{player.name}{player.is_guest && <span className="ml-1 text-xs font-normal text-ink-3">(Invitado)</span>}</p>
                     </div>
                     {hasAbandonedScores ? (
                       <>
@@ -697,7 +697,7 @@ export const Scorecard: React.FC<ScorecardProps> = ({
                                 {players.indexOf(player) < 2 ? 'P1' : 'P2'}
                               </span>
                             )}
-                            <p className="font-semibold text-ink">{player.name}</p>
+                            <p className="font-semibold text-ink">{player.name}{player.is_guest && <span className="ml-1 text-xs font-normal text-ink-3">(Invitado)</span>}</p>
                           </div>
                           <p className="text-xs text-ink-3">{holesList}</p>
                         </div>
@@ -723,7 +723,7 @@ export const Scorecard: React.FC<ScorecardProps> = ({
                     return (
                       <div key={player.id} className="bg-accent-soft border-2 border-accent-ring rounded-lg p-3 flex items-center justify-between">
                         <div>
-                          <p className="font-semibold text-ink">{player.name}</p>
+                          <p className="font-semibold text-ink">{player.name}{player.is_guest && <span className="ml-1 text-xs font-normal text-ink-3">(Invitado)</span>}</p>
                           <div className="flex flex-wrap gap-1 mt-1">
                             {spanishHandsHoles.length > 0
                               ? spanishHandsHoles.map(holeNumber => (

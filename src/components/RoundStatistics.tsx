@@ -220,7 +220,7 @@ useEffect(() => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-yellow-800 font-semibold mb-1">GANADOR</p>
-              <p className="text-3xl font-bold text-yellow-900">{winner.player.name}</p>
+              <p className="text-3xl font-bold text-yellow-900">{winner.player.name}{winner.player.is_guest && <span className="ml-1 text-xs font-normal">(Invitado)</span>}</p>
               <p className="text-sm text-yellow-700 mt-1">
                 HCP {winner.player.playing_handicap} • {winner.holesPlayed} hoyos
               </p>
@@ -239,7 +239,7 @@ useEffect(() => {
                 <Target className="w-5 h-5 text-blue-600" />
                 <p className="text-sm font-semibold text-blue-900">Rey del Birdie</p>
               </div>
-              <p className="text-2xl font-bold text-blue-700">{mostBirdies.player.name}</p>
+              <p className="text-2xl font-bold text-blue-700">{mostBirdies.player.name}{mostBirdies.player.is_guest && <span className="ml-1 text-xs font-normal">(Invitado)</span>}</p>
               <p className="text-sm text-blue-600">{mostBirdies.birdies} {mostBirdies.birdies === 1 ? 'birdie' : 'birdies'}</p>
             </div>
           )}
@@ -250,7 +250,7 @@ useEffect(() => {
                 <Award className="w-5 h-5 text-accent-ink" />
                 <p className="text-sm font-semibold text-title">Más Consistente</p>
               </div>
-              <p className="text-2xl font-bold text-accent-ink">{mostPars.player.name}</p>
+              <p className="text-2xl font-bold text-accent-ink">{mostPars.player.name}{mostPars.player.is_guest && <span className="ml-1 text-xs font-normal">(Invitado)</span>}</p>
               <p className="text-sm text-accent-ink">{mostPars.pars} {mostPars.pars === 1 ? 'par' : 'pares'}</p>
             </div>
           )}
@@ -261,7 +261,7 @@ useEffect(() => {
                 <Zap className="w-5 h-5 text-purple-600" />
                 <p className="text-sm font-semibold text-purple-900">Mejor Hoyo</p>
               </div>
-              <p className="text-2xl font-bold text-purple-700">{bestSingleHole.player.name}</p>
+              <p className="text-2xl font-bold text-purple-700">{bestSingleHole.player.name}{bestSingleHole.player.is_guest && <span className="ml-1 text-xs font-normal">(Invitado)</span>}</p>
               <p className="text-sm text-purple-600">
                 Hoyo {bestSingleHole.bestHole.hole} ({bestSingleHole.bestHole.points} pts)
               </p>
@@ -300,7 +300,7 @@ useEffect(() => {
                     {index + 1}
                   </div>
                   <div>
-                    <p className="font-bold text-lg text-ink">{stats.player.name}</p>
+                    <p className="font-bold text-lg text-ink">{stats.player.name}{stats.player.is_guest && <span className="ml-1 text-xs font-normal">(Invitado)</span>}</p>
                     <p className="text-sm text-ink-3">
                       HCP {stats.player.playing_handicap} • {stats.holesPlayed} hoyos
                     </p>

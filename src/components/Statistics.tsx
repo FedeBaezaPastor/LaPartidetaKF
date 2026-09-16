@@ -21,6 +21,7 @@ export const Statistics: React.FC<StatisticsProps> = ({ onBack, backDestination 
   const [error, setError] = useState('');
 
   const [archivedRounds, setArchivedRounds] = useState<any[]>([]);
+  const [historyRounds, setHistoryRounds] = useState<any[]>([]);
   const [selectedPlayer, setSelectedPlayer] = useState<string>('');
   const [playerStats, setPlayerStats] = useState<any>(null);
   const [groupStats, setGroupStats] = useState<any>(null);
@@ -56,7 +57,8 @@ export const Statistics: React.FC<StatisticsProps> = ({ onBack, backDestination 
   const loadArchivedRounds = async () => {
     try {
       setLoading(true);
-      const rounds = await golfService.getArchivedRounds(currentGroup.id);
+      const [rounds, history] = await Promise.all([golfService.getStatisticsRounds(currentGroup.id), golfService.getArchivedRounds(currentGroup.id)]);
+      setHistoryRounds(history);
       setArchivedRounds(rounds);
 
       const players = new Set<string>();
@@ -475,7 +477,7 @@ const openRankingModal = async (type: 'patrocinador' | 'barraLibre' | 'corto' | 
     );
   };
 
-  if (archivedRounds.length === 0 && !loading) {
+  if (historyRounds.length === 0 && !loading) {
     return (
       <div className="min-h-screen bg-app p-4 md:p-8">
         <div className="max-w-4xl mx-auto">
@@ -512,6 +514,13 @@ const openRankingModal = async (type: 'patrocinador' | 'barraLibre' | 'corto' | 
         {error && (
           <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded mb-6">
             <p className="text-red-700">{error}</p>
+          </div>
+        )}
+
+        {!loading && archivedRounds.length === 0 && historyRounds.length > 0 && (
+          <div className="bg-card rounded-lg p-4 mb-4 text-center">
+            <p className="text-ink-3 mb-2">Las partidas con solo invitados se conservan en el historial y no generan estadísticas del grupo.</p>
+            <button onClick={() => setShowArchivedRoundsModal(true)} className="text-accent-ink font-semibold">Ver historial de partidas</button>
           </div>
         )}
 
@@ -740,7 +749,7 @@ const openRankingModal = async (type: 'patrocinador' | 'barraLibre' | 'corto' | 
                       className="w-full bg-accent-soft hover:bg-accent-soft rounded-lg p-4 border border-accent-ring transition-colors text-left"
                     >
                       <p className="text-ink-2">
-                        <span className="font-bold text-2xl text-accent-ink">{groupStats.totalRounds}</span>{' '}
+                        <span className="font-bold text-2xl text-accent-ink">{historyRounds.length}</span>{' '}
                         partidas archivadas
                       </p>
                       <p className="text-xs text-accent-ink mt-1">Click para ver historial</p>
@@ -1320,7 +1329,7 @@ const openRankingModal = async (type: 'patrocinador' | 'barraLibre' | 'corto' | 
 
         {showArchivedRoundsModal && !selectedArchivedRound && (
           <ArchivedRoundsModal
-            rounds={archivedRounds}
+            rounds={historyRounds}
             onClose={() => setShowArchivedRoundsModal(false)}
             onSelectRound={(round) => setSelectedArchivedRound(round)}
           />

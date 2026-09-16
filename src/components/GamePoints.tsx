@@ -612,7 +612,7 @@ export function GamePoints({ onBack, groupId }: GamePointsProps) {
                               <div className="flex items-center justify-between gap-1 mb-2">
                                 <div className="flex items-center gap-1 flex-1 min-w-0">
                                   <div className="font-medium text-title truncate">
-                                    {player.name}
+                                    {player.name}{player.is_guest && <span className="ml-1 text-xs text-ink-3">(Invitado)</span>}
                                   </div>
                                   <button
                                     onClick={() => handleEditNameClick(player)}

@@ -49,6 +49,8 @@ export const ActiveRoundsViewer: React.FC<ActiveRoundsViewerProps> = ({
   const [selectedPlayerId, setSelectedPlayerId] = useState<string>('');
   const [newPlayerName, setNewPlayerName] = useState('');
   const [newPlayerHandicap, setNewPlayerHandicap] = useState('');
+  const [newPlayerIsGuest, setNewPlayerIsGuest] = useState(true);
+  const [canManagePlayers, setCanManagePlayers] = useState(false);
   const [showAdminPinModal, setShowAdminPinModal] = useState(false);
   const [pinError, setPinError] = useState('');
   const [pinActionType, setPinActionType] = useState<'deleteAll' | 'deletePlayer' | null>(null);
@@ -93,7 +95,9 @@ export const ActiveRoundsViewer: React.FC<ActiveRoundsViewerProps> = ({
     try {
       setLoading(true);
       setError('');
-      await golfService.archiveQuickPlayRound(roundId);
+      const target = rounds.find(item => item.round.id === roundId);
+      if (target?.round.group_id) await golfService.archiveRound(roundId);
+      else await golfService.archiveQuickPlayRound(roundId);
       await loadActiveRounds();
     } catch (err) {
       setError('Error al archivar la partida');
@@ -237,10 +241,14 @@ export const ActiveRoundsViewer: React.FC<ActiveRoundsViewerProps> = ({
 
   const handleAddPlayerClick = async (roundId: string) => {
     try {
-      const players = await golfService.getAllPlayers();
+      const target = rounds.find(item => item.round.id === roundId);
+      const players = await golfService.getAllPlayers(target?.round.group_id || undefined);
+      setCanManagePlayers(players.some(player => player.can_manage));
+      setNewPlayerIsGuest(true);
       const roundPlayers = await golfService.getRoundPlayers(roundId);
       const roundPlayerIds = roundPlayers.map(p => p.player_id).filter(Boolean);
-      const available = players.filter(p => !roundPlayerIds.includes(p.id));
+      const busy = await golfService.getPlayersInActiveRounds(roundId);
+      const available = players.filter(p => !roundPlayerIds.includes(p.id) && !busy.includes(p.id));
       setAvailablePlayers(available);
       setShowAddPlayerModal(roundId);
       setSelectedPlayerId('');
@@ -268,16 +276,22 @@ export const ActiveRoundsViewer: React.FC<ActiveRoundsViewerProps> = ({
           return;
         }
         const handicap = parseFloat(newPlayerHandicap);
-        if (isNaN(handicap)) {
-          setError('Handicap debe ser un número');
+        if (!Number.isFinite(handicap) || handicap < 0 || handicap > (round.round.num_holes === 18 ? 54 : 27)) {
+          setError(`El hándicap debe estar entre 0 y ${round.round.num_holes === 18 ? 54 : 27}`);
           return;
         }
-        const player = await golfService.getOrCreatePlayer(newPlayerName.trim(), handicap);
-        await golfService.addPlayerToRound(roundId, player.name, player.exact_handicap, round.round.use_slope, player.id);
+        const baseHandicap = round.round.num_holes === 18 ? handicap / 2 : handicap;
+        if (round.round.group_id) {
+          await golfService.addGroupRoundPlayer(round.round.group_id, roundId, newPlayerName.trim(), baseHandicap, newPlayerIsGuest);
+        } else {
+          const player = await golfService.getOrCreatePlayer(newPlayerName.trim(), baseHandicap);
+          await golfService.addPlayerToRound(roundId, player.name, player.exact_handicap, round.round.use_slope, player.id);
+        }
       } else if (selectedPlayerId) {
         const player = availablePlayers.find(p => p.id === selectedPlayerId);
         if (!player) return;
-        await golfService.addPlayerToRound(roundId, player.name, player.exact_handicap, round.round.use_slope, player.id);
+        if (round.round.group_id) await golfService.addGroupRoundPlayer(round.round.group_id, roundId, player.name, player.exact_handicap, !!player.is_guest, player.id);
+        else await golfService.addPlayerToRound(roundId, player.name, player.exact_handicap, round.round.use_slope, player.id);
       } else {
         setError('Por favor selecciona o crea un jugador');
         return;
@@ -319,6 +333,7 @@ export const ActiveRoundsViewer: React.FC<ActiveRoundsViewerProps> = ({
   const getGlobalLeaderboard = () => {
     const allPlayers: Array<{
       name: string;
+      is_guest?: boolean;
       handicap: number;
       totalPoints: number;
       holesPlayed: number;
@@ -337,6 +352,7 @@ export const ActiveRoundsViewer: React.FC<ActiveRoundsViewerProps> = ({
 
         allPlayers.push({
           name: player.name,
+          is_guest: player.is_guest,
           handicap: player.playing_handicap,
           totalPoints: stats.totalPoints,
           holesPlayed: stats.scoresEntered,
@@ -408,7 +424,7 @@ export const ActiveRoundsViewer: React.FC<ActiveRoundsViewerProps> = ({
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
-                          <p className="font-bold text-lg text-ink">{player.name}</p>
+                          <p className="font-bold text-lg text-ink">{player.name}{player.is_guest && <span className="ml-1 text-xs font-normal">(Invitado)</span>}</p>
                           {player.noPasoRojasHoles.length > 0 && (
                             <div className="flex items-center gap-1">
                               {player.noPasoRojasHoles.map((holeNumber) => (
@@ -644,7 +660,7 @@ export const ActiveRoundsViewer: React.FC<ActiveRoundsViewerProps> = ({
                                 }`}
                               >
                                 <div className="flex-1">
-                                  <p className={`font-semibold ${index === 0 ? 'text-yellow-950 dark:text-yellow-100' : 'text-ink'}`}>{item.player.name}</p>
+                                  <p className={`font-semibold ${index === 0 ? 'text-yellow-950 dark:text-yellow-100' : 'text-ink'}`}>{item.player.name}{item.player.is_guest && <span className="ml-1 text-xs font-normal">(Invitado)</span>}</p>
                                   <p className="text-xs text-ink-3">
                                     HCP {item.player.playing_handicap} • {item.stats.scoresEntered} hoyos
                                   </p>
@@ -734,7 +750,7 @@ export const ActiveRoundsViewer: React.FC<ActiveRoundsViewerProps> = ({
                                 }`}
                               >
                                 <div className="flex-1">
-                                  <p className="font-semibold text-ink">{item.player.name}</p>
+                                  <p className="font-semibold text-ink">{item.player.name}{item.player.is_guest && <span className="ml-1 text-xs font-normal">(Invitado)</span>}</p>
                                   <p className="text-xs text-ink-3">
                                     HCP {item.player.playing_handicap}
                                   </p>
@@ -881,8 +897,8 @@ export const ActiveRoundsViewer: React.FC<ActiveRoundsViewerProps> = ({
               >
                 <option value="">-- Selecciona --</option>
                 {availablePlayers.map((player) => (
-                  <option key={player.id} value={player.id}>
-                    {player.name} (HCP {player.exact_handicap})
+                  <option key={player.id} value={player.id} disabled={player.handicap_pending}>
+                    {player.name}{player.is_guest ? ' · Invitado' : ''} (HCP {(rounds.find(item => item.round.id === showAddPlayerModal)?.round.num_holes === 18 ? 2 : 1) * player.exact_handicap}){player.handicap_pending ? ' · Pendiente' : ''}
                   </option>
                 ))}
                 <option value="new">+ Crear nuevo jugador</option>
@@ -891,6 +907,14 @@ export const ActiveRoundsViewer: React.FC<ActiveRoundsViewerProps> = ({
 
             {selectedPlayerId === 'new' && (
               <div className="space-y-3 mb-4 p-3 bg-card-2 rounded-lg">
+                {currentGroup && <div>
+                  <label className="flex items-center gap-2 text-sm font-semibold text-ink-2">
+                    <input type="checkbox" checked={newPlayerIsGuest} disabled={!canManagePlayers} onChange={event => setNewPlayerIsGuest(event.target.checked)} />
+                    Jugador invitado
+                  </label>
+                  <p className="text-xs text-ink-3 mt-1">{newPlayerIsGuest ? 'Queda en el historial sin contar en estadísticas, cervezas ni ajustes de hándicap.' : 'Cuenta como miembro del grupo.'}</p>
+                </div>}
+
                 <div>
                   <label className="block text-sm font-medium text-ink-2 mb-1">
                     Nombre
@@ -905,7 +929,7 @@ export const ActiveRoundsViewer: React.FC<ActiveRoundsViewerProps> = ({
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-ink-2 mb-1">
-                    Handicap Exacto
+                    Hándicap Exacto ({rounds.find(item => item.round.id === showAddPlayerModal)?.round.num_holes || 9} hoyos)
                   </label>
                   <input
                     type="number"

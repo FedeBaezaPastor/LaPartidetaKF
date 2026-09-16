@@ -210,7 +210,7 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
                             index === 0 ? 'text-title' : 'text-ink'
                           }`}
                         >
-                          {stat.player.name}
+                          {stat.player.name}{stat.player.is_guest && <span className="ml-1 text-xs font-normal text-ink-3">(Invitado)</span>}
                         </p>
                         <div className="flex gap-4 text-sm text-ink-3">
                           <span>HCP: {stat.player.playing_handicap}</span>
@@ -375,7 +375,7 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({
                                 <div className="flex items-center gap-3">
                                   <span className="font-bold text-ink-3 w-6">{index + 1}</span>
                                   <div>
-                                    <p className="font-semibold text-ink">{item.player.name}</p>
+                                    <p className="font-semibold text-ink">{item.player.name}{item.player.is_guest && <span className="ml-1 text-xs font-normal text-ink-3">(Invitado)</span>}</p>
                                     <p className="text-xs text-ink-3">
                                       HCP {item.player.playing_handicap} • {item.stats.scoresEntered}{' '}
                                       hoyos

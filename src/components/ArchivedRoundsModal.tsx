@@ -76,7 +76,7 @@ export const ArchivedRoundsModal: React.FC<ArchivedRoundsModalProps> = ({
                 const allPlayers = new Set<string>();
                 dayRounds.forEach((round) => {
                   round.final_ranking?.forEach((player: any) => {
-                    allPlayers.add(player.player_name);
+                    allPlayers.add(player.player_db_id || player.player_name);
                   });
                 });
 

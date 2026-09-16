@@ -110,6 +110,8 @@ export interface ProShopPurchase {
 }
 
 export interface Player {
+  is_guest?: boolean;
+  can_manage?: boolean;
   auth_user_id?: string | null;
   handicap_pending?: boolean;
   member_revision?: number;
@@ -122,6 +124,7 @@ export interface Player {
 }
 
 export interface RoundPlayer {
+  is_guest?: boolean;
   id: string;
   round_id: string;
   user_id?: string;
